@@ -49,6 +49,62 @@ npm run vectorize --prefix server -- --brand acme
 
 Then curate `brands/acme/brand.json` and pick the brand in the dashboard.
 
+## Test
+
+Reference-based runs on the Xero tenant. Left: the reference handed to the copilot. Right: what it produced as editable pages, each validated by the brand linter and the visual QA loop. All files are under [test/](test/).
+
+### Prompt 1 · “Create different images like this”
+
+Each reference was attached on its own and the prompt sent once. The copilot writes a brief from the reference with GPT-4.1, then builds the pages from Xero's own assets, fonts and palette.
+
+**Image 1** — input, then responses
+
+<p>
+  <img src="test/p1-i1.webp" width="300" alt="Reference 1: florist photo with invoice card and charms">
+  &nbsp;→&nbsp;
+  <img src="test/output/p1/image1-1.png" width="300" alt="Response 1a">
+  <img src="test/output/p1/image1-2.png" width="300" alt="Response 1b">
+</p>
+
+**Image 2** — input, then responses
+
+<p>
+  <img src="test/p1-i2.png" width="300" alt="Reference 2">
+  &nbsp;→&nbsp;
+  <img src="test/output/p1/image2-1.png" width="300" alt="Response 2a">
+  <img src="test/output/p1/image2-2.png" width="300" alt="Response 2b">
+</p>
+
+**Image 3** — input, then responses
+
+<p>
+  <img src="test/p1-i3.png" width="300" alt="Reference 3">
+  &nbsp;→&nbsp;
+  <img src="test/output/p1/image3-1.png" width="300" alt="Response 3a">
+  <img src="test/output/p1/image3-2.png" width="300" alt="Response 3b">
+  <img src="test/output/p1/image3-3.png" width="300" alt="Response 3c">
+</p>
+
+**Image 4** — input, then responses
+
+<p>
+  <img src="test/p1-i4.webp" width="300" alt="Reference 4">
+  &nbsp;→&nbsp;
+  <img src="test/output/p1/image4-1.png" width="300" alt="Response 4a">
+  <img src="test/output/p1/image4-2.png" width="300" alt="Response 4b">
+</p>
+
+### Prompt 2 · competitor ad, remade for Xero
+
+A QuickBooks ad as the reference. The copilot keeps the structure (offer on one side, person on the other) and swaps in Xero's palette, fonts, logo, illustrations and copy.
+
+<p>
+  <img src="test/p2.webp" width="420" alt="Reference: QuickBooks 90% off ad">
+  &nbsp;→&nbsp;
+  <img src="test/output/p2/out-1.png" width="300" alt="Xero remake A">
+  <img src="test/output/p2/out-2.png" width="300" alt="Xero remake B">
+</p>
+
 ## More
 
 - [docs/how-it-works.html](docs/how-it-works.html): presentation page with the flow, models and a code map per request.
