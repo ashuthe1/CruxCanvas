@@ -6,6 +6,9 @@ import { createProviders } from './providers/index.js';
 import { defaultLintEngine } from './lint/index.js';
 import { createApi } from './api/routes.js';
 import { GENERATED_DIR } from './agent/tools/generateImage.js';
+import path from 'path';
+import { createProjectsApi } from './projects/routes.js';
+import { FsProjectRepository } from './projects/fsProjectRepository.js';
 
 const app = express();
 app.use(cors());
@@ -16,6 +19,7 @@ app.use('/brands', express.static(BRANDS_DIR, { maxAge: '1d' }));
 app.use('/generated', express.static(GENERATED_DIR, { maxAge: '1d' }));
 
 const brands = brandRepository();
+app.use('/api/projects', createProjectsApi(new FsProjectRepository(process.env.PROJECTS_DIR || path.join(process.cwd(), 'data', 'projects'))));
 app.use('/api', createApi({ brands, providers: createProviders(), lint: defaultLintEngine }));
 
 const PORT = Number(process.env.PORT || 8787);

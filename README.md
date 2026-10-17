@@ -22,7 +22,8 @@ illustrations (transparent PNG) and photos, never for typography.
 │ brand switcher · Brand kit panel · copilot chat        │        │ api/routes.ts        brand-scoped REST + NDJSON agent stream │
 │ report cards (rationale, auto-fixes, checks)           │ ◄────► │ agent/runAgent.ts    planner loop + tool registry            │
 │ Brand check tab (live lint, ⚡auto-fix, ✨fix with AI) │        │ agent/tools/*        create_design · update_design ·         │
-│ autosave per brand · zip export · snapshot replies     │        │                      generate_image · review_render · …      │
+│ ⑂ Iterate picker + comparison grid (keep / discard)    │        │                      generate_image · review_render · …      │
+│ autosave per brand · zip export · snapshot replies     │        │ iterate/             dimension registry + op-set validator   │
 └────────────────────────────────────────────────────────┘        │ render/renderer.ts   design spec → layers (font metrics,     │
                                                                   │                      stacking, cropping, collision nudging)  │
   brands/<id>/            one folder per tenant                   │ lint/engine.ts       rule registry → issues + fix ops        │
@@ -42,6 +43,7 @@ illustrations (transparent PNG) and photos, never for typography.
 | New planner / vision / image model | `IPlannerModel` / `IVisionModel` / `IImageModel` | `providers/index.ts` |
 | New brand rule | `LintRule` (one file) | `lint/index.ts` |
 | New agent capability | `AgentTool` (one file) | `agent/tools/index.ts` |
+| New A/B test dimension | `IterationDimension` (brief + op whitelist) | `iterate/dimensions.ts` |
 | New design element | add to `render/schema.ts` + a case in `renderer.ts` | — |
 
 Everything brand-specific flows through the `BrandKit` type; no module knows which company it serves. The user picks
@@ -81,6 +83,27 @@ text contrast, safe zones and margins. The report scores the creative, lists fix
 palette and the extracted copy. **Remake on-brand** feeds the scanned image as a reference plus the fix list to the
 copilot, which rebuilds it as an editable page.
 
+### Winner iterations (inspired by GetCrux's creative-testing loop)
+Marketers don't want four random variants, they want to learn *what* moved the needle. **⑂ Iterate** (copilot header, or
+the chip on any report card) duplicates the current page N times and changes **exactly one dimension per copy**: a new
+**hook** (headline angle), another brand **colourway**, different **CTA** copy, swapped **imagery**, or another
+**layout** recipe. `POST /api/iterate` streams the same events as the agent: a `duplicate_page` event per variant (the
+editor clones the page with suffixed element ids), then one planner call per dimension returns an op set per variant.
+Each op set passes a deterministic whitelist (`validateVariantOps`: a hook variant may only change headline/subhead
+text, a colourway variant only fills, background and logo colourway, a layout variant only geometry…), out-of-scope
+changes are dropped and reported, text is re-measured with the real fonts and the card re-stacked, and the page goes
+through the usual `validateAndFix`. Variant pages carry `custom.variantOf` and `custom.dimension`. The comparison grid
+shows the original and every variant side by side with lint scores, the dimension tested and the ignored changes;
+**keep** / **discard** per variant. The chat can trigger it too (`iterate_design` tool: "give me 3 headline variants").
+
+### Workspace persistence & dashboard
+Every editor session is a **project** persisted through `/api/projects` (file-backed `IProjectRepository`, swappable for a
+DB): canvas JSON, page scores, a thumbnail, the full copilot conversation including report cards, and every brand scan
+with its report. The **dashboard** (home screen) lists sessions across brands with thumbnails, average brand score,
+status (draft / in progress / in review / done), stars, search, duplicate / rename / delete, and a "recent brand scans"
+feed. Opening a session restores the canvas and the chat exactly where you left off; the editor top bar shows the
+title, star, status and last-saved time. Autosave is debounced and survives dev-server restarts.
+
 ## Run it
 
 ```bash
@@ -116,10 +139,11 @@ server/src/providers    model adapters
 server/src/render       spec schema, text measurement, renderer
 server/src/lint         engine + rules
 server/src/agent        prompt, tools, loop, reference analysis, snapshot round-trip
+server/src/iterate      winner iterations: dimension registry, op-set validator, runner
 server/src/api          express routes
 server/src/scripts      onboarding CLIs
 server/test             vitest suites
-web/src/components      CopilotPanel, LintPanel, ReportCard
+web/src/components      CopilotPanel, LintPanel, ReportCard, IteratePanel (picker + comparison grid)
 web/src/sections        Brand kit side panel
 web/src/lib             api client, brand selection, canvas ops, autosave
 ```

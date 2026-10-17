@@ -20,6 +20,8 @@ export type AgentEvent =
   | { type: 'size'; width: number; height: number }
   | { type: 'snapshot_request'; pageId: string; requestId: string }
   | { type: 'report'; pageId: string; report: DesignReport }
+  | { type: 'duplicate_page'; sourcePageId: string; pageId: string; suffix: string; custom: Record<string, any> }
+  | { type: 'variant'; pageId: string; sourcePageId: string; dimension: string; label: string; score: number; dropped: string[]; rejected?: string }
   | { type: 'message'; text: string }
   | { type: 'error'; text: string }
   | { type: 'done' };
@@ -90,8 +92,8 @@ export type AgentRequest = {
 };
 
 /** POST and stream newline-delimited JSON events */
-export async function streamAgent(req: AgentRequest, onEvent: (e: AgentEvent) => void, signal?: AbortSignal) {
-  const res = await fetch('/api/agent', { method: 'POST', headers: headers({ 'content-type': 'application/json' }), body: JSON.stringify(req), signal });
+export async function streamNDJSON(url: string, body: any, onEvent: (e: AgentEvent) => void, signal?: AbortSignal) {
+  const res = await fetch(url, { method: 'POST', headers: headers({ 'content-type': 'application/json' }), body: JSON.stringify(body), signal });
   if (!res.ok || !res.body) {
     onEvent({ type: 'error', text: `Server error ${res.status}` });
     return;
@@ -99,10 +101,23 @@ export async function streamAgent(req: AgentRequest, onEvent: (e: AgentEvent) =>
   const reader = res.body.getReader();
   const dec = new TextDecoder();
   let buf = '';
+  // watchdog: if the server goes silent (e.g. dev restart killed the run) surface it instead of spinning forever
+  const IDLE_MS = 120000;
   while (true) {
-    const { value, done } = await reader.read();
+    let timer: any;
+    const idle = new Promise<{ value?: Uint8Array; done: boolean; timeout?: true }>((r) => (timer = setTimeout(() => r({ done: true, timeout: true }), IDLE_MS)));
+    const chunk = await Promise.race([reader.read(), idle]);
+    clearTimeout(timer);
+    if ((chunk as any).timeout) {
+      try {
+        await reader.cancel();
+      } catch {}
+      onEvent({ type: 'error', text: 'The copilot stopped responding (server restarted?). Please try again.' });
+      return;
+    }
+    const { value, done } = chunk as { value?: Uint8Array; done: boolean };
     if (done) break;
-    buf += dec.decode(value, { stream: true });
+    buf += dec.decode(value!, { stream: true });
     let idx;
     while ((idx = buf.indexOf('\n')) >= 0) {
       const line = buf.slice(0, idx).trim();
@@ -114,3 +129,11 @@ export async function streamAgent(req: AgentRequest, onEvent: (e: AgentEvent) =>
     }
   }
 }
+
+export const streamAgent = (req: AgentRequest, onEvent: (e: AgentEvent) => void, signal?: AbortSignal) => streamNDJSON('/api/agent', req, onEvent, signal);
+
+// ---- winner iterations (controlled A/B variants) ----
+export type IterationDimension = { id: string; label: string; blurb: string };
+export const getIterationDimensions = () => getJSON<IterationDimension[]>('/api/iterate/dimensions');
+export type IterateRequest = { page: any; width: number; height: number; dimensions: string[]; count: number };
+export const streamIterate = (req: IterateRequest, onEvent: (e: AgentEvent) => void, signal?: AbortSignal) => streamNDJSON('/api/iterate', req, onEvent, signal);

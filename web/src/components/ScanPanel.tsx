@@ -2,6 +2,23 @@ import { useRef, useState } from 'react';
 import { getReferences, scanCreative, type ScanReport } from '../lib/api';
 import { getBrandId } from '../lib/brand';
 import { pageToDataURL } from '../lib/canvas';
+import { timeAgo, type ScanRecord } from '../lib/projects';
+
+function shrink(dataUrl: string, max: number): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s);
+      c.height = Math.round(img.height * s);
+      c.getContext('2d')!.drawImage(img, 0, 0, c.width, c.height);
+      resolve(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
 
 async function urlToDataUrl(url: string): Promise<string> {
   const blob = await (await fetch(url)).blob();
@@ -12,26 +29,46 @@ async function urlToDataUrl(url: string): Promise<string> {
   });
 }
 
+const color = (s: number) => (s >= 80 ? '#16a34a' : s >= 55 ? '#f59e0b' : '#ef4444');
+
 /**
  * Brand scan: audit any creative (upload, reference, or the current page as pixels)
  * against the active brand, then remake it on-brand with one click.
  */
-export function ScanPanel({ store, brandName, onRemake }: { store: any; brandName: string; onRemake: (brief: string, image: string) => void }) {
+export function ScanPanel({
+  store,
+  brandName,
+  onRemake,
+  scans = [],
+  onScanned,
+}: {
+  store: any;
+  brandName: string;
+  onRemake: (brief: string, image: string) => void;
+  scans?: ScanRecord[];
+  onScanned?: (rec: Omit<ScanRecord, 'id' | 'createdAt'>) => void;
+}) {
   const [image, setImage] = useState<string | null>(null);
   const [report, setReport] = useState<ScanReport | null>(null);
+  const sourceRef = useRef<'upload' | 'library' | 'page'>('upload');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lib, setLib] = useState<{ name: string; url: string }[] | null>(null);
   const [showLib, setShowLib] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const run = async (dataUrl: string) => {
+  const run = async (dataUrl: string, source: 'upload' | 'library' | 'page' = 'upload') => {
+    sourceRef.current = source;
     setImage(dataUrl);
     setReport(null);
     setError(null);
     setBusy(true);
     try {
-      setReport(await scanCreative(dataUrl));
+      const rep = await scanCreative(dataUrl);
+      setReport(rep);
+      // keep a small thumbnail with the record
+      const thumb = await shrink(dataUrl, 240);
+      onScanned?.({ source, thumb, report: rep });
     } catch (e: any) {
       setError(e?.message || String(e));
     } finally {
@@ -43,17 +80,15 @@ export function ScanPanel({ store, brandName, onRemake }: { store: any; brandNam
     const f = files?.[0];
     if (!f) return;
     const r = new FileReader();
-    r.onload = () => run(String(r.result));
+    r.onload = () => run(String(r.result), 'upload');
     r.readAsDataURL(f);
   };
 
   const scanCurrentPage = async () => {
     if (!store.activePage?.children.length) return setError('The current page is empty.');
     await store.waitLoading?.();
-    run(await pageToDataURL(store, store.activePage.id, 0.6));
+    run(await pageToDataURL(store, store.activePage.id, 0.6), 'page');
   };
-
-  const color = (s: number) => (s >= 85 ? '#16a34a' : s >= 60 ? '#f59e0b' : '#ef4444');
 
   return (
     <div className="scan">
@@ -90,10 +125,39 @@ export function ScanPanel({ store, brandName, onRemake }: { store: any; brandNam
           {showLib && lib && (
             <div className="ref-lib">
               {lib.map((r) => (
-                <img key={r.url} src={r.url} title={r.name} onClick={async () => run(await urlToDataUrl(r.url))} />
+                <img key={r.url} src={r.url} title={r.name} onClick={async () => run(await urlToDataUrl(r.url), 'library')} />
               ))}
               {!lib.length && <div className="hint">No references for this brand.</div>}
             </div>
+          )}
+          {scans.length > 0 && (
+            <>
+              <h5>Previous scans in this session</h5>
+              <div className="scan-history">
+                {scans.map((s) => (
+                  <button
+                    key={s.id}
+                    className="scan-row"
+                    onClick={() => {
+                      setImage(s.thumb);
+                      setReport(s.report);
+                      setError(null);
+                    }}
+                  >
+                    <img src={s.thumb} alt="" />
+                    <span className="ring" style={{ background: color(s.report.score) }}>
+                      {s.report.score}
+                    </span>
+                    <div>
+                      <b>{s.report.extracted?.headline || s.report.summary?.slice(0, 50) || 'Creative'}</b>
+                      <small>
+                        {s.report.verdict.replace('-', ' ')} · {s.source} · {timeAgo(s.createdAt)}
+                      </small>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </>
       )}

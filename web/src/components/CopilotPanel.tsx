@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { streamAgent, lintPage, getBrand, listBrands, getReferences, sendSnapshotReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport } from '../lib/api';
-import { addPageFromJSON, applyOps, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage } from '../lib/canvas';
+import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport } from '../lib/api';
+import { addPageFromJSON, applyOps, duplicatePage, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage } from '../lib/canvas';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
-import { clearCanvas } from '../lib/persist';
 import { PROMPT_EVENT } from '../sections/TemplatesSection';
 import { LintPanel } from './LintPanel';
 import { ReportCard } from './ReportCard';
 import { ScanPanel } from './ScanPanel';
+import { addProjectScan, type Project } from '../lib/projects';
+import { IteratePicker, IterationGrid, type VariantCard } from './IteratePanel';
 
 type Msg =
   | { kind: 'user'; text: string; refs?: string[] }
   | { kind: 'assistant'; text: string }
   | { kind: 'status'; text: string; done?: boolean }
-  | { kind: 'report'; report: DesignReport & { pageId: string; thumb?: string } };
+  | { kind: 'report'; report: DesignReport & { pageId: string; thumb?: string } }
+  | { kind: 'iteration'; count: number };
+
+type Iteration = { original: VariantCard; variants: VariantCard[]; busy: boolean };
 
 const SUGGESTIONS = (brand: string) => [
   `Create a 1080×1080 Instagram post announcing a new ${brand} feature`,
@@ -37,12 +41,23 @@ async function urlToDataUrl(url: string): Promise<string> {
   });
 }
 
-export const CopilotPanel = observer(({ store }: { store: any }) => {
-  const [tab, setTab] = useState<'chat' | 'lint' | 'scan'>('chat');
+export type CopilotProps = {
+  store: any;
+  /** the persisted session this editor has open */
+  project?: Project | null;
+  initialTab?: 'chat' | 'lint' | 'scan';
+  /** persist a partial update of the project (messages, brandId, pageScores) */
+  onProjectChange?: (patch: Partial<Project>) => void;
+};
+
+export const CopilotPanel = observer(({ store, project, initialTab, onProjectChange }: CopilotProps) => {
+  const [tab, setTab] = useState<'chat' | 'lint' | 'scan'>(initialTab || 'chat');
   const [brands, setBrands] = useState<BrandSummary[]>([]);
   const [brand, setBrand] = useState<Brand | null>(null);
-  const [brandId, setBrandIdState] = useState(getBrandId());
-  const [msgs, setMsgs] = useState<Msg[]>([]);
+  const [brandId, setBrandIdState] = useState(project?.brandId || getBrandId());
+  const [msgs, setMsgs] = useState<Msg[]>(() => (project?.messages?.length ? (project.messages as Msg[]) : []));
+  const restoredRef = useRef(!!project?.messages?.length);
+  const pageScoresRef = useRef<Record<string, number>>(project?.pageScores || {});
   const [input, setInput] = useState('');
   const [refs, setRefs] = useState<string[]>([]);
   const [useCanvasAsRef, setUseCanvasAsRef] = useState(false);
@@ -51,6 +66,10 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
   const [lint, setLint] = useState<LintResult | null>(null);
   const [refLib, setRefLib] = useState<{ name: string; url: string }[] | null>(null);
   const [showRefLib, setShowRefLib] = useState(false);
+  const [showIterate, setShowIterate] = useState(false);
+  const [iteration, setIteration] = useState<Iteration | null>(null);
+  const [showGrid, setShowGrid] = useState(false);
+  const [dimLabels, setDimLabels] = useState<Record<string, string>>({});
   const logRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -58,6 +77,9 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
   // brand bootstrap
   useEffect(() => {
     listBrands().then(setBrands).catch(console.error);
+    getIterationDimensions()
+      .then((d) => setDimLabels(Object.fromEntries(d.map((x) => [x.id, x.label]))))
+      .catch(console.error);
   }, []);
   useEffect(() => {
     getBrand(brandId)
@@ -65,7 +87,8 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
         setBrand(b);
         registerBrandFonts(b);
         setRefLib(null);
-        setMsgs([{ kind: 'assistant', text: `Hi! I'm the ${b.name} brand copilot. Describe what you want, attach a reference, pick a layout from Templates, or select something on the canvas and tell me how to change it.` }]);
+        if (restoredRef.current) restoredRef.current = false; // keep the restored conversation
+        else setMsgs([{ kind: 'assistant', text: `Hi! I'm the ${b.name} brand copilot. Describe what you want, attach a reference, pick a layout from Templates, or select something on the canvas and tell me how to change it.` }]);
       })
       .catch(async () => {
         // stored brand no longer exists → fall back to the first available one
@@ -77,7 +100,18 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
   const switchBrand = (id: string) => {
     setBrandId(id);
     setBrandIdState(id);
+    if (project && id !== project.brandId) onProjectChange?.({ brandId: id });
   };
+
+  // persist the conversation (debounced; statuses are kept but closed)
+  useEffect(() => {
+    if (!project || !onProjectChange) return;
+    // never let a fresh instance's default greeting clobber a real saved conversation
+    const hasUserTurn = msgs.some((m) => m.kind === 'user');
+    if (!hasUserTurn && (project.messages?.length || 0) > msgs.length) return;
+    const t = setTimeout(() => onProjectChange({ messages: msgs.map((m) => (m.kind === 'status' ? { ...m, done: true } : m)) }), 900);
+    return () => clearTimeout(t);
+  }, [msgs]);
 
   // prompts coming from the side panel (Templates)
   useEffect(() => {
@@ -139,6 +173,8 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
         break;
       case 'lint':
         setLint(e.result);
+        pageScoresRef.current = { ...pageScoresRef.current, [e.pageId]: e.result.score };
+        onProjectChange?.({ pageScores: pageScoresRef.current });
         break;
       case 'report': {
         const entry: Msg = { kind: 'report', report: { ...e.report, pageId: e.pageId } };
@@ -206,6 +242,63 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
     }
   };
 
+  const thumbOf = async (pageId: string, ratio = 0.25) => {
+    await store.waitLoading?.();
+    return pageToDataURL(store, pageId, ratio);
+  };
+  const patchVariant = (pageId: string, patch: Partial<VariantCard>) =>
+    setIteration((it) => (it ? { ...it, variants: it.variants.map((v) => (v.pageId === pageId ? { ...v, ...patch } : v)) } : it));
+
+  /** Winner iterations: duplicate the active page N times, one controlled change per copy */
+  const runIteration = async (dimensions: string[], count: number) => {
+    const page = store.activePage;
+    if (!page || !page.children.length || busy) return;
+    setShowIterate(false);
+    setBusy(true);
+    setTab('chat');
+    const original: VariantCard = { pageId: page.id, label: page.custom?.name || 'Current page', score: lint?.score, kept: true };
+    setIteration({ original, variants: [], busy: true });
+    setShowGrid(true);
+    setMsgs((m) => m.concat({ kind: 'user', text: `Winner iterations: ${count} variant${count > 1 ? 's' : ''} varying ${dimensions.map((d) => (dimLabels[d] || d).toLowerCase()).join(', ')}` }));
+    thumbOf(page.id).then((thumb) => setIteration((it) => (it ? { ...it, original: { ...it.original, thumb } } : it))).catch(() => {});
+    abortRef.current = new AbortController();
+    const onEvent = (e: AgentEvent) => {
+      if (e.type === 'duplicate_page') {
+        duplicatePage(store, e.sourcePageId, e.pageId, e.suffix, e.custom);
+        setIteration((it) => (it ? { ...it, variants: it.variants.concat({ pageId: e.pageId, dimension: e.custom?.dimension, label: '', kept: null }) } : it));
+      } else if (e.type === 'variant') {
+        if (e.rejected) {
+          try {
+            store.deletePages([e.pageId]);
+          } catch {}
+          patchVariant(e.pageId, { label: e.label, rejected: e.rejected, kept: false });
+        } else {
+          patchVariant(e.pageId, { label: e.label, score: e.score, dropped: e.dropped });
+          setTimeout(() => thumbOf(e.pageId).then((thumb) => patchVariant(e.pageId, { thumb })).catch(() => {}), 300);
+        }
+      } else {
+        handleEvent(e);
+      }
+    };
+    try {
+      await streamIterate({ page: serializePage(page), width: store.width, height: store.height, dimensions, count }, onEvent, abortRef.current.signal);
+    } catch (err: any) {
+      if (err?.name !== 'AbortError') handleEvent({ type: 'error', text: String(err?.message || err) });
+    } finally {
+      setBusy(false);
+      setIteration((it) => (it ? { ...it, busy: false } : it));
+      setMsgs((m) => closeStatuses(m).concat({ kind: 'iteration', count }));
+      store.selectPage(page.id);
+    }
+  };
+  const keepVariant = (pageId: string) => patchVariant(pageId, { kept: true });
+  const discardVariant = (pageId: string) => {
+    try {
+      store.deletePages([pageId]);
+    } catch {}
+    patchVariant(pageId, { kept: false });
+  };
+
   const onFiles = (files: FileList | null) => {
     if (!files) return;
     Array.from(files).forEach((f) => {
@@ -238,19 +331,34 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
             </option>
           ))}
         </select>
+        <button
+          className={`btn-ghost ${showIterate ? 'on' : ''}`}
+          title="Winner iterations: A/B variants of the current page that change exactly one thing each"
+          disabled={busy || !store.activePage?.children?.length}
+          onClick={() => setShowIterate((v) => !v)}
+        >
+          ⑂ Iterate
+        </button>
         <button className="btn-ghost" title="Download all pages as PNG (zip)" onClick={() => exportAllAsZip(store, `${brandId}-designs`)}>
           ⬇
         </button>
-        <button
-          className="btn-ghost"
-          title="New blank canvas (clears this brand's autosaved work)"
-          onClick={() => {
-            if (confirm('Start a new blank canvas? Current pages will be cleared.')) clearCanvas(store, brandId);
-          }}
-        >
-          ✚
-        </button>
       </div>
+      {showIterate && <IteratePicker onRun={runIteration} onClose={() => setShowIterate(false)} disabled={busy} />}
+      {showGrid && iteration && (
+        <IterationGrid
+          original={iteration.original}
+          variants={iteration.variants}
+          busy={iteration.busy}
+          dimensionLabel={(id) => (id && dimLabels[id]) || id || ''}
+          onKeep={keepVariant}
+          onDiscard={discardVariant}
+          onJump={(id) => {
+            store.selectPage(id);
+            setShowGrid(false);
+          }}
+          onClose={() => setShowGrid(false)}
+        />
+      )}
       <div className="copilot-tabs">
         <button className={tab === 'chat' ? 'active' : ''} onClick={() => setTab('chat')}>
           Chat
@@ -267,6 +375,16 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
         <ScanPanel
           store={store}
           brandName={brand?.name || 'the'}
+          scans={project?.scans || []}
+          onScanned={async (rec) => {
+            if (!project) return;
+            try {
+              const saved = await addProjectScan(project.id, rec);
+              onProjectChange?.({ scans: [saved, ...(project.scans || [])] });
+            } catch (e) {
+              console.warn('scan not saved', e);
+            }
+          }}
           onRemake={(brief, image) => {
             setTab('chat');
             setRefs([image]);
@@ -284,7 +402,22 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
                   <span className="dot" /> {m.text}
                 </div>
               ) : m.kind === 'report' ? (
-                <ReportCard key={i} report={m.report} onSelectPage={() => store.selectPage(m.report.pageId)} />
+                <ReportCard
+                  key={i}
+                  report={m.report}
+                  onSelectPage={() => store.selectPage(m.report.pageId)}
+                  onIterate={() => {
+                    store.selectPage(m.report.pageId);
+                    setShowIterate(true);
+                  }}
+                />
+              ) : m.kind === 'iteration' ? (
+                <div key={i} className="msg assistant">
+                  Compared {m.count} controlled variant{m.count > 1 ? 's' : ''} against the original.{' '}
+                  <button className="link" style={{ background: 'none', border: 0, color: 'var(--bloom-blue)', cursor: 'pointer', padding: 0, font: 'inherit' }} onClick={() => setShowGrid(true)}>
+                    Open comparison
+                  </button>
+                </div>
               ) : (
                 <div key={i} className={`msg ${m.kind}`}>
                   {renderLite(m.text)}
