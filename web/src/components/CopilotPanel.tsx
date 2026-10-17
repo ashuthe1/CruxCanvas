@@ -24,8 +24,8 @@ type Iteration = { original: VariantCard; variants: VariantCard[]; busy: boolean
 
 const SUGGESTIONS = (brand: string) => [
   `Create a 1080×1080 Instagram post announcing a new ${brand} feature`,
-  `Create a 1200×1200 LinkedIn post: 3 reasons teams switch to ${brand}, as a checklist`,
-  `Create a 1200×627 LinkedIn post inviting people to a ${brand} webinar next Thursday`,
+  `Create a 1200×627 LinkedIn post with one bold headline about how ${brand} saves teams time`,
+  `Create a 1200×627 LinkedIn post inviting people to a ${brand} webinar, with a short CTA`,
   'Create a 1200×628 LinkedIn ad with a 3-month free offer',
   'Create 4 different images like this',
   'Make the headline punchier and move the logo to the bottom right',
