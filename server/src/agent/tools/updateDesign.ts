@@ -115,6 +115,9 @@ export const updateDesignTool: AgentTool = {
     if (restack.length) ctx.state.trace?.({ kind: 'fix', title: `Re-stacked card contents (${restack.length} position${restack.length > 1 ? 's' : ''} adjusted) so nothing inside the card overlaps`, data: restack });
     ctx.emit({ type: 'ops', pageId: page.id, ops: ops.concat(restack) });
     (ctx.state.touched ||= new Set<string>()).add(page.id);
+    // text/colour-only edits need fewer visual QA rounds than layout changes (cost + latency)
+    const GEOMETRY = ['x', 'y', 'width', 'height', 'fontSize', 'src', 'assetId', 'rotation'];
+    if (rawOps.some((o) => o.op !== 'set' || GEOMETRY.some((k) => (o as any).props?.[k] !== undefined))) ctx.state.geometryTouched = true;
     const { report, lint } = validateAndFix(ctx, page, true);
     ctx.emit({ type: 'lint', pageId: page.id, result: lint });
     ctx.emit({ type: 'report', pageId: page.id, report: { ...report, name: 'Edit applied' } });

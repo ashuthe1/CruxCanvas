@@ -215,7 +215,9 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
   const qaTarget = touched.size === 1 ? [...touched][0] : touched.has(input.canvas.activePageId) ? input.canvas.activePageId : null;
   if (qaTarget && !(input.variants && input.variants > 1)) {
     let lastSignature = '';
-    for (let round = 0; round < VISUAL_QA_ROUNDS; round++) {
+    // layout changes get the full budget; copy/colour-only edits are checked twice at most
+    const maxRounds = ctx.state.geometryTouched ? VISUAL_QA_ROUNDS : 2;
+    for (let round = 0; round < maxRounds; round++) {
       if (signal?.aborted) return;
       const page = pages.get(qaTarget);
       if (!page) break;
@@ -238,7 +240,7 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
       }
       const errors = qa.issues.filter((i) => i.severity === 'error');
       trace({ kind: 'vision', title: errors.length ? `Visual QA round ${round + 1}: ${errors.length} defect${errors.length > 1 ? 's' : ''} to fix` : `Visual QA round ${round + 1}: render looks clean${qa.issues.length ? ` (${qa.issues.length} minor note${qa.issues.length > 1 ? 's' : ''})` : ''}`, detail: qa.summary, data: qa.issues, ms: Date.now() - t0 });
-      if (!errors.length || round === VISUAL_QA_ROUNDS - 1) break;
+      if (!errors.length || round === maxRounds - 1) break;
       // stop early when a round changed nothing (same defects reported twice) — the planner is stuck
       const signature = errors.map((e) => `${e.elementIds.join('+')}:${e.problem.slice(0, 40)}`).sort().join('|');
       if (signature === lastSignature) {

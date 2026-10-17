@@ -92,6 +92,7 @@ export const createDesignTool: AgentTool = {
     page.background = compact.background;
     ctx.pages.set(page.id, compact);
     (ctx.state.touched ||= new Set<string>()).add(page.id);
+    ctx.state.geometryTouched = true;
 
     ctx.emit({ type: 'page', page, replacePageId: replaceId });
     ctx.emit({ type: 'lint', pageId: page.id, result: lint });
