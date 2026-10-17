@@ -1,0 +1,181 @@
+{
+  "id": "crux",
+  "name": "Crux",
+  "colors": [
+    {
+      "name": "Black",
+      "hex": "#0B1F2A",
+      "role": "sampled from 3 assets (33% of sampled pixels) — review"
+    },
+    {
+      "name": "Teal",
+      "hex": "#0E8C8C",
+      "role": "sampled from 4 assets (31% of sampled pixels) — review"
+    },
+    {
+      "name": "White",
+      "hex": "#FFFFFF",
+      "role": "sampled from 2 assets (21% of sampled pixels) — review"
+    },
+    {
+      "name": "Pink",
+      "hex": "#FF7563",
+      "role": "sampled from 2 assets (13% of sampled pixels) — review"
+    },
+    {
+      "name": "Beige",
+      "hex": "#E9D4B1",
+      "role": "sampled from 2 assets (2% of sampled pixels) — review"
+    },
+    {
+      "name": "Dark Green",
+      "hex": "#116B71",
+      "role": "sampled from 1 asset (0% of sampled pixels) — review"
+    }
+  ],
+  "fonts": {
+    "headline": {
+      "family": "CruxHeadline",
+      "file": "fonts/headline.ttf"
+    },
+    "body": {
+      "family": "CruxBody",
+      "file": "fonts/body.ttf"
+    },
+    "bodyBold": {
+      "family": "CruxBodyBold",
+      "file": "fonts/bodybold.ttf"
+    },
+    "notes": "Placeholder fonts copied from brands/_defaults/fonts (Inter-family: headline ExtraBold, body Regular/Bold). Replace the .ttf files with the brand's licensed fonts and keep the family names. Headlines: tight line-height ~1.0, sentence case. Never use other font families."
+  },
+  "logo": {
+    "assets": {
+      "black": "logo_crux_wordmark_ink",
+      "teal": "logo_crux_wordmark_teal",
+      "white": "logo_crux_wordmark_white"
+    },
+    "colourways": {
+      "on-light": "black",
+      "on-dark": "white",
+      "on-photo-or-busy": "use the pill: light pill with black logo, or dark pill with white logo"
+    },
+    "aspectRatio": 3.5,
+    "minWidthRatio": 0.14,
+    "preferredWidthRatio": 0.2,
+    "clearSpace": "Keep clear space of at least the logo's cap height on all sides; nothing overlaps the logo.",
+    "placement": "Bottom-left or bottom-right corner, aligned to the content margin. Exactly one logo per design.",
+    "variantColors": {
+      "black": "#0B1F2A",
+      "teal": "#0E8C8C",
+      "white": "#FFFFFF"
+    }
+  },
+  "layout": {
+    "marginRatio": 0.06,
+    "card": {
+      "fill": "#FFFFFF",
+      "cornerRadiusRatio": 0.03,
+      "paddingRatio": 0.05,
+      "notes": "Headline + CTA usually sit inside a rounded content card (#FFFFFF) on a #FF7563 or #116B71 background with a brand shape behind it."
+    },
+    "cta": {
+      "style": "pill",
+      "onLight": {
+        "bg": "#116B71",
+        "text": "#FFFFFF"
+      },
+      "onDark": {
+        "bg": "#FF7563",
+        "text": "#116B71"
+      },
+      "onNavy": {
+        "bg": "#FF7563",
+        "text": "#116B71"
+      },
+      "fontSizeRatio": 0.024,
+      "notes": "Short imperative copy: 'Get started', 'Find out more', 'Try Crux for free'."
+    },
+    "headline": {
+      "fontSizeRatio": 0.072,
+      "maxLines": 3,
+      "maxChars": 60,
+      "lineHeight": 1.02
+    },
+    "subhead": {
+      "fontSizeRatio": 0.028,
+      "lineHeight": 1.3
+    },
+    "legal": {
+      "fontSizeRatio": 0.016,
+      "color": "#6B7280"
+    },
+    "recipes": [
+      "A) Card on shape — background #FF7563 (or #116B71). One big brand shape (#116B71 on #FF7563 / #0E8C8C or #FF7563 on #116B71) partially off-canvas (e.g. x=-0.15W, y=-0.1H, width=0.9W). #FFFFFF card x=0.07W y=0.08H width=0.86W with children [headline, (subhead), cta]. Lower half: photo or illustration or product-ui (width 0.6–0.8W) anchored bottom, below the card. Logo (dark variant) width 0.2W bottom-right (or bottom-left) at margin 0.06S; optional 1 charm (0.09W) overlapping the card corner.",
+      "B) Headline on dark — background #116B71. stack x=0.06W y=0.08H width=0.88W with children [headline #FFFFFF 0.08S, cta bg #FF7563 color #116B71]. #FF7563 shape bottom-right partially off canvas behind an illustration (width 0.7W) in the lower half. Logo (light variant) bottom-left width 0.2W.",
+      "C) Light statement — background #FF7563, #116B71 shape at bottom; #FFFFFF card [headline, subhead, cta]; product-ui device shot overlapping the card bottom edge; logo (dark variant) bottom-right.",
+      "D) Stat — background #116B71; stack [stat text e.g. \"93%\" #FFFFFF, headline #FFFFFF 0.06S, legal]; #FF7563 shape; logo (light variant).",
+      "E) Photo hero — generate a photo (purpose photo, 1024x1536 for portrait) filling the lower 55–60%: photo x=0, width=W, y≈0.42H, height=H-y (photos are cover-cropped, faces kept); card with headline+cta in the top 40%; #116B71 shape peeking from a corner; logo with pill if it sits over the photo."
+    ]
+  },
+  "safeZones": {
+    "9:16": {
+      "top": 0.14,
+      "bottom": 0.35,
+      "left": 0.06,
+      "right": 0.06,
+      "note": "Meta Stories/Reels: keep text, CTA and logo out of the top 14% and bottom 35%."
+    },
+    "4:5": {
+      "top": 0.06,
+      "bottom": 0.1,
+      "left": 0.05,
+      "right": 0.05
+    },
+    "default": {
+      "top": 0.05,
+      "bottom": 0.05,
+      "left": 0.05,
+      "right": 0.05
+    }
+  },
+  "voice": {
+    "tone": "Confident, warm, plain-spoken. Short punchy sentences. Sentence case.",
+    "headlinePatterns": [
+      "Two short sentences: 'Data in. Doubt out.'",
+      "Benefit + relief: 'Less admin. More business.'",
+      "Outcome: 'Up and running in under an hour.'",
+      "Contrast: 'Run your business, not your paperwork.'"
+    ],
+    "avoid": [
+      "exclamation marks",
+      "ALL CAPS headlines",
+      "jargon",
+      "more than one CTA"
+    ]
+  },
+  "imagery": {
+    "shapes": "Use one large brand shape partially cropped off the canvas edge behind the card or photo. Never recolour outside the palette.",
+    "illustrations": "Use on #116B71 or #FF7563 backgrounds, never over photos.",
+    "charms": "Use 1–2 small icons as accents near the card edge or photo; keep small (≤12% of canvas width).",
+    "photos": "Real people, warm natural light, candid. Place in the lower half under the card.",
+    "productUI": "Device/screen shots — use when the message is about the product itself."
+  },
+  "rules": [
+    "Use only brand palette colours for backgrounds, text, shapes and CTAs.",
+    "Headlines in CruxHeadline; body and CTA text in CruxBody/CruxBodyBold.",
+    "Exactly one Crux logo per design, at least 14% of canvas width, in a corner with clear space.",
+    "Dark logo on light backgrounds; light logo on dark backgrounds; use a pill over photos.",
+    "Headline ≤ 60 characters, sentence case, no exclamation marks.",
+    "One CTA per design, pill-shaped.",
+    "Text contrast must meet WCAG AA (4.5:1).",
+    "Respect platform safe zones (Meta 9:16: top 14%, bottom 35%).",
+    "Keep all text and the logo at least 5% away from canvas edges.",
+    "Shapes and photos may bleed off the canvas; text, logo and CTA may not."
+  ],
+  "imageStyles": {
+    "illustration": "Flat vector illustration in the Crux brand style: bold simple shapes, one sweeping ribbon-like shape in #FF7563 and #0E8C8C, small playful objects, soft 3D-ish shading, clean edges, optimistic mood. Absolutely no text, letters, numbers or logos. Isolated subject on a fully transparent background.",
+    "photo": "Editorial photograph of a real person at work, candid, warm natural light, shallow depth of field, authentic and optimistic, modern workspace. No text or logos anywhere.",
+    "background": "Abstract minimal background made of smooth organic shapes in #0E8C8C on #FF7563, flat vector, no gradients, no text, large soft curves that bleed off the edges.",
+    "charm": "Small glossy 3D icon in the Crux brand style: #FF7563 and #0E8C8C with a small #116B71 detail, simple, playful, soft shading. No text. Isolated on a fully transparent background."
+  }
+}

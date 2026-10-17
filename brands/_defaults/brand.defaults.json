@@ -1,0 +1,82 @@
+{
+  "_comment": "Defaults merged into every onboarded brand.json by server/src/scripts/onboard-brand.ts. Placeholders: {brand} {Brand} {primary} {secondary} {accent} {light} {dark}.",
+  "fonts": {
+    "headline": { "family": "{Brand}Headline", "file": "fonts/headline.ttf" },
+    "body": { "family": "{Brand}Body", "file": "fonts/body.ttf" },
+    "bodyBold": { "family": "{Brand}BodyBold", "file": "fonts/bodybold.ttf" },
+    "notes": "Placeholder fonts copied from brands/_defaults/fonts (Inter-family: headline ExtraBold, body Regular/Bold). Replace the .ttf files with the brand's licensed fonts and keep the family names. Headlines: tight line-height ~1.0, sentence case. Never use other font families."
+  },
+  "logo": {
+    "minWidthRatio": 0.14,
+    "preferredWidthRatio": 0.2,
+    "clearSpace": "Keep clear space of at least the logo's cap height on all sides; nothing overlaps the logo.",
+    "placement": "Bottom-left or bottom-right corner, aligned to the content margin. Exactly one logo per design."
+  },
+  "layout": {
+    "marginRatio": 0.06,
+    "card": {
+      "fill": "{light}",
+      "cornerRadiusRatio": 0.03,
+      "paddingRatio": 0.05,
+      "notes": "Headline + CTA usually sit inside a rounded content card ({light}) on a {secondary} or {primary} background with a brand shape behind it."
+    },
+    "cta": {
+      "style": "pill",
+      "onLight": { "bg": "{primary}", "text": "{light}" },
+      "onDark": { "bg": "{secondary}", "text": "{primary}" },
+      "onNavy": { "bg": "{secondary}", "text": "{primary}" },
+      "fontSizeRatio": 0.024,
+      "notes": "Short imperative copy: 'Get started', 'Find out more', 'Try {brand} for free'."
+    },
+    "headline": { "fontSizeRatio": 0.072, "maxLines": 3, "maxChars": 60, "lineHeight": 1.02 },
+    "subhead": { "fontSizeRatio": 0.028, "lineHeight": 1.3 },
+    "legal": { "fontSizeRatio": 0.016, "color": "#6B7280" },
+    "recipes": [
+      "A) Card on shape — background {secondary} (or {primary}). One big brand shape ({primary} on {secondary} / {accent} or {secondary} on {primary}) partially off-canvas (e.g. x=-0.15W, y=-0.1H, width=0.9W). {light} card x=0.07W y=0.08H width=0.86W with children [headline, (subhead), cta]. Lower half: photo or illustration or product-ui (width 0.6–0.8W) anchored bottom, below the card. Logo (dark variant) width 0.2W bottom-right (or bottom-left) at margin 0.06S; optional 1 charm (0.09W) overlapping the card corner.",
+      "B) Headline on dark — background {primary}. stack x=0.06W y=0.08H width=0.88W with children [headline {light} 0.08S, cta bg {secondary} color {primary}]. {secondary} shape bottom-right partially off canvas behind an illustration (width 0.7W) in the lower half. Logo (light variant) bottom-left width 0.2W.",
+      "C) Light statement — background {secondary}, {primary} shape at bottom; {light} card [headline, subhead, cta]; product-ui device shot overlapping the card bottom edge; logo (dark variant) bottom-right.",
+      "D) Stat — background {primary}; stack [stat text e.g. \"93%\" {light}, headline {light} 0.06S, legal]; {secondary} shape; logo (light variant).",
+      "E) Photo hero — generate a photo (purpose photo, 1024x1536 for portrait) filling the lower 55–60%: photo x=0, width=W, y≈0.42H, height=H-y (photos are cover-cropped, faces kept); card with headline+cta in the top 40%; {primary} shape peeking from a corner; logo with pill if it sits over the photo."
+    ]
+  },
+  "safeZones": {
+    "9:16": { "top": 0.14, "bottom": 0.35, "left": 0.06, "right": 0.06, "note": "Meta Stories/Reels: keep text, CTA and logo out of the top 14% and bottom 35%." },
+    "4:5": { "top": 0.06, "bottom": 0.1, "left": 0.05, "right": 0.05 },
+    "default": { "top": 0.05, "bottom": 0.05, "left": 0.05, "right": 0.05 }
+  },
+  "voice": {
+    "tone": "Confident, warm, plain-spoken. Short punchy sentences. Sentence case.",
+    "headlinePatterns": [
+      "Two short sentences: 'Data in. Doubt out.'",
+      "Benefit + relief: 'Less admin. More business.'",
+      "Outcome: 'Up and running in under an hour.'",
+      "Contrast: 'Run your business, not your paperwork.'"
+    ],
+    "avoid": ["exclamation marks", "ALL CAPS headlines", "jargon", "more than one CTA"]
+  },
+  "rules": [
+    "Use only brand palette colours for backgrounds, text, shapes and CTAs.",
+    "Headlines in {Brand}Headline; body and CTA text in {Brand}Body/{Brand}BodyBold.",
+    "Exactly one {brand} logo per design, at least 14% of canvas width, in a corner with clear space.",
+    "Dark logo on light backgrounds; light logo on dark backgrounds; use a pill over photos.",
+    "Headline ≤ 60 characters, sentence case, no exclamation marks.",
+    "One CTA per design, pill-shaped.",
+    "Text contrast must meet WCAG AA (4.5:1).",
+    "Respect platform safe zones (Meta 9:16: top 14%, bottom 35%).",
+    "Keep all text and the logo at least 5% away from canvas edges.",
+    "Shapes and photos may bleed off the canvas; text, logo and CTA may not."
+  ],
+  "imagery": {
+    "shapes": "Use one large brand shape partially cropped off the canvas edge behind the card or photo. Never recolour outside the palette.",
+    "illustrations": "Use on {primary} or {secondary} backgrounds, never over photos.",
+    "charms": "Use 1–2 small icons as accents near the card edge or photo; keep small (≤12% of canvas width).",
+    "photos": "Real people, warm natural light, candid. Place in the lower half under the card.",
+    "productUI": "Device/screen shots — use when the message is about the product itself."
+  },
+  "imageStyles": {
+    "illustration": "Flat vector illustration in the {brand} brand style: bold simple shapes, one sweeping ribbon-like shape in {secondary} and {accent}, small playful objects, soft 3D-ish shading, clean edges, optimistic mood. Absolutely no text, letters, numbers or logos. Isolated subject on a fully transparent background.",
+    "photo": "Editorial photograph of a real person at work, candid, warm natural light, shallow depth of field, authentic and optimistic, modern workspace. No text or logos anywhere.",
+    "background": "Abstract minimal background made of smooth organic shapes in {accent} on {secondary}, flat vector, no gradients, no text, large soft curves that bleed off the edges.",
+    "charm": "Small glossy 3D icon in the {brand} brand style: {secondary} and {accent} with a small {primary} detail, simple, playful, soft shading. No text. Isolated on a fully transparent background."
+  }
+}

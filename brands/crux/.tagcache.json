@@ -1,0 +1,204 @@
+{
+  "illustration_rocket_growth": {
+    "name": "rocket growth chart",
+    "description": "Flat illustration of a rocket next to a rising bar chart with an upward arrow",
+    "tags": [
+      "rocket",
+      "growth",
+      "chart",
+      "business",
+      "success",
+      "progress",
+      "vertical bars",
+      "arrow",
+      "boost",
+      "blue"
+    ],
+    "category": "illustration",
+    "colour": "blue",
+    "isGuideline": false,
+    "file": "illustration/rocket_growth.png"
+  },
+  "logo_crux_wordmark_ink": {
+    "name": "crux logo",
+    "description": "Logo with a solid dark blue circle and the word 'crux' in lowercase dark blue letters",
+    "tags": [
+      "dark-blue",
+      "circle",
+      "wordmark",
+      "horizontal",
+      "minimal",
+      "modern",
+      "simple"
+    ],
+    "category": "logo",
+    "colour": "dark-blue",
+    "isGuideline": false,
+    "file": "logo/crux_wordmark_ink.png"
+  },
+  "illustration_handshake_cards": {
+    "name": "hand exchanging card",
+    "description": "Two stylized hands exchanging a glowing card, representing transaction or transfer",
+    "tags": [
+      "two hands",
+      "card",
+      "exchange",
+      "transaction",
+      "glow",
+      "blue",
+      "orange",
+      "flat style",
+      "horizontal",
+      "communication"
+    ],
+    "category": "illustration",
+    "colour": "blue",
+    "isGuideline": false,
+    "file": "illustration/handshake_cards.png"
+  },
+  "illustration_dashboard_team": {
+    "name": "team data presentation",
+    "description": "Illustration of three people analyzing charts and graphs on a large board.",
+    "tags": [
+      "team",
+      "presentation",
+      "charts",
+      "graphs",
+      "data analysis",
+      "people",
+      "flat style",
+      "business"
+    ],
+    "category": "illustration",
+    "colour": "dark-blue",
+    "isGuideline": false,
+    "file": "illustration/dashboard_team.png"
+  },
+  "background_bg_sand": {
+    "name": "minimalist geometric shapes",
+    "description": "A minimalist background featuring a beige backdrop with a coral circle top-left and a large teal quarter-circle bottom-right.",
+    "tags": [
+      "minimalist",
+      "geometric",
+      "circle",
+      "quarter-circle",
+      "beige background",
+      "coral circle",
+      "teal shape",
+      "top-left",
+      "bottom-right",
+      "calm"
+    ],
+    "category": "background",
+    "colour": "beige",
+    "isGuideline": false,
+    "file": "background/bg_sand.png"
+  },
+  "background_bg_arcs": {
+    "name": "abstract circles background",
+    "description": "Abstract background with overlapping teal and beige circles on dark blue",
+    "tags": [
+      "abstract",
+      "circles",
+      "overlapping",
+      "teal",
+      "beige",
+      "dark-blue",
+      "rounded shapes",
+      "modern"
+    ],
+    "category": "background",
+    "colour": "dark-blue",
+    "isGuideline": false,
+    "file": "background/bg_arcs.png"
+  },
+  "logo_crux_wordmark_white": {
+    "name": "crux logo white",
+    "description": "White circular symbol and lowercase wordmark 'crux' in bold font.",
+    "tags": [
+      "white",
+      "circle",
+      "wordmark",
+      "horizontal",
+      "bold",
+      "minimal",
+      "brand",
+      "modern"
+    ],
+    "category": "logo",
+    "colour": "white",
+    "isGuideline": false,
+    "file": "logo/crux_wordmark_white.png"
+  },
+  "logo_crux_wordmark_teal": {
+    "name": "crux teal logo",
+    "description": "Teal circular symbol with lowercase wordmark 'crux' in teal",
+    "tags": [
+      "teal",
+      "circle",
+      "wordmark",
+      "horizontal",
+      "modern",
+      "simple",
+      "clean"
+    ],
+    "category": "logo",
+    "colour": "teal",
+    "isGuideline": false,
+    "file": "logo/crux_wordmark_teal.png"
+  },
+  "shapes_blob_c": {
+    "name": "arched navy shape",
+    "description": "simple navy blue arch with rounded top and flat bottom",
+    "tags": [
+      "navy",
+      "arched",
+      "rounded top",
+      "vertical",
+      "solid shape",
+      "minimalist",
+      "abstract",
+      "calm"
+    ],
+    "category": "bloom",
+    "colour": "navy",
+    "isGuideline": false,
+    "file": "shapes/blob_c.png"
+  },
+  "shapes_blob_a": {
+    "name": "teal organic blob",
+    "description": "An irregularly shaped teal colored abstract blob with smooth edges",
+    "tags": [
+      "teal",
+      "organic shape",
+      "smooth edges",
+      "abstract",
+      "blob",
+      "calm",
+      "simple"
+    ],
+    "category": "bloom",
+    "colour": "teal",
+    "isGuideline": false,
+    "file": "shapes/blob_a.png"
+  },
+  "shapes_blob_b": {
+    "name": "coral abstract blob",
+    "description": "Organic irregular coral-colored abstract shape with smooth curves.",
+    "tags": [
+      "coral",
+      "abstract",
+      "blob",
+      "organic",
+      "smooth",
+      "shape",
+      "horizontal",
+      "soft",
+      "wavy"
+    ],
+    "category": "bloom",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "shapes/blob_b.png"
+  }
+}
