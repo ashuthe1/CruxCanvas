@@ -242,7 +242,8 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
     }
   };
 
-  const thumbOf = async (pageId: string, ratio = 0.25) => {
+  // grid previews are rendered at ~70% so they stay crisp; the pages themselves are lossless layer copies
+  const thumbOf = async (pageId: string, ratio = 0.7) => {
     await store.waitLoading?.();
     return pageToDataURL(store, pageId, ratio);
   };

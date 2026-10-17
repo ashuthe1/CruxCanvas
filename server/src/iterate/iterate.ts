@@ -118,6 +118,39 @@ Call propose_variants once with all ${k} variants. Ops use the update_design for
   return [];
 }
 
+/**
+ * Images must keep their artwork's proportions: when the imagery dimension swaps an asset, derive the
+ * height from the new asset; when only one dimension is set, scale the other. Otherwise the canvas
+ * would cover-crop or stretch the picture — which reads as "quality loss".
+ */
+function keepImageAspect(ctx: ToolContext, page: CompactPage, ops: Op[]): Op[] {
+  for (const op of ops) {
+    if (op.op !== 'set') continue;
+    const el = page.elements.find((e) => e.id === op.id);
+    if (!el || !(el.type === 'image' || el.type === 'svg')) continue;
+    const p = op.props;
+    const newAssetId = p.assetId || p.custom?.assetId;
+    const asset = newAssetId ? ctx.assets.find((a) => a.id === newAssetId) : undefined;
+    const aspect = asset && asset.width && asset.height ? asset.width / asset.height : el.width && el.height ? el.width / el.height : undefined;
+    if (!aspect) continue;
+    if (asset) {
+      p.src = asset.url;
+      p.custom = { ...(el.custom || {}), ...(p.custom || {}), assetId: asset.id, role: p.custom?.role || el.role || asset.category };
+      const w = p.width ?? el.width;
+      p.width = w;
+      p.height = Math.round(w / aspect);
+      // don't blow a small asset up beyond 1.5x its pixels — it would look soft
+      const maxW = asset.width * 1.5;
+      if (p.width > maxW) {
+        p.width = Math.round(maxW);
+        p.height = Math.round(maxW / aspect);
+      }
+    } else if (p.width !== undefined && p.height === undefined) p.height = Math.round(p.width / aspect);
+    else if (p.height !== undefined && p.width === undefined) p.width = Math.round(p.height * aspect);
+  }
+  return ops;
+}
+
 /** The planner may only point at library assets or generated files; a hand-typed src is replaced by the asset it resembles or dropped. */
 function sanitiseSrc(ctx: ToolContext, ops: Op[]) {
   for (const op of ops) {
@@ -239,7 +272,7 @@ export async function iteratePage(input: IterateInput, deps: IterateDeps, emit: 
         }
         const remapped = remapOps(allowed, slot.suffix);
         sanitiseSrc(ctx, remapped);
-        const ops = prepareOps(clone, remapped, ctx);
+        const ops = keepImageAspect(ctx, clone, prepareOps(clone, remapped, ctx));
         applyOpsCompact(clone, ops);
         remeasureText(ctx, clone, ops);
         emit({ type: 'ops', pageId: clone.id, ops });
