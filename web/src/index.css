@@ -581,3 +581,10 @@ h1, h2, h3, h4, .display { font-family: var(--display); letter-spacing: -.01em; 
 .topbar input.title { flex: 1; min-width: 160px; max-width: 520px; }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .topbar-actions { margin-left: 4px; }
+/* card menu must escape the card; only the thumbnail clips */
+.pcard { overflow: visible; position: relative; }
+.pcard:has(.pcard-dropdown) { z-index: 30; }
+.pcard-thumb { overflow: hidden; border-radius: 15px 15px 0 0; }
+.pcard-dropdown { z-index: 40; border-radius: 12px; border-color: var(--line); min-width: 180px; }
+.pcard-dropdown button { padding: 10px 14px; }
+.pcard-dropdown button:hover { background: var(--paper-2); }
