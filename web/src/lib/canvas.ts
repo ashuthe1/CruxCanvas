@@ -132,8 +132,14 @@ export function variantsOf(store: StoreType, sourcePageId: string) {
   return store.pages.filter((p: any) => p.custom?.variantOf === sourcePageId);
 }
 
+/**
+ * Low-res page snapshot (thumbnails, agent vision, scans). `quickMode` matters: a normal export
+ * temporarily drops the store's element pixel ratio to `pixelRatio`, and any element that first
+ * renders during that window (e.g. a freshly added iteration page) keeps a blurry cache until a
+ * reload. Quick mode only ever raises the ratio, so the canvas stays crisp.
+ */
 export async function pageToDataURL(store: StoreType, pageId: string, pixelRatio = 0.5) {
-  return store.toDataURL({ pageId, pixelRatio, mimeType: 'image/jpeg', quality: 0.8 } as any);
+  return store.toDataURL({ pageId, pixelRatio, mimeType: 'image/jpeg', quality: 0.8, quickMode: true } as any);
 }
 
 /** Export every non-empty page as PNG inside a zip */
