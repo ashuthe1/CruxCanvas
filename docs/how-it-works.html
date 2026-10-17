@@ -110,6 +110,37 @@ pre.code .k { color: var(--accent); } pre.code .s { color: var(--mint); } pre.co
 .tag.see { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
 .tag.img { background: var(--mint-soft); color: var(--mint); border-color: transparent; }
 
+
+/* code map */
+.chain { background: var(--card); border: 1px solid var(--line); border-radius: 16px; margin-bottom: 10px; overflow: hidden; }
+.chain summary { cursor: pointer; list-style: none; padding: 16px 20px; display: flex; gap: 14px; align-items: center; font-family: var(--display); font-weight: 700; font-size: 16px; }
+.chain summary::-webkit-details-marker { display: none; }
+.chain summary .k { font-size: 11px; letter-spacing: .1em; color: var(--muted); font-weight: 700; min-width: 64px; }
+.chain summary .m { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+.chain summary .open { color: var(--accent); font-size: 18px; transition: transform .15s; }
+.chain[open] summary .open { transform: rotate(45deg); }
+.chain[open] summary { border-bottom: 1px solid var(--line); }
+.chain .body { padding: 6px 20px 18px; }
+.hop { display: grid; grid-template-columns: 28px 1fr; gap: 0 12px; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+.hop:last-child { border-bottom: 0; }
+.hop .no { font-family: var(--display); font-weight: 700; color: var(--accent); font-size: 13px; padding-top: 2px; }
+.hop .where { font-family: var(--mono); font-size: 12.5px; color: var(--fg); word-break: break-word; }
+.hop .where b { color: var(--violet); font-weight: 500; }
+.hop .what { color: var(--fg-2); font-size: 13.5px; margin-top: 3px; }
+.hop .what code { font-family: var(--mono); font-size: 12px; background: var(--bg-2); padding: 1px 5px; border-radius: 5px; }
+.hop.ui .no { color: var(--mint); }
+.hop.model .no { color: var(--violet); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 0 0 16px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.transport { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 28px; }
+.events { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; align-items: baseline; }
+.events .ev { font-family: var(--mono); font-size: 12px; color: var(--violet); white-space: nowrap; }
+.events .ev.up { color: var(--mint); }
+.events span:not(.ev) { color: var(--fg-2); }
+.answer { background: var(--accent-soft); border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--fg-2); margin-bottom: 18px; }
+.answer b { color: var(--fg); }
+@media (max-width: 640px) { .transport { grid-template-columns: 1fr; } .chain summary { font-size: 14px; flex-wrap: wrap; } .chain summary .m { margin-left: 0; } }
+
 /* checks */
 .checks { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
 .rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
@@ -304,6 +335,143 @@ footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-
     </div>
     <div class="tabs" role="tablist" id="flow-tabs"></div>
     <div class="flow" id="flow-body"></div>
+  </div>
+</section>
+
+
+<section id="codemap">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Code map</div>
+      <h2>Every request, function by function</h2>
+      <p class="lede">Paths are relative to the repo. Green hops run in the browser, violet hops call a model, the rest is deterministic server code. Expand a flow to follow it from the click to the pixels.</p>
+    </div>
+
+    <div class="answer"><b>Three models at run time, one more at onboarding.</b> DeepSeek-V4-Pro is the only text-to-text model and the only one that plans or writes layout. gpt-4.1 is image-to-text everywhere: reference briefs, render inspection, brand scans, and reading guideline PDFs during onboarding. gpt-image-1 is the only text-to-image model and runs only when the asset library has nothing that fits. Onboarding tags assets with gpt-4.1-mini, the cheap sibling of the same vision model, because tagging 90 assets with the big one is wasted money.</div>
+
+    <div class="transport">
+      <div class="panel">
+        <div class="eyebrow">Transport: NDJSON over HTTP, both ways</div>
+        <p style="color:var(--fg-2)">One <span class="mono">POST /api/agent</span> opens a chunked response. The server writes one JSON object per line the moment each event happens, so the chat updates in real time without polling. It is not Server-Sent Events: SSE is GET-only and one-directional, and this run needs to carry a 40 MB body in and ask the editor questions on the way.</p>
+        <p style="color:var(--fg-2)">Bidirectional works like this. When the server needs something only the browser has, it writes a request event with an id and awaits a promise in <span class="mono">server/src/agent/snapshots.ts</span>. The editor answers with a tiny POST to a reply endpoint, which resolves that promise. The run continues on the same stream. Closing the tab aborts the run through the response's <span class="mono">close</span> handler.</p>
+        <div class="hop"><span class="no">⇅</span><div><div class="where">server/src/api/routes.ts → <b>stream()</b></div><div class="what">Sets <code>application/x-ndjson</code>, flushes headers, wraps <code>emit</code>, aborts on close, always ends with <code>done</code>.</div></div></div>
+        <div class="hop ui"><span class="no">⇅</span><div><div class="where">web/src/lib/api.ts → <b>streamNDJSON()</b></div><div class="what">fetch + <code>body.getReader()</code>, split on newlines, parse, dispatch. 120 s idle watchdog.</div></div></div>
+      </div>
+      <div class="panel">
+        <div class="eyebrow">Events on the wire</div>
+        <div class="events">
+          <span class="ev">status</span><span>progress line in the chat</span>
+          <span class="ev">trace</span><span>one step of the expandable trace: observe, vision, plan, tool, validate, fix, note</span>
+          <span class="ev">page</span><span>a full Polotno page JSON, with optional <span class="mono">replacePageId</span></span>
+          <span class="ev">ops</span><span>set / add / delete / raise on element ids of one page</span>
+          <span class="ev">size</span><span>canvas resized before a create</span>
+          <span class="ev">lint · report</span><span>score, issues, fixes, passed rules for a page</span>
+          <span class="ev">duplicate_page · variant</span><span>iteration clones and their results</span>
+          <span class="ev">message · error · done</span><span>final text, failure, end of stream</span>
+          <span class="ev up">state_request</span><span>server asks for the current canvas → editor POSTs <span class="mono">/api/state-reply</span></span>
+          <span class="ev up">snapshot_request</span><span>server asks for a render of one page → editor POSTs <span class="mono">/api/snapshot-reply</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend"><span><i style="background:var(--mint)"></i>browser</span><span><i style="background:var(--violet)"></i>model call</span><span><i style="background:var(--accent)"></i>server code</span></div>
+
+    <details class="chain" open>
+      <summary><span class="k">Flow 0</span>Onboarding a brand, kit to tenant<span class="m"><span class="tag see">gpt-4.1 + mini</span><span class="tag">no planner</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop"><span class="no">1</span><div><div class="where">server/src/scripts/onboard-brand.ts → <b>main()</b></div><div class="what"><code>npm run onboard -- --brand xero --name Xero --drive &lt;url&gt;</code>. Creates <code>brands/&lt;id&gt;/</code>, then runs the steps below in order.</div></div></div>
+        <div class="hop"><span class="no">2</span><div><div class="where">server/src/scripts/lib/drive.ts → <b>downloadDriveFolder()</b></div><div class="what">Pulls the kit and reference ads with gdown into <code>brands/_incoming/&lt;id&gt;-kit</code>.</div></div></div>
+        <div class="hop model"><span class="no">3</span><div><div class="where">server/src/scripts/lib/manifest.ts → <b>buildManifest()</b> → vision.describeJSON()</div><div class="what">Classifies every file (logo, illustration, product-ui, bloom, charm, photo, guideline), reads size and alpha with sharp, and asks gpt-4.1-mini for tags and a one-line description. Writes <code>assets.json</code>; a tag cache makes re-runs incremental.</div></div></div>
+        <div class="hop model"><span class="no">4</span><div><div class="where">server/src/scripts/lib/draftBrand.ts → <b>draftBrand()</b> → vision.describeJSON()</div><div class="what">Samples the palette from the assets, reads guideline pages with gpt-4.1, installs fonts, and drafts <code>brand.json</code>: colours, fonts, logo variants and clear space, tone, layout recipes, safe zones. A human curates it afterwards.</div></div></div>
+        <div class="hop"><span class="no">5</span><div><div class="where">server/src/scripts/vectorize-logos.ts → <b>vectorize()</b> in lib/vectorize.ts</div><div class="what">Upscales PNG logos 6× with Lanczos, traces them with potrace, merges colour clusters by hue, writes SVGs and sets <code>vectorUrl</code> on the asset.</div></div></div>
+        <div class="hop"><span class="no">6</span><div><div class="where">server/src/brands/fsBrandRepository.ts → <b>FsBrandRepository</b></div><div class="what">Serves the tenant at run time: <code>GET /api/brands/:id</code>, <code>/assets</code>, <code>/references</code>; files under <code>/brands/&lt;id&gt;/…</code>. <b>brands/index.ts → catalogueText()</b> turns assets.json into the one-line catalogue the planner reads.</div></div></div>
+      </div>
+    </details>
+
+    <details class="chain">
+      <summary><span class="k">Flow 1</span>Create a design from a prompt<span class="m"><span class="tag plan">DeepSeek</span><span class="tag img">gpt-image-1 if needed</span><span class="tag see">vision QA</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop ui"><span class="no">1</span><div><div class="where">web/src/components/CopilotPanel.tsx → <b>send()</b></div><div class="what">Renders a 0.75× snapshot of the active page with <b>canvas.ts → pageToDataURL()</b>, serialises every page with <b>serializeCanvas()</b>, keeps the last 8 chat turns, and calls <b>api.ts → streamAgent()</b>.</div></div></div>
+        <div class="hop"><span class="no">2</span><div><div class="where">server/src/api/routes.ts → <b>POST /api/agent</b> → stream(runAgent)</div><div class="what">Brand id comes from the request header. Deps: brand repo, providers, lint engine, tool registry from <b>agent/tools/index.ts → defaultTools</b>.</div></div></div>
+        <div class="hop"><span class="no">3</span><div><div class="where">server/src/agent/runAgent.ts → <b>runAgent()</b></div><div class="what">Builds the server-side mirror of the pages, emits the <code>observe</code> trace, and composes the system prompt with <b>agent/prompt.ts → buildSystemPrompt()</b>: brand brief, catalogue, spec vocabulary, recipes, format rules. On an empty page the planner is told to fill it via <code>replacePageId</code>.</div></div></div>
+        <div class="hop model"><span class="no">4</span><div><div class="where">server/src/providers/openaiCompatPlanner.ts → <b>chat()</b></div><div class="what">DeepSeek-V4-Pro with tool definitions and prompt caching. Returns <code>tool_calls</code>; the loop dispatches each to the registry, up to 24 iterations.</div></div></div>
+        <div class="hop"><span class="no">5</span><div><div class="where">server/src/agent/tools/misc.ts → <b>set_canvas_size</b> (optional)</div><div class="what">When the prompt names a format. Emits <code>size</code>; the prompt is rebuilt for the new dimensions.</div></div></div>
+        <div class="hop model"><span class="no">6</span><div><div class="where">server/src/agent/tools/generateImage.ts → <b>generateImageTool.execute()</b> → providers.images.generate() (optional)</div><div class="what">Only when <b>misc.ts → search_assets</b> finds nothing. Prompt is composed from the brand's imagery guidance; the PNG is saved under <code>/generated/&lt;id&gt;.png</code> and its URL used as an image <code>src</code> in the spec.</div></div></div>
+        <div class="hop"><span class="no">7</span><div><div class="where">server/src/agent/tools/createDesign.ts → <b>createDesignTool.execute()</b></div><div class="what">Validates the spec with zod (<b>render/schema.ts → DesignSchema</b>), then <b>render/renderer.ts → DesignRenderer.render()</b> turns it into Polotno page JSON: <b>render/text.ts → TextMeasurer</b> measures copy with the brand's font files, cards stack their children by measured height, collisions are nudged, images are face-safe cover-cropped, charms go on card corners, the logo goes on top.</div></div></div>
+        <div class="hop"><span class="no">8</span><div><div class="where">server/src/agent/tools/createDesign.ts → <b>validateAndFix()</b> → lint/engine.ts → <b>LintEngine.run()</b> + <b>collectFixes()</b></div><div class="what">16 rules from <b>lint/index.ts</b>. Error fixes and safe warning fixes are applied to the mirror with <b>lint/helpers.ts → applyOpsCompact()</b>, then written back into the page JSON. Builds the <code>DesignReport</code>.</div></div></div>
+        <div class="hop"><span class="no">9</span><div><div class="where">emit <code>page</code>, <code>lint</code>, <code>report</code></div><div class="what">The tool result text goes back to the planner, which answers with a summary or more tool calls. <b>runAgent()</b> then runs a final <b>validateAndFix()</b> on every touched page.</div></div></div>
+        <div class="hop ui"><span class="no">10</span><div><div class="where">web/src/components/CopilotPanel.tsx → <b>handleEvent()</b> case <code>page</code> → canvas.ts → <b>addPageFromJSON()</b></div><div class="what">Replaces the empty page's children or adds a page. Each element is a real Polotno layer with its id, <code>custom.role</code>, <code>custom.container</code> and <code>custom.group</code>. <b>ReportCard.tsx</b> renders the score with a thumbnail.</div></div></div>
+        <div class="hop"><span class="no">11</span><div><div class="where">server/src/agent/runAgent.ts → visual QA loop (see Flow 4)</div><div class="what">For hero designs the server asks the editor for a real render and inspects it before the final <code>message</code> and <code>done</code>.</div></div></div>
+      </div>
+    </details>
+
+    <details class="chain">
+      <summary><span class="k">Flow 2</span>Edit an existing page, layers and all<span class="m"><span class="tag see">vision first</span><span class="tag plan">ops on ids</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop ui"><span class="no">1</span><div><div class="where">web/src/lib/canvas.ts → <b>serializePage()</b> / <b>serializeCanvas()</b></div><div class="what">Each layer becomes a compact element: id, type, role, x/y/w/h, rotation, text, fontSize, fill, src, assetId, container, group. Array order is z-order. <code>selectedIds</code> carries the current selection. Sent with the snapshot, as in Flow 1.</div></div></div>
+        <div class="hop model"><span class="no">2</span><div><div class="where">server/src/agent/runAgent.ts → <b>inspectRender()</b> in agent/visualQA.ts → vision.describeJSON()</div><div class="what">Because the page has content (<code>userIsEditing</code>), gpt-4.1 looks at the snapshot first against the 11-point checklist, with the element listing and z-indices alongside. Its defects are added to the planner's context as a <code>vision</code> trace step.</div></div></div>
+        <div class="hop model"><span class="no">3</span><div><div class="where">providers/openaiCompatPlanner.ts → <b>chat()</b></div><div class="what">The system prompt says: this is an edit, use <code>update_design</code> with precise ops on existing ids, never recreate the page, make room before placing, never report success for something not done. Up to 4 update rounds per page.</div></div></div>
+        <div class="hop"><span class="no">4</span><div><div class="where">server/src/agent/tools/updateDesign.ts → <b>updateDesignTool.execute()</b></div><div class="what">Requires a <code>rationale</code>. <b>prepareOps()</b> fills defaults on <code>add</code> ops (brand font, dark colour, asset src with <code>vectorUrl</code> first), keeps image resizes proportional, expands card moves to their contents with <b>lint/helpers.ts → expandContainerMoves()</b>.</div></div></div>
+        <div class="hop"><span class="no">5</span><div><div class="where">lint/helpers.ts → <b>applyOpsCompact()</b> → <b>restackCards()</b></div><div class="what">Ops hit the server mirror. Card children are re-stacked with measured text heights so a longer headline pushes the CTA pill (group-aware) down instead of overlapping it. The extra moves are emitted as a <code>fix</code> trace step.</div></div></div>
+        <div class="hop"><span class="no">6</span><div><div class="where">emit <code>ops</code> → <b>validateAndFix()</b> → emit <code>ops</code> (fixes), <code>lint</code>, <code>report</code></div><div class="what">The editor receives the planner's ops plus the restack, then the lint fixes as a second ops batch. Nothing is rendered to pixels on the server for an edit.</div></div></div>
+        <div class="hop ui"><span class="no">7</span><div><div class="where">web/src/components/CopilotPanel.tsx → handleEvent case <code>ops</code> → canvas.ts → <b>applyOps()</b></div><div class="what"><code>set</code> patches the layer by id, <code>add</code> creates a layer, <code>delete</code> removes, <code>raise</code> calls <code>moveTop()</code>. Polotno's history records it, so undo works. The selection is cleared so the user sees the result.</div></div></div>
+        <div class="hop"><span class="no">8</span><div><div class="where">runAgent.ts → <b>syncWithEditor()</b></div><div class="what">Before the QA loop the server emits <code>state_request</code>; the editor replies with the live canvas via <b>api.ts → sendStateReply()</b> → <code>POST /api/state-reply</code> → <b>snapshots.ts → deliverState()</b>. The mirror is replaced, so anything the user dragged mid-run is respected.</div></div></div>
+        <div class="hop"><span class="no">9</span><div><div class="where">Flow 4: visual QA, up to 5 rounds</div><div class="what">Then <code>message</code> with the summary and <code>done</code>.</div></div></div>
+      </div>
+    </details>
+
+    <details class="chain">
+      <summary><span class="k">Flow 3</span>Reference image to on-brand variants<span class="m"><span class="tag see">vision brief</span><span class="tag plan">N designs</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop ui"><span class="no">1</span><div><div class="where">CopilotPanel.tsx → <b>onFiles()</b> / reference library / "canvas as ref"</div><div class="what">Images become data URLs in <code>refs</code>; the library comes from <code>GET /api/brands/:id/references</code>. "Create 4 different images like this" sets <code>variants</code>.</div></div></div>
+        <div class="hop model"><span class="no">2</span><div><div class="where">server/src/agent/references.ts → <b>analyzeReferences()</b> → vision.describeJSON()</div><div class="what">gpt-4.1 writes a structured brief: layout, hierarchy, mood, copy angle, imagery, what to keep and what is off-brand. <b>runAgent()</b> injects the brief as context; the model never sees the image again.</div></div></div>
+        <div class="hop model"><span class="no">3</span><div><div class="where">planner → <b>create_design</b> × N</div><div class="what">The user message carries <code>VARIANTS REQUESTED: N</code>. Each call takes the Flow 1 path from step 7, emits its own page and report card.</div></div></div>
+      </div>
+    </details>
+
+    <details class="chain">
+      <summary><span class="k">Flow 4</span>Visual QA: render, inspect, fix, repeat<span class="m"><span class="tag see">gpt-4.1</span><span class="tag plan">fix turns</span><span class="tag">≤ 5 rounds</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop"><span class="no">1</span><div><div class="where">server/src/agent/runAgent.ts → QA loop (<code>VISUAL_QA_ROUNDS = 5</code>)</div><div class="what">For each touched page: emit <code>snapshot_request</code> with a request id and await <b>agent/snapshots.ts → waitForSnapshot()</b> (15 s timeout).</div></div></div>
+        <div class="hop ui"><span class="no">2</span><div><div class="where">CopilotPanel.tsx → handleEvent case <code>snapshot_request</code> → canvas.ts → <b>pageToDataURL()</b> → api.ts → <b>sendSnapshotReply()</b></div><div class="what">The editor renders the real page (quick mode, so the canvas never loses sharpness) and POSTs the JPEG to <code>/api/snapshot-reply</code> → <b>snapshots.ts → deliverSnapshot()</b> resolves the server's promise.</div></div></div>
+        <div class="hop model"><span class="no">3</span><div><div class="where">agent/visualQA.ts → <b>inspectRender()</b> → providers/openaiVision.ts → <b>describeJSON()</b></div><div class="what">Checklist of 11 questions plus the element listing with z-order. Returns <code>{ ok, errors: [{ elementIds, problem, fix }] }</code>. Emitted as a <code>vision</code> trace step.</div></div></div>
+        <div class="hop model"><span class="no">4</span><div><div class="where">runAgent.ts → planner <b>chat()</b> with the defects as the next instruction → <b>update_design</b></div><div class="what">Same Flow 2 path: ops, restack, lint, fixes, emitted to the editor.</div></div></div>
+        <div class="hop"><span class="no">5</span><div><div class="where">runAgent.ts → defect signature check</div><div class="what">Re-snapshot and re-inspect. If a round returns the same <code>elementIds:problem</code> signature as the last one, stop and emit a <code>note</code> trace: "the same defects came back after a fix round".</div></div></div>
+        <div class="hop"><span class="no">6</span><div><div class="where">agent/tools/misc.ts → <b>review_render</b></div><div class="what">The planner can also ask for a critique on its own; this calls <b>vision.describe()</b> on a snapshot and returns the text as a tool result.</div></div></div>
+      </div>
+    </details>
+
+    <details class="chain">
+      <summary><span class="k">Flow 5</span>Winner iterations<span class="m"><span class="tag plan">parallel planner turns</span><span class="tag">no images</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop ui"><span class="no">1</span><div><div class="where">CopilotPanel.tsx → <b>runIteration()</b> → api.ts → <b>streamIterate()</b></div><div class="what">Picker in <b>IteratePanel.tsx → IteratePicker</b>: dimensions and count. Sends the active page, canvas size, dimensions, count to <code>POST /api/iterate</code>.</div></div></div>
+        <div class="hop"><span class="no">2</span><div><div class="where">server/src/iterate/iterate.ts → <b>iteratePage()</b> → <b>cloneCompact()</b></div><div class="what">Clones the compact page per variant with suffixed ids and emits <code>duplicate_page</code>.</div></div></div>
+        <div class="hop ui"><span class="no">3</span><div><div class="where">CopilotPanel.tsx → case <code>duplicate_page</code> → canvas.ts → <b>duplicatePage()</b></div><div class="what">The editor copies the source page with the same suffixed ids, keeps it next to the source, tags <code>custom.variantOf</code> and <code>custom.dimension</code>.</div></div></div>
+        <div class="hop model"><span class="no">4</span><div><div class="where">iterate.ts → <b>proposeTool()</b> → planner <b>chat()</b> per dimension (parallel)</div><div class="what">Briefs from <b>iterate/dimensions.ts</b>: hook, colourway, CTA, imagery, layout. The planner proposes ops against the original ids.</div></div></div>
+        <div class="hop"><span class="no">5</span><div><div class="where">iterate.ts → <b>validateVariantOps()</b> → <b>remapOps()</b> → <b>prepareOps()</b> → <b>applyOpsCompact()</b> → <b>validateAndFix()</b></div><div class="what">Ops are filtered to the dimension's whitelist, remapped to the clone's ids, applied, re-stacked and linted. Emits <code>ops</code> for the clone and a <code>variant</code> event with label, score, dropped changes, or a rejection.</div></div></div>
+        <div class="hop ui"><span class="no">6</span><div><div class="where">IteratePanel.tsx → <b>IterationGrid</b></div><div class="what">Thumbnails via <b>pageToDataURL()</b>, keep or discard (<b>store.deletePages</b>), jump to a page. <b>openComparison()</b> rebuilds the grid from <b>variantsOf()</b> after a reload.</div></div></div>
+      </div>
+    </details>
+
+    <details class="chain">
+      <summary><span class="k">Flow 6</span>Brand scan and remake<span class="m"><span class="tag see">vision scoring</span><span class="tag plan">remake = Flow 3</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop ui"><span class="no">1</span><div><div class="where">web/src/components/ScanPanel.tsx → <b>run()</b> → api.ts → <b>scanCreative()</b></div><div class="what">An uploaded image, or the current page via <b>pageToDataURL()</b>, goes to <code>POST /api/scan</code>.</div></div></div>
+        <div class="hop model"><span class="no">2</span><div><div class="where">server/src/scan/brandScan.ts → <b>scanCreative()</b> → <b>samplePalette()</b> + vision.describeJSON()</div><div class="what">Sharp samples the dominant colours and compares them to the kit; gpt-4.1 checks logo, type, tone, layout and copy, returning scored checks with fixes, a verdict and a remake brief.</div></div></div>
+        <div class="hop ui"><span class="no">3</span><div><div class="where">ScanPanel.tsx → <b>onScanned()</b> → projects API <code>POST /api/projects/:id/scans</code></div><div class="what">The report persists to the session and shows on the dashboard.</div></div></div>
+        <div class="hop ui"><span class="no">4</span><div><div class="where">ScanPanel.tsx → <b>onRemake()</b> → CopilotPanel <b>send(brief)</b> with the image as a reference</div><div class="what">Flow 3 from there: brief, create_design, validate, QA.</div></div></div>
+      </div>
+    </details>
+
+    <details class="chain">
+      <summary><span class="k">Flow 7</span>Sessions, autosave, dashboard, export<span class="m"><span class="tag">no models</span></span><span class="open">+</span></summary>
+      <div class="body">
+        <div class="hop ui"><span class="no">1</span><div><div class="where">web/src/App.tsx → <b>open()</b> → persist.ts → <b>loadProjectIntoStore()</b> → <b>startAutosave()</b></div><div class="what">Loads the saved canvas into Polotno, upgrades PNG logos to their SVG with <b>upgradeLogosToVector()</b>, then debounces every store change into <code>PUT /api/projects/:id</code> with a small thumbnail.</div></div></div>
+        <div class="hop"><span class="no">2</span><div><div class="where">server/src/projects/routes.ts → <b>createProjectsApi()</b> → fsProjectRepository.ts → <b>FsProjectRepository</b></div><div class="what">One JSON file per session under <code>server/data/projects</code>: canvas, messages, scans, page scores, thumbnail, status, star. <b>derive()</b> computes page count, score and last message for the dashboard.</div></div></div>
+        <div class="hop ui"><span class="no">3</span><div><div class="where">web/src/components/Dashboard.tsx</div><div class="what">Lists sessions and scans per brand, filters, stars, statuses, bulk select, duplicate and delete. <b>TopBar.tsx</b> holds rename, star, status, new page and export.</div></div></div>
+        <div class="hop ui"><span class="no">4</span><div><div class="where">web/src/lib/canvas.ts → <b>exportAllAsZip()</b></div><div class="what">Every non-empty page at 2× PNG into one zip, named after the brand and session.</div></div></div>
+      </div>
+    </details>
   </div>
 </section>
 
