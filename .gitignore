@@ -3,4 +3,3 @@ dist
 .env
 server/generated
 .DS_Store
-server/data/projects
