@@ -11,8 +11,11 @@ import { TemplatesSection } from './sections/TemplatesSection';
 import { CopilotPanel } from './components/CopilotPanel';
 import { Dashboard } from './components/Dashboard';
 import { setBrandId } from './lib/brand';
-import { getProject, updateProject, getOpenProjectId, setOpenProjectId, timeAgo, STATUS_LABEL, type Project, type ProjectStatus } from './lib/projects';
+import { getProject, updateProject, getOpenProjectId, setOpenProjectId, type Project } from './lib/projects';
 import { loadProjectIntoStore, startAutosave, type Saver } from './lib/persist';
+import { TopBar } from './components/TopBar';
+import { exportAllAsZip } from './lib/canvas';
+import { getBrand } from './lib/api';
 
 const sections = [BrandSection, TemplatesSection, ...DEFAULT_SECTIONS.filter((s: any) => ['text', 'elements', 'upload', 'background', 'layers', 'size'].includes(s.name))];
 
@@ -21,6 +24,7 @@ type View = { kind: 'dashboard' } | { kind: 'editor'; project: Project; tab?: 'c
 export default function App() {
   const [view, setView] = useState<View | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [brandInfo, setBrandInfo] = useState<{ name: string; color: string } | null>(null);
   const saverRef = useRef<Saver | null>(null);
   const projectRef = useRef<Project | null>(null);
 
@@ -35,6 +39,9 @@ export default function App() {
     projectRef.current = p;
     setBrandId(p.brandId);
     setOpenProjectId(p.id);
+    getBrand(p.brandId)
+      .then((b) => setBrandInfo({ name: b.name, color: b.colors[0]?.hex || '#94a3b8' }))
+      .catch(() => setBrandInfo(null));
     loadProjectIntoStore(store, p);
     saverRef.current?.stop();
     saverRef.current = startAutosave(store, () => projectRef.current?.id || null, (saved) => {
@@ -95,23 +102,21 @@ export default function App() {
   return (
     <div className="app">
       <div className="editor-wrap">
-        <div className="topbar">
-          <button className="back" onClick={backToDashboard} title="Back to all sessions">
-            ← Sessions
-          </button>
-          <input className="title" defaultValue={p.title} key={p.id} onBlur={(e) => e.target.value.trim() && e.target.value !== p.title && patchMeta({ title: e.target.value.trim() })} onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()} />
-          <button className={`star ${p.starred ? 'on' : ''}`} title={p.starred ? 'Unstar' : 'Star this session'} onClick={() => patchMeta({ starred: !p.starred })}>
-            {p.starred ? '★' : '☆'}
-          </button>
-          <select className={`status ${p.status}`} value={p.status} onChange={(e) => patchMeta({ status: e.target.value as ProjectStatus })}>
-            {(Object.keys(STATUS_LABEL) as ProjectStatus[]).map((s) => (
-              <option key={s} value={s}>
-                {STATUS_LABEL[s]}
-              </option>
-            ))}
-          </select>
-          <span className="saved">{savedAt ? `Saved ${timeAgo(savedAt)}` : 'Not saved yet'}</span>
-        </div>
+        <TopBar
+          project={p}
+          brandName={brandInfo?.name}
+          brandColor={brandInfo?.color}
+          savedAt={savedAt}
+          onBack={backToDashboard}
+          onRename={(title) => patchMeta({ title })}
+          onStar={() => patchMeta({ starred: !p.starred })}
+          onStatus={(status) => patchMeta({ status })}
+          onExport={() => exportAllAsZip(store, `${p.brandId}-${p.title.replace(/\W+/g, '-').toLowerCase()}`)}
+          onNewPage={() => {
+            const page = store.addPage();
+            store.selectPage(page.id);
+          }}
+        />
         <div className="editor-body">
           <div className="editor">
             <PolotnoContainer style={{ width: '100%', height: '100%' }}>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, sendStateReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport, type TraceStep } from '../lib/api';
-import { addPageFromJSON, applyOps, duplicatePage, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage, variantsOf } from '../lib/canvas';
+import { addPageFromJSON, applyOps, duplicatePage, pageToDataURL, serializeCanvas, serializePage, variantsOf } from '../lib/canvas';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
 import { PROMPT_EVENT } from '../sections/TemplatesSection';
@@ -390,9 +390,6 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
             ⊞ Compare
           </button>
         )}
-        <button className="btn-ghost" title="Download all pages as PNG (zip)" onClick={() => exportAllAsZip(store, `${brandId}-designs`)}>
-          ⬇
-        </button>
       </div>
       {showIterate && <IteratePicker onRun={runIteration} onClose={() => setShowIterate(false)} disabled={busy} />}
       {showGrid && iteration && (
