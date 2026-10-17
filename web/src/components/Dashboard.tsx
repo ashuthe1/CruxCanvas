@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { listBrands, getBrand, type BrandSummary } from '../lib/api';
+import { getBrandId, setBrandId } from '../lib/brand';
 import { createProject, deleteProject, duplicateProject, listProjects, updateProject, timeAgo, STATUS_LABEL, type ProjectStatus, type ProjectSummary, getProject } from '../lib/projects';
 
 type Filter = 'all' | 'starred' | 'in-progress' | 'review' | 'done' | 'draft';
@@ -10,7 +11,11 @@ const scoreColor = (s?: number) => (s == null ? '#9ca3af' : s >= 90 ? '#16a34a' 
 export function Dashboard({ onOpen }: { onOpen: (projectId: string, opts?: { tab?: 'chat' | 'lint' | 'scan' }) => void }) {
   const [brands, setBrands] = useState<BrandSummary[]>([]);
   const [brandColors, setBrandColors] = useState<Record<string, string>>({});
-  const [brandFilter, setBrandFilter] = useState<string>('all');
+  const [brandFilter, setBrandFilterState] = useState<string>(() => getBrandId());
+  const setBrandFilter = (id: string) => {
+    setBrandFilterState(id);
+    if (id !== 'all') setBrandId(id);
+  };
   const [filter, setFilter] = useState<Filter>('all');
   const [q, setQ] = useState('');
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
@@ -84,7 +89,7 @@ export function Dashboard({ onOpen }: { onOpen: (projectId: string, opts?: { tab
   }, [projects, brandFilter]);
 
   const newProject = async () => {
-    const brandId = brandFilter !== 'all' ? brandFilter : brands[0]?.id;
+    const brandId = brandFilter !== 'all' ? brandFilter : getBrandId() || brands[0]?.id;
     if (!brandId) return;
     const p = await createProject(brandId);
     onOpen(p.id);

@@ -54,7 +54,9 @@ async function getJSON<T>(url: string): Promise<T> {
   return r.json();
 }
 
-export const listBrands = () => getJSON<BrandSummary[]>('/api/brands');
+export const DEFAULT_BRAND = 'xero';
+/** Brands with the default company first, the rest alphabetical */
+export const listBrands = () => getJSON<BrandSummary[]>('/api/brands').then((bs) => [...bs].sort((a, b) => (a.id === DEFAULT_BRAND ? -1 : b.id === DEFAULT_BRAND ? 1 : a.name.localeCompare(b.name))));
 export const getBrand = (id = getBrandId()) => getJSON<Brand>(`/api/brands/${id}`);
 export const getAssets = (id = getBrandId()) => getJSON<Asset[]>(`/api/brands/${id}/assets`);
 export const getReferences = (id = getBrandId()) => getJSON<{ name: string; url: string }[]>(`/api/brands/${id}/references`);
