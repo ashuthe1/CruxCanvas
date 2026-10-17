@@ -124,6 +124,10 @@ export type AgentEvent =
   | { type: 'size'; width: number; height: number }
   | { type: 'snapshot_request'; pageId: string; requestId: string }
   | { type: 'report'; pageId: string; report: DesignReport }
+  /** clone sourcePageId as pageId; every element id becomes `${id}_${suffix}` (containers remapped too) */
+  | { type: 'duplicate_page'; sourcePageId: string; pageId: string; suffix: string; custom: Record<string, any> }
+  /** one controlled A/B variant finished (or was rejected because nothing changed) */
+  | { type: 'variant'; pageId: string; sourcePageId: string; dimension: string; label: string; score: number; dropped: string[]; rejected?: string }
   | { type: 'message'; text: string }
   | { type: 'error'; text: string }
   | { type: 'done' };

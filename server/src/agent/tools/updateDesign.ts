@@ -1,8 +1,70 @@
-import type { AgentTool } from '../../core/interfaces.js';
-import type { Op } from '../../core/types.js';
+import type { AgentTool, ToolContext } from '../../core/interfaces.js';
+import type { CompactPage, Op } from '../../core/types.js';
 import { applyOpsCompact, expandContainerMoves } from '../../lint/index.js';
 import { lintSummary, validateAndFix } from './createDesign.js';
 import { darkestColor } from '../../render/renderer.js';
+
+/**
+ * Make planner ops safe to apply: fill brand defaults on added elements, resolve library assetIds
+ * to src, keep image aspect ratios when only one dimension changes, and expand card moves to contents.
+ */
+export function prepareOps(page: CompactPage, rawOps: Op[], ctx: ToolContext): Op[] {
+  const { W, H } = ctx.canvas;
+  const dark = darkestColor(ctx.brand);
+  for (const op of rawOps) {
+    if (op.op !== 'add' || !op.element) continue;
+    const el = op.element;
+    if (!el.id) el.id = 'el_' + Math.random().toString(36).slice(2, 10);
+    if (el.type === 'text') {
+      const role = el.custom?.role || el.role || 'body';
+      el.fontFamily = el.fontFamily || (role === 'headline' ? ctx.brand.fonts.headline.family : role === 'cta' || role === 'label' ? ctx.brand.fonts.bodyBold.family : ctx.brand.fonts.body.family);
+      el.fill = el.fill && el.fill !== 'black' ? el.fill : dark;
+      el.fontSize = el.fontSize || Math.round(Math.min(W, H) * 0.026);
+      el.width = el.width || Math.round(W * 0.6);
+      el.height = el.height || Math.round(el.fontSize * 1.4);
+      el.name = el.name || role;
+      el.custom = { ...(el.custom || {}), role };
+    } else if (el.type === 'figure') {
+      el.fill = el.fill && el.fill !== 'black' ? el.fill : dark;
+      el.strokeWidth = el.strokeWidth ?? 0;
+    } else if (el.type === 'image' && el.assetId && !el.src) {
+      const a = ctx.assets.find((x) => x.id === el.assetId);
+      if (a) {
+        el.src = a.url;
+        el.custom = { ...(el.custom || {}), assetId: a.id, role: el.custom?.role || a.category };
+        if (el.width && !el.height) el.height = Math.round(el.width / (a.width / a.height));
+      }
+    }
+  }
+  for (const op of rawOps) {
+    if (op.op !== 'set') continue;
+    const el = page.elements.find((e) => e.id === op.id);
+    if (!el) continue;
+    // a bare "variant" (logo colourway) belongs in custom; custom is merged, never replaced, so role/container tags survive a partial set
+    if (op.props.variant !== undefined) {
+      op.props.custom = { ...(op.props.custom || {}), variant: op.props.variant };
+      delete op.props.variant;
+    }
+    if (op.props.custom && typeof op.props.custom === 'object') op.props.custom = { ...(el.custom || {}), role: el.role, container: el.container, ...op.props.custom };
+    // a logo variant name resolves to that variant's asset
+    if (op.props.custom?.variant && !op.props.assetId && ctx.brand.logo.assets[op.props.custom.variant] && (el.role === 'logo' || el.custom?.role === 'logo')) op.props.assetId = ctx.brand.logo.assets[op.props.custom.variant];
+    // a library assetId on an image resolves to its src (+ custom) and the asset's aspect ratio; the asset wins over a hand-typed src
+    if ((el.type === 'image' || el.type === 'svg') && op.props.assetId) {
+      const a = ctx.assets.find((x) => x.id === op.props.assetId);
+      if (a) {
+        op.props.src = a.url;
+        op.props.custom = { ...(el.custom || {}), ...(op.props.custom || {}), assetId: a.id, role: op.props.custom?.role || el.role || el.custom?.role || a.category };
+        const w = op.props.width ?? el.width;
+        if (op.props.height === undefined && a.width && a.height) op.props.height = Math.round(w / (a.width / a.height));
+      }
+    }
+    // images keep their aspect ratio when only one dimension is set (otherwise the canvas crops them)
+    if (!(el.type === 'image' || el.type === 'svg') || !el.width || !el.height) continue;
+    if (op.props.width !== undefined && op.props.height === undefined) op.props.height = Math.round(op.props.width * (el.height / el.width));
+    else if (op.props.height !== undefined && op.props.width === undefined) op.props.width = Math.round(op.props.height * (el.width / el.height));
+  }
+  return expandContainerMoves(page, rawOps);
+}
 
 export const updateDesignTool: AgentTool = {
   definition: {
@@ -23,42 +85,7 @@ export const updateDesignTool: AgentTool = {
     if (r > (ctx.userIsEditing ? 4 : 2)) return `STOP: you have already adjusted ${page.id} ${r - 1} times. Remaining lint items are acceptable — do not call update_design again for this page; finish with your summary.`;
 
     const rawOps: Op[] = Array.isArray(args.ops) ? args.ops : [];
-    const { W, H } = ctx.canvas;
-    const dark = darkestColor(ctx.brand);
-    for (const op of rawOps) {
-      if (op.op !== 'add' || !op.element) continue;
-      const el = op.element;
-      if (!el.id) el.id = 'el_' + Math.random().toString(36).slice(2, 10);
-      if (el.type === 'text') {
-        const role = el.custom?.role || el.role || 'body';
-        el.fontFamily = el.fontFamily || (role === 'headline' ? ctx.brand.fonts.headline.family : role === 'cta' || role === 'label' ? ctx.brand.fonts.bodyBold.family : ctx.brand.fonts.body.family);
-        el.fill = el.fill && el.fill !== 'black' ? el.fill : dark;
-        el.fontSize = el.fontSize || Math.round(Math.min(W, H) * 0.026);
-        el.width = el.width || Math.round(W * 0.6);
-        el.height = el.height || Math.round(el.fontSize * 1.4);
-        el.name = el.name || role;
-        el.custom = { ...(el.custom || {}), role };
-      } else if (el.type === 'figure') {
-        el.fill = el.fill && el.fill !== 'black' ? el.fill : dark;
-        el.strokeWidth = el.strokeWidth ?? 0;
-      } else if (el.type === 'image' && el.assetId && !el.src) {
-        const a = ctx.assets.find((x) => x.id === el.assetId);
-        if (a) {
-          el.src = a.url;
-          el.custom = { ...(el.custom || {}), assetId: a.id, role: el.custom?.role || a.category };
-          if (el.width && !el.height) el.height = Math.round(el.width / (a.width / a.height));
-        }
-      }
-    }
-    // images keep their aspect ratio when only one dimension is set (otherwise the canvas crops them)
-    for (const op of rawOps) {
-      if (op.op !== 'set') continue;
-      const el = page.elements.find((e) => e.id === op.id);
-      if (!el || !(el.type === 'image' || el.type === 'svg') || !el.width || !el.height) continue;
-      if (op.props.width !== undefined && op.props.height === undefined) op.props.height = Math.round(op.props.width * (el.height / el.width));
-      else if (op.props.height !== undefined && op.props.width === undefined) op.props.width = Math.round(op.props.height * (el.width / el.height));
-    }
-    const ops = expandContainerMoves(page, rawOps);
+    const ops = prepareOps(page, rawOps, ctx);
     ctx.emit({ type: 'status', text: `Applying ${rawOps.length} change${rawOps.length === 1 ? '' : 's'}…` });
     applyOpsCompact(page, ops);
     ctx.emit({ type: 'ops', pageId: page.id, ops });

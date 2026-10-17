@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { DesignReport } from '../lib/api';
 
 /** The validator's reasoning for one design: rationale, auto-fixes, checks. */
-export function ReportCard({ report, onSelectPage }: { report: DesignReport & { pageId?: string; thumb?: string }; onSelectPage?: () => void }) {
+export function ReportCard({ report, onSelectPage, onIterate }: { report: DesignReport & { pageId?: string; thumb?: string }; onSelectPage?: () => void; onIterate?: () => void }) {
   const [open, setOpen] = useState(false);
   const failed = report.checks.filter((c) => !c.ok);
   const color = report.score >= 90 ? '#16a34a' : report.score >= 70 ? '#f59e0b' : '#ef4444';
@@ -20,6 +20,18 @@ export function ReportCard({ report, onSelectPage }: { report: DesignReport & { 
             {report.autoFixed.length ? ` · auto-fixed ${report.autoFixed.length}` : ''}
           </small>
         </div>
+        {onIterate && (
+          <button
+            className="chip"
+            title="Winner iterations: A/B variants of this page that change one thing each"
+            onClick={(e) => {
+              e.stopPropagation();
+              onIterate();
+            }}
+          >
+            ⑂ Iterate
+          </button>
+        )}
         <button
           className="link"
           onClick={(e) => {

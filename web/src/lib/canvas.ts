@@ -62,7 +62,7 @@ export function applyOps(store: StoreType, pageId: string, ops: ElementOp[]) {
     try {
       if (op.op === 'set') {
         const el = store.getElementById(op.id);
-        if (el) el.set(op.props);
+        if (el) el.set(op.props.custom && typeof op.props.custom === 'object' ? { ...op.props, custom: { ...(el.custom || {}), ...op.props.custom } } : op.props);
       } else if (op.op === 'delete') {
         store.deleteElements([op.id]);
       } else if (op.op === 'raise') {
@@ -98,6 +98,31 @@ export function addPageFromJSON(store: StoreType, pageJSON: any, replacePageId?:
   for (const el of pageJSON.children || []) page.addElement(el);
   store.selectPage(page.id);
   store.selectElements([]);
+  return page;
+}
+
+/**
+ * Duplicate a page in place (right after the source) with every element id suffixed, so server ops
+ * addressed to `${id}_${suffix}` land on the copy. Labels go on page.custom (variantOf, dimension).
+ */
+export function duplicatePage(store: StoreType, sourcePageId: string, pageId: string, suffix: string, custom: Record<string, any> = {}) {
+  const source = store.pages.find((p: any) => p.id === sourcePageId);
+  if (!source) return null;
+  const map = (id?: string) => (id ? `${id}_${suffix}` : id);
+  const json = source.toJSON();
+  const children = (json.children || []).map((el: any) => ({
+    ...el,
+    id: map(el.id),
+    custom: el.custom ? { ...el.custom, ...(el.custom.container ? { container: map(el.custom.container) } : {}), ...(el.custom.group ? { group: map(el.custom.group) } : {}) } : el.custom,
+  }));
+  const page = store.addPage({ id: pageId, background: json.background || 'white', custom: { ...(json.custom || {}), ...custom } });
+  for (const el of children) page.addElement(el);
+  // keep variants next to their source
+  const idx = store.pages.findIndex((p: any) => p.id === sourcePageId);
+  const variantsAfter = store.pages.slice(idx + 1).filter((p: any) => p.custom?.variantOf === sourcePageId).length;
+  try {
+    page.setZIndex?.(Math.min(idx + variantsAfter, store.pages.length - 1));
+  } catch {}
   return page;
 }
 

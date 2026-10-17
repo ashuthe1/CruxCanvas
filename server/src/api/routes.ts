@@ -10,6 +10,8 @@ import { analyzeReferences } from '../agent/references.js';
 import { searchAssets } from '../brands/index.js';
 import { GENERATED_DIR } from '../agent/tools/generateImage.js';
 import { scanCreative } from '../scan/brandScan.js';
+import { iteratePage } from '../iterate/iterate.js';
+import { dimensions } from '../iterate/dimensions.js';
 
 export type ApiDeps = { brands: IBrandRepository; providers: Providers; lint: LintEngine };
 
@@ -68,8 +70,8 @@ export function createApi(deps: ApiDeps) {
     res.json({ file, url: `/generated/${path.basename(file)}` });
   });
 
-  // ---- agent (NDJSON stream) ----
-  r.post('/agent', async (req, res) => {
+  /** NDJSON event stream shared by the agent and the iteration runner */
+  const stream = (run: (emit: (e: any) => void, signal: AbortSignal) => Promise<any>) => async (_req: any, res: any) => {
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Cache-Control', 'no-cache');
     res.flushHeaders();
@@ -81,7 +83,7 @@ export function createApi(deps: ApiDeps) {
       if (!res.writableEnded) res.write(JSON.stringify(e) + '\n');
     };
     try {
-      await runAgent(req.body, { brandId: brandIdOf(req), brands: deps.brands, providers: deps.providers, lint: deps.lint, tools: defaultTools }, emit, ac.signal);
+      await run(emit, ac.signal);
     } catch (e: any) {
       console.error(e);
       emit({ type: 'error', text: e?.message || String(e) });
@@ -89,7 +91,14 @@ export function createApi(deps: ApiDeps) {
       emit({ type: 'done' });
       res.end();
     }
-  });
+  };
+
+  // ---- agent (NDJSON stream) ----
+  r.post('/agent', (req, res) => stream((emit, signal) => runAgent(req.body, { brandId: brandIdOf(req), brands: deps.brands, providers: deps.providers, lint: deps.lint, tools: defaultTools }, emit, signal))(req, res));
+
+  // ---- winner iterations: controlled A/B variants of one page (NDJSON stream) ----
+  r.get('/iterate/dimensions', (_req, res) => res.json(dimensions.map((d) => ({ id: d.id, label: d.label, blurb: d.blurb }))));
+  r.post('/iterate', (req, res) => stream((emit, signal) => iteratePage(req.body, { brandId: brandIdOf(req), brands: deps.brands, providers: deps.providers, lint: deps.lint }, emit, signal))(req, res));
 
   return r;
 }
