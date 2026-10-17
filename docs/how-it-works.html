@@ -1,0 +1,505 @@
+<title>Brand Copilot Under the Hood</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single scroll story. Ink header band, paper body, one orange accent, wide pipeline rail that wraps on phones. */
+:root {
+  --bg: #FDFBF5; --bg-2: #F3F0E7; --bg-3: #EAE6DA; --card: #FFFFFF;
+  --fg: #141414; --fg-2: #3A3832; --muted: #6F6B63; --line: #E4DFD2;
+  --accent: #F26524; --accent-soft: #FCE5DA; --mint: #1FA86A; --mint-soft: #DDF5E8; --violet: #6C63FF; --violet-soft: #E9E7FF;
+  --ink: #141414; --ink-fg: #FFFFFF; --ink-muted: rgba(255,255,255,.62);
+  --display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
+  --body: 'Inter', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121210; --bg-2: #1A1A17; --bg-3: #24231F; --card: #1C1C19;
+  --fg: #F2EFE6; --fg-2: #D6D2C6; --muted: #9A958A; --line: #2E2D28;
+  --accent: #FF7A3D; --accent-soft: #3A2217; --mint: #3DD68C; --mint-soft: #15301F; --violet: #8F88FF; --violet-soft: #26244A;
+  --ink: #0B0B0A; --ink-fg: #FFFFFF; --ink-muted: rgba(255,255,255,.6);
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #121210; --bg-2: #1A1A17; --bg-3: #24231F; --card: #1C1C19;
+  --fg: #F2EFE6; --fg-2: #D6D2C6; --muted: #9A958A; --line: #2E2D28;
+  --accent: #FF7A3D; --accent-soft: #3A2217; --mint: #3DD68C; --mint-soft: #15301F; --violet: #8F88FF; --violet-soft: #26244A;
+  --ink: #0B0B0A; --ink-fg: #FFFFFF; --ink-muted: rgba(255,255,255,.6);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0; }
+h1, h2, h3 { font-family: var(--display); letter-spacing: -.015em; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(24px, 3vw, 34px); font-weight: 800; text-transform: uppercase; line-height: 1.05; }
+h3 { font-size: 17px; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font-family: var(--display); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.eyebrow::before { content: '// '; color: var(--accent); }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+section { padding-block: 56px; border-top: 1px solid var(--line); }
+section .lede { max-width: 62ch; color: var(--fg-2); font-size: 16px; margin-top: 12px; }
+.sec-head { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+/* hero */
+.hero { background: radial-gradient(900px 420px at 90% -20%, rgba(242,101,36,.55), transparent 60%), radial-gradient(600px 320px at 5% 120%, rgba(108,99,255,.4), transparent 60%), var(--ink); color: var(--ink-fg); padding-block: 64px 48px; }
+.hero .eyebrow { color: var(--ink-muted); }
+.hero h1 { font-size: clamp(34px, 5.4vw, 66px); font-weight: 800; text-transform: uppercase; line-height: .98; margin-top: 14px; max-width: 14ch; }
+.hero .sub { max-width: 58ch; color: var(--ink-muted); font-size: 17px; margin-top: 20px; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+.stat { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 8px 14px 8px 10px; display: inline-flex; gap: 10px; align-items: center; font-size: 13px; color: var(--ink-fg); }
+.stat b { font-family: var(--display); font-size: 18px; font-variant-numeric: tabular-nums; background: var(--accent); color: #fff; border-radius: 999px; min-width: 34px; height: 30px; display: inline-grid; place-items: center; padding: 0 9px; }
+
+/* pipeline rail */
+.rail { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; align-items: stretch; }
+.step { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 12px 12px; cursor: pointer; text-align: left; font: inherit; color: inherit; display: flex; flex-direction: column; gap: 6px; min-width: 0; transition: border-color .15s, transform .15s, box-shadow .15s; }
+.step:hover { border-color: var(--fg); transform: translateY(-2px); }
+.step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.step[aria-expanded="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.step .n { font-family: var(--display); font-size: 11px; letter-spacing: .1em; color: var(--muted); }
+.step .t { font-family: var(--display); font-weight: 700; font-size: 15px; line-height: 1.15; }
+.step .who { font-size: 11.5px; color: var(--muted); }
+.step .who i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+.step::after { content: '→'; position: absolute; right: -12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; z-index: 1; }
+.step:last-child::after { content: ''; }
+.rail-detail { margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 24px; }
+.rail-detail h3 { margin-bottom: 8px; }
+.rail-detail p { color: var(--fg-2); }
+.rail-detail ul { margin: 10px 0 0; padding-left: 18px; color: var(--fg-2); }
+.rail-detail li { margin: 4px 0; }
+.rail-detail li::marker { color: var(--accent); }
+pre.code { margin: 0; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-family: var(--mono); font-size: 12px; line-height: 1.5; overflow-x: auto; color: var(--fg-2); white-space: pre; }
+pre.code .k { color: var(--accent); } pre.code .s { color: var(--mint); } pre.code .c { color: var(--muted); }
+.loop-note { margin-top: 16px; display: flex; gap: 12px; align-items: flex-start; background: var(--accent-soft); border-radius: 14px; padding: 14px 16px; color: var(--fg-2); font-size: 14px; }
+.loop-note b { color: var(--fg); }
+.loop-note .arrow { font-family: var(--display); font-size: 22px; color: var(--accent); line-height: 1; }
+
+/* model cards */
+.models { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.model { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.model .role { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.model .role i { width: 10px; height: 10px; border-radius: 3px; transform: rotate(45deg); display: inline-block; }
+.model .name { font-family: var(--display); font-size: 22px; font-weight: 800; line-height: 1.05; }
+.model .job { color: var(--fg-2); }
+.model dl { margin: 6px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
+.model dt { color: var(--muted); } .model dd { margin: 0; color: var(--fg-2); }
+.model .foot { margin-top: auto; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 12.5px; color: var(--muted); }
+.c-plan { color: var(--violet); } .c-plan i { background: var(--violet); }
+.c-see { color: var(--accent); } .c-see i { background: var(--accent); }
+.c-img { color: var(--mint); } .c-img i { background: var(--mint); }
+.c-det { color: var(--fg-2); } .c-det i { background: var(--fg-2); }
+
+/* two-column see / change */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.panel .eyebrow { font-size: 11px; }
+.panel ul { margin: 0; padding-left: 18px; color: var(--fg-2); }
+.panel li { margin: 5px 0; } .panel li::marker { color: var(--accent); }
+.panel li b { color: var(--fg); }
+
+/* tabs */
+.tabs { display: flex; gap: 4px; padding: 4px; background: var(--bg-3); border-radius: 999px; width: max-content; max-width: 100%; overflow-x: auto; }
+.tabs button { font: inherit; font-size: 13px; font-weight: 600; color: var(--muted); background: transparent; border: 0; border-radius: 999px; padding: 8px 14px; cursor: pointer; white-space: nowrap; }
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--ink-fg); }
+.tabs button:focus-visible { outline: 2px solid var(--accent); }
+.flow { margin-top: 18px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.flow ol { margin: 8px 0 0; padding-left: 20px; color: var(--fg-2); }
+.flow li { margin: 6px 0; } .flow li::marker { color: var(--accent); font-weight: 700; }
+.flow .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.tag { font-size: 12px; border-radius: 999px; padding: 4px 10px; background: var(--bg-2); border: 1px solid var(--line); color: var(--fg-2); }
+.tag.plan { background: var(--violet-soft); color: var(--violet); border-color: transparent; }
+.tag.see { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.tag.img { background: var(--mint-soft); color: var(--mint); border-color: transparent; }
+
+/* checks */
+.checks { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+.rules { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.rule { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.rule .sev { width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+.rule .sev.e { background: #E5484D; } .rule .sev.w { background: #F5A524; } .rule .sev.i { background: var(--violet); }
+.rule b { display: block; color: var(--fg); font-weight: 600; }
+.rule span { color: var(--muted); font-size: 12.5px; }
+.qa { background: var(--ink); color: var(--ink-fg); border-radius: 18px; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; }
+.qa .eyebrow { color: var(--ink-muted); }
+.qa h3 { color: #fff; }
+.qa ol { margin: 0; padding-left: 20px; color: rgba(255,255,255,.82); columns: 2; column-gap: 18px; font-size: 13.5px; }
+.qa li { margin: 3px 0; break-inside: avoid; } .qa li::marker { color: var(--accent); }
+.qa .rounds { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+.qa .rounds span { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.3); display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 14px; }
+.qa .rounds span.on { background: var(--accent); border-color: var(--accent); }
+.qa .rounds em { font-style: normal; color: var(--ink-muted); font-size: 13px; margin-left: 6px; }
+
+/* architecture */
+.arch { display: grid; grid-template-columns: 1fr auto 1.4fr auto 1fr; gap: 12px; align-items: stretch; }
+.box { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; min-width: 0; }
+.box h3 { margin-bottom: 4px; }
+.box .sub { color: var(--muted); font-size: 12.5px; margin-bottom: 10px; }
+.box ul { margin: 0; padding-left: 18px; color: var(--fg-2); font-size: 13.5px; }
+.box li { margin: 3px 0; } .box li::marker { color: var(--accent); }
+.arch .link { display: grid; place-items: center; color: var(--muted); font-family: var(--mono); font-size: 11px; text-align: center; line-height: 1.4; padding: 0 2px; }
+.arch .link b { display: block; font-size: 18px; color: var(--accent); font-family: var(--display); }
+
+/* cost table */
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--display); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+td:nth-child(3), td:nth-child(4) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+footer { padding-block: 32px 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+
+@media (max-width: 960px) {
+  .rail { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .step:nth-child(4)::after { content: ''; }
+  .models { grid-template-columns: 1fr 1fr; }
+  .arch { grid-template-columns: 1fr; }
+  .arch .link { padding: 4px 0; }
+  .arch .link b { transform: rotate(90deg); display: inline-block; }
+}
+@media (max-width: 640px) {
+  section { padding-block: 40px; }
+  .rail { grid-template-columns: 1fr 1fr; }
+  .step::after { content: ''; }
+  .rail-detail, .two, .flow, .checks, .models { grid-template-columns: 1fr; }
+  .rules { grid-template-columns: 1fr; }
+  .qa ol { columns: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .step { transition: none; } .step:hover { transform: none; } }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Brand Copilot · GetCrux AI Hackathon · 17 Oct 2026</div>
+    <h1>An agent that designs on a real canvas, then checks its own work</h1>
+    <p class="sub">A chat copilot inside a Polotno editor. It reads the canvas as structured data, looks at the rendered pixels, plans edits with a text model, renders deterministically, and loops through brand lint and visual QA until the checks pass. Everything it does streams into the chat as an expandable step trace.</p>
+    <div class="hero-stats">
+      <span class="stat"><b>4</b> models, each with one job</span>
+      <span class="stat"><b>16</b> deterministic brand rules</span>
+      <span class="stat"><b>11</b> visual QA checks per render</span>
+      <span class="stat"><b>5</b> fix rounds before it stops</span>
+      <span class="stat"><b>2</b> tenants: Xero and GetCrux</span>
+    </div>
+  </div>
+</header>
+
+<section id="loop">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">One request, end to end</div>
+      <h2>The loop behind every message</h2>
+      <p class="lede">Click a step. The same loop runs for a blank-page brief, an edit to a selected element, a reference-based batch, a winner iteration and a brand-scan remake. Only the first and last steps differ.</p>
+    </div>
+    <div class="rail" role="tablist" aria-label="Pipeline steps" id="rail"></div>
+    <div class="rail-detail" id="rail-detail"></div>
+    <div class="loop-note"><span class="arrow">↻</span><p><b>Why it converges.</b> Every path ends in the same validator. Lint errors are auto-fixed on the server mirror before the page reaches the editor, the report card shows what changed and why, and visual QA re-renders the real page and sends the defects back as the next planning input. If a fix round returns the same defects, the loop stops and says so instead of burning rounds.</p></div>
+  </div>
+</section>
+
+<section id="models">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Who does what</div>
+      <h2>Four models, each with one job</h2>
+      <p class="lede">No single model does everything. The planner never sees pixels, the vision model never writes layout, the image model only paints when the library has nothing that fits, and the deterministic parts (text metrics, lint, rendering) are code, not prompts.</p>
+    </div>
+    <div class="models">
+      <article class="model">
+        <span class="role c-plan"><i></i>Planner</span>
+        <div class="name">DeepSeek-V4-Pro</div>
+        <p class="job">Reads the brand brief, the asset catalogue and the compact canvas, then calls tools: <span class="mono">create_design</span>, <span class="mono">update_design</span>, <span class="mono">generate_image</span>, <span class="mono">set_canvas_size</span>. Text and tool calls only.</p>
+        <dl><dt>Sees</dt><dd>Structured JSON, never images</dd><dt>Returns</dt><dd>A design spec, or ops on element ids with a rationale</dd><dt>Trick</dt><dd>Prompt caching keeps the ~9k-token brand prompt nearly free after turn one</dd></dl>
+        <div class="foot">OpenAI-compatible endpoint on Azure. Swappable through one interface.</div>
+      </article>
+      <article class="model">
+        <span class="role c-see"><i></i>Eyes</span>
+        <div class="name">gpt-4.1 vision</div>
+        <p class="job">Turns a reference ad into a written brief, inspects a snapshot of the rendered page against an 11-point checklist, and scores uploaded creatives in Brand scan.</p>
+        <dl><dt>Sees</dt><dd>JPEG snapshot the editor renders at 0.75×</dd><dt>Returns</dt><dd>Defect list with element ids: occluded, clipped, unreadable, misaligned</dd><dt>Never</dt><dd>Moves anything itself. Findings go back to the planner.</dd></dl>
+        <div class="foot">gpt-4.1-mini tags and labels every asset during brand onboarding.</div>
+      </article>
+      <article class="model">
+        <span class="role c-img"><i></i>Painter</span>
+        <div class="name">gpt-image-1</div>
+        <p class="job">Generates an illustration or hero only when no library asset matches the brief. The prompt is composed from the brand's imagery guidance so the result stays in the family.</p>
+        <dl><dt>Size</dt><dd>1024², 1536×1024 or 1024×1536, medium quality</dd><dt>Placement</dt><dd>Face-safe cover crop, never under text</dd><dt>Cost knob</dt><dd><span class="mono">IMAGE_QUALITY</span> env, library first by default</dd></dl>
+        <div class="foot">Most Xero designs ship with zero generated images: the library has 90+ tagged assets.</div>
+      </article>
+      <article class="model">
+        <span class="role c-det"><i></i>Deterministic</span>
+        <div class="name">opentype.js + lint engine</div>
+        <p class="job">Server-side text measurement with the brand's real font files, card auto-stacking, collision nudging, and 16 brand rules with auto-fix ops. Same inputs, same output, no tokens.</p>
+        <dl><dt>Fixes</dt><dd>Position, size, colour, z-order, clear space</dd><dt>Scores</dt><dd>100 minus weighted issues: error 15, warn 7, info 3</dd></dl>
+        <div class="foot">Runs on every manual edit too, so a human drag gets the same bar as the agent.</div>
+      </article>
+      <article class="model">
+        <span class="role c-det"><i></i>Deterministic</span>
+        <div class="name">potrace vectoriser</div>
+        <p class="job">Brand kits often ship 210×60 PNG logos. Onboarding traces them to SVG with hue-merged colour clusters, so logos stay crisp at any size and in any colourway.</p>
+        <dl><dt>Input</dt><dd>PNG upscaled 6× with Lanczos</dd><dt>Output</dt><dd><span class="mono">vectorUrl</span> used by the renderer and the colourway fixer</dd></dl>
+        <div class="foot">One command per tenant: <span class="mono">npm run vectorize -- --brand xero</span></div>
+      </article>
+      <article class="model">
+        <span class="role c-det"><i></i>Editor</span>
+        <div class="name">Polotno on Konva</div>
+        <p class="job">The canvas is the source of truth. Pages, elements and ids are real editor objects the user can drag, retype or delete at any time. The agent edits by id, never by regenerating pixels.</p>
+        <dl><dt>Export</dt><dd>PNG at 2×, zipped per session</dd><dt>Sync</dt><dd>The server asks the editor for fresh state mid-run</dd></dl>
+        <div class="foot">Vite + React 19 client, Express + TypeScript server, NDJSON streaming.</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="see">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Grounding</div>
+      <h2>What the agent sees, and how it changes things</h2>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <div class="eyebrow">Input: the compact canvas</div>
+        <pre class="code"><span class="c">// every page, every element, exact pixels, z-order = array order</span>
+{ <span class="k">"canvas"</span>: { <span class="k">"w"</span>: 1080, <span class="k">"h"</span>: 1080, <span class="k">"activePageId"</span>: <span class="s">"p1"</span>,
+  <span class="k">"selectedIds"</span>: [<span class="s">"t_head"</span>] },
+  <span class="k">"pages"</span>: [{ <span class="k">"id"</span>: <span class="s">"p1"</span>, <span class="k">"background"</span>: <span class="s">"#000856"</span>, <span class="k">"elements"</span>: [
+    { <span class="k">"id"</span>: <span class="s">"card1"</span>, <span class="k">"type"</span>: <span class="s">"figure"</span>, <span class="k">"role"</span>: <span class="s">"card"</span>, <span class="k">"x"</span>: 72, <span class="k">"y"</span>: 300, <span class="k">"w"</span>: 936, <span class="k">"h"</span>: 420 },
+    { <span class="k">"id"</span>: <span class="s">"t_head"</span>, <span class="k">"type"</span>: <span class="s">"text"</span>, <span class="k">"container"</span>: <span class="s">"card1"</span>, <span class="k">"text"</span>: <span class="s">"Your books, now on autopilot."</span>,
+      <span class="k">"x"</span>: 120, <span class="k">"y"</span>: 348, <span class="k">"w"</span>: 840, <span class="k">"h"</span>: 112, <span class="k">"fontSize"</span>: 56, <span class="k">"fill"</span>: <span class="s">"#000856"</span> },
+    { <span class="k">"id"</span>: <span class="s">"cta"</span>, <span class="k">"type"</span>: <span class="s">"text"</span>, <span class="k">"group"</span>: <span class="s">"cta_pill"</span>, <span class="k">"text"</span>: <span class="s">"Find out more"</span> … },
+    { <span class="k">"id"</span>: <span class="s">"logo"</span>, <span class="k">"role"</span>: <span class="s">"logo"</span>, <span class="k">"assetId"</span>: <span class="s">"logo-white"</span>, <span class="k">"x"</span>: 72, <span class="k">"y"</span>: 64, <span class="k">"w"</span>: 240, <span class="k">"h"</span>: 69 }
+  ] }] }</pre>
+        <ul>
+          <li><b>Ids and boxes</b> for every element, so an edit can target one thing precisely.</li>
+          <li><b>Roles, containers and groups</b> (card, cta pill, logo) so moving a card moves its contents.</li>
+          <li><b>Selection</b>, so "make this bigger" means the selected element.</li>
+          <li><b>Snapshot</b> of the active page, rendered by the editor itself, for the vision pass.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="eyebrow">Output: ops on ids, with a reason</div>
+        <pre class="code">update_design({
+  <span class="k">"pageId"</span>: <span class="s">"p1"</span>,
+  <span class="k">"rationale"</span>: <span class="s">"Logo straddles the card edge; move it to the free top-right corner and tighten the headline."</span>,
+  <span class="k">"ops"</span>: [
+    { <span class="k">"op"</span>: <span class="s">"set"</span>, <span class="k">"id"</span>: <span class="s">"logo"</span>,   <span class="k">"props"</span>: { <span class="k">"x"</span>: 768, <span class="k">"y"</span>: 64 } },
+    { <span class="k">"op"</span>: <span class="s">"set"</span>, <span class="k">"id"</span>: <span class="s">"t_head"</span>, <span class="k">"props"</span>: { <span class="k">"text"</span>: <span class="s">"Books that close themselves."</span> } },
+    { <span class="k">"op"</span>: <span class="s">"raise"</span>, <span class="k">"id"</span>: <span class="s">"logo"</span> }
+  ]
+})
+<span class="c">// server: apply to mirror → re-measure text → restack card → lint → auto-fix → stream ops to editor</span></pre>
+        <ul>
+          <li><b>Four verbs</b>: set, add, delete, raise. Nothing is regenerated as pixels.</li>
+          <li><b>Rationale is mandatory</b>, and it is what the trace shows under "why".</li>
+          <li><b>Text is re-measured</b> with the brand font before anything lands, so longer copy never overlaps the button.</li>
+          <li><b>The editor applies the same ops</b>, so undo works and the user can keep editing.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="flows">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Five entry points</div>
+      <h2>Same loop, different first step</h2>
+    </div>
+    <div class="tabs" role="tablist" id="flow-tabs"></div>
+    <div class="flow" id="flow-body"></div>
+  </div>
+</section>
+
+<section id="checks">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Quality gate</div>
+      <h2>What has to pass before it says done</h2>
+      <p class="lede">Two layers. The lint engine is code and catches geometry and brand facts exactly. Visual QA is a model looking at the real render and catches what geometry misses: a charm covering a face, a headline that reads badly, a layout that just looks wrong.</p>
+    </div>
+    <div class="checks">
+      <div>
+        <div class="eyebrow" style="margin-bottom:10px">Layer 1 · deterministic lint, auto-fixable</div>
+        <div class="rules">
+          <div class="rule"><i class="sev e"></i><div><b>Palette</b><span>Every fill and text colour is in the brand kit</span></div></div>
+          <div class="rule"><i class="sev e"></i><div><b>Fonts</b><span>Only brand faces and weights</span></div></div>
+          <div class="rule"><i class="sev e"></i><div><b>Logo present, sized, right colourway</b><span>White on dark, colour on light; clear space respected</span></div></div>
+          <div class="rule"><i class="sev e"></i><div><b>Logo hidden or overlapping a card</b><span>Raised to top, or moved to the nearest free corner</span></div></div>
+          <div class="rule"><i class="sev e"></i><div><b>Contrast</b><span>WCAG 3:1 for large text, best-contrast palette pick as the fix</span></div></div>
+          <div class="rule"><i class="sev e"></i><div><b>Text overlap, text over button</b><span>Measured with real font metrics, restacked inside the card</span></div></div>
+          <div class="rule"><i class="sev e"></i><div><b>Image over text, image cut off</b><span>Imagery never sits under copy or past the canvas</span></div></div>
+          <div class="rule"><i class="sev e"></i><div><b>Card contents, on-canvas</b><span>Children stay inside their container; nothing leaves the page</span></div></div>
+          <div class="rule"><i class="sev w"></i><div><b>Edges, safe zones</b><span>Margins and Meta-safe bands for Stories</span></div></div>
+          <div class="rule"><i class="sev w"></i><div><b>Text size, ragged alignment</b><span>Minimum legible size; left edges snapped to the column</span></div></div>
+          <div class="rule"><i class="sev i"></i><div><b>Tone and CTA</b><span>Brand voice words, one clear call to action</span></div></div>
+          <div class="rule"><i class="sev i"></i><div><b>Logo distorted</b><span>Aspect ratio locked to the asset</span></div></div>
+        </div>
+      </div>
+      <div class="qa">
+        <div class="eyebrow">Layer 2 · visual QA on the real render</div>
+        <h3>Eleven questions the vision model answers about the pixels</h3>
+        <ol>
+          <li>Occlusion: anything covering a logo, face or text?</li>
+          <li>Clipping: any element cut by the canvas edge?</li>
+          <li>Visibility: anything too faint or too small to read?</li>
+          <li>Containment: card contents inside their card?</li>
+          <li>Overlap: text on text, text on imagery?</li>
+          <li>Alignment: ragged edges, uneven gaps?</li>
+          <li>Readability: line breaks, widows, contrast in context</li>
+          <li>Image quality: blur, stretching, odd crops</li>
+          <li>Placement: logo in a corner, CTA where eyes land</li>
+          <li>Composition: balance, breathing room, hierarchy</li>
+          <li>Brand sense: does it look like this brand?</li>
+        </ol>
+        <div class="rounds"><span class="on">1</span><span class="on">2</span><span class="on">3</span><span class="on">4</span><span class="on">5</span><em>fix rounds, early stop when the same defects return</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="arch">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">System shape</div>
+      <h2>Three parts, one stream</h2>
+    </div>
+    <div class="arch">
+      <div class="box">
+        <h3>Editor</h3>
+        <div class="sub">Vite · React 19 · Polotno</div>
+        <ul><li>Dashboard of sessions, stars, status, bulk actions</li><li>Canvas with brand assets and templates panel</li><li>Copilot panel: chat, step trace, report cards, Brand check, Brand scan</li><li>Serialises the canvas, applies ops, answers state and snapshot requests</li><li>Autosaves to the server every change</li></ul>
+      </div>
+      <div class="link"><b>⇄</b>POST /api/agent<br>NDJSON events<br>state_request · snapshot</div>
+      <div class="box">
+        <h3>Server</h3>
+        <div class="sub">Express · TypeScript · tsx</div>
+        <ul><li><b>Agent loop</b>: observe → look → plan → act → validate → visual QA, max 24 tool iterations</li><li><b>Tool registry</b>: create, update, generate image, canvas size, iterate</li><li><b>Renderer</b>: design spec → Polotno page JSON with measured text</li><li><b>Lint engine</b>: 16 rules, auto-fix ops, report cards</li><li><b>Providers</b>: planner, vision, images behind one interface</li><li><b>Projects</b>: file-backed sessions, scans, scores, thumbnails</li></ul>
+      </div>
+      <div class="link"><b>⇄</b>filesystem<br>brands/&lt;id&gt;<br>data/projects</div>
+      <div class="box">
+        <h3>Brand tenants</h3>
+        <div class="sub">brand.json · assets.json · fonts · references</div>
+        <ul><li>Onboarding scripts download a kit, tag every asset with vision, draft the brand brief</li><li>Logos vectorised, colourways derived, recipes and safe zones declared</li><li>Switching tenant swaps prompts, rules, fonts and library at once</li><li>Xero from the hackathon kit; GetCrux built from getcrux.ai and LinkedIn</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cost">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Budget</div>
+      <h2>What a request costs</h2>
+      <p class="lede">The expensive thing is images, so the system avoids them: library first, prompt caching for the brand context, and small parallel planner turns for iterations.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Operation</th><th>Model calls</th><th>Tokens / images</th><th>Wall time</th></tr></thead>
+        <tbody>
+          <tr><td>Single design, library imagery</td><td>2–3 planner turns, cached brand prompt</td><td>~12k in / 1k out</td><td>8–15 s</td></tr>
+          <tr><td>Single design with a generated hero</td><td>+ 1 gpt-image-1 at medium</td><td>+ 1 image</td><td>+12–20 s</td></tr>
+          <tr><td>4 variants from a reference ad</td><td>1 vision brief + 4–6 planner turns + 0–2 images</td><td>~25k in / 4k out</td><td>45–75 s</td></tr>
+          <tr><td>Winner iteration, 3 variants</td><td>3 small planner turns in parallel</td><td>~12k each</td><td>10–15 s</td></tr>
+          <tr><td>Visual QA round</td><td>1 vision inspection + 1 planner fix turn</td><td>~3k + 1 snapshot</td><td>6–10 s</td></tr>
+          <tr><td>Brand scan</td><td>1 vision call</td><td>~2k + 2 images</td><td>4–6 s</td></tr>
+          <tr><td>Onboarding, 90 assets</td><td>1 gpt-4.1-mini per asset</td><td>~400 each</td><td>≈ 40 s</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Brand Copilot · built for the GetCrux AI Hackathon. Figures are typical runs measured during development, not guarantees.</div>
+</footer>
+
+<script>
+(function () {
+  var STEPS = [
+    { n: 'Step 1', t: 'Observe', who: 'Editor → server', c: 'var(--fg-2)',
+      h: 'The editor serialises every page into compact JSON',
+      p: 'Ids, types, roles, exact boxes, text, fills, container and group tags, z-order as array order, and the current selection. No pixels yet. This is the only representation the planner ever reasons about, which is why its edits land on the right element at the right coordinate.',
+      li: ['Sent with every message, and re-requested mid-run after the user drags something', 'Pages are kept as a server-side mirror so ops can be validated before they reach the canvas', 'Selected ids turn "make this bigger" into an edit on one element'],
+      code: 'POST /api/agent\n{ message, canvas, pages, selectedIds,\n  variants, references, canvasSnapshot }' },
+    { n: 'Step 2', t: 'Look', who: 'gpt-4.1 vision', c: 'var(--accent)',
+      h: 'A snapshot of the active page goes through the 11-point checklist',
+      p: 'Only when there is something to look at: edits to an existing page, hero designs, and every QA round. The vision model returns defects tied to element ids, which are injected into the planner\'s context before it plans. The planner is explicitly told never to report success for something it did not do.',
+      li: ['Snapshot is rendered by the editor itself at 0.75× so the model sees what the user sees', 'Findings are advisory to the planner, binding to the QA loop', 'Reference images take the same path and come back as a written brief'],
+      code: 'trace { kind: "vision", title: "Looked at the render",\n  data: { defects: [ { elementIds: ["logo"],\n    problem: "straddles card edge" } ] } }' },
+    { n: 'Step 3', t: 'Plan', who: 'DeepSeek-V4-Pro', c: 'var(--violet)',
+      h: 'The planner picks a tool and fills its arguments',
+      p: 'The system prompt carries the brand brief, the asset catalogue as one-line entries, the design-spec vocabulary, layout recipes and the format rules. It is prompt-cached, so repeated turns cost almost nothing. On a blank page the planner writes a design spec; on a page with content it writes ops on existing ids.',
+      li: ['Tools: create_design, update_design, generate_image, set_canvas_size, propose_variants', 'Every update_design call must carry a rationale, shown in the trace as "why"', 'Up to 24 tool iterations per request; 4 update rounds per page when editing'],
+      code: 'create_design({ replacePageId: "p1", design: {\n  background: "#000856",\n  children: [ { type: "card", children: [\n    { type: "text", role: "headline", text: "…" },\n    { type: "cta", text: "Find out more" } ] },\n    { type: "image", assetId: "illus-bloom-07" },\n    { type: "logo", variant: "white", corner: "tl" } ] } })' },
+    { n: 'Step 4', t: 'Act', who: 'Renderer · tools', c: 'var(--fg-2)',
+      h: 'Specs become pages, ops become precise changes',
+      p: 'The renderer turns a design spec into Polotno page JSON: it measures every text run with the brand\'s font files through opentype.js, stacks card children with real heights, nudges collisions, cover-crops imagery face-safe, keeps charms on card corners and the logo on top. Ops are applied to the mirror, and card contents are restacked afterwards so a longer headline pushes the button down instead of sitting on it.',
+      li: ['Generated images only when the library has nothing that fits the brief', 'Asset src resolves to the vectorised logo when one exists', 'Proportional resize for images so nothing stretches'],
+      code: 'render(spec, 1080, 1080)\n  → measureText(font, size, width)\n  → stackCards(padRatio)\n  → nudgeCollisions()\n  → page JSON (ids, boxes, src, custom.role)' },
+    { n: 'Step 5', t: 'Validate', who: 'Lint engine', c: 'var(--fg-2)',
+      h: 'Sixteen rules run on the mirror, errors are fixed before the page ships',
+      p: 'Palette, fonts, logo presence, size, colourway, clear space, hidden or overlapping a card, contrast, text size and overlap, text over button, card contents, image over text, image cut off, ragged alignment, on-canvas, edges, safe zones, tone, CTA. Each issue carries fix ops. Errors and safe warnings are applied automatically; judgement calls are listed on the report card.',
+      li: ['Score = 100 minus weighted issues, shown as the green ring on the card', 'Same engine runs live on manual edits in the Brand check tab', 'Brand scan runs the same rules on any uploaded creative'],
+      code: 'report { score: 100, fixed: ["Logo overlaps card",\n  "Ragged alignment"], passed: 16, issues: [] }' },
+    { n: 'Step 6', t: 'Apply', who: 'Server → editor', c: 'var(--fg-2)',
+      h: 'The editor receives pages and ops as a stream and applies them',
+      p: 'Events arrive as NDJSON: status, trace, page, ops, lint, report, size, duplicate_page, variant, message, done. The editor adds or replaces pages, applies ops by id, keeps undo history intact and renders a report card with a thumbnail. Nothing is a flattened image; the user can keep editing.',
+      li: ['A 120 s idle watchdog and reconnects keep long runs alive through server restarts', 'Autosave persists every change to the session, with thumbnails and scores'],
+      code: '{"type":"ops","pageId":"p1","ops":[…]}\n{"type":"report","report":{…}}\n{"type":"trace","step":{"kind":"fix",…}}' },
+    { n: 'Step 7', t: 'Visual QA', who: 'Editor render + vision', c: 'var(--accent)',
+      h: 'The real page is rendered again and inspected, up to five rounds',
+      p: 'The server asks the editor for a fresh snapshot of each touched page and runs the checklist on it. Defects go back to the planner as the next instruction, the planner fixes, lint runs again, and the page is re-inspected. The loop stops early when a round returns the same defect signature, and says so in the trace.',
+      li: ['Catches what geometry cannot: a charm over a face, a headline that wraps badly, a layout that reads wrong', 'Each round is a visible step in the trace with the defects listed', 'Final validation runs on every page the request touched'],
+      code: 'round 1: 2 defects → fix → round 2: 0 defects ✓\n(or) round 3 == round 2 → "stopped: same defects came back"' },
+    { n: 'Step 8', t: 'Explain', who: 'Chat', c: 'var(--fg-2)',
+      h: 'A short summary, with the full trace one click away',
+      p: 'The chat shows what changed, the score, and why. The collapsible steps block lists every observe, look, plan, tool, validate and fix step with its data, so a reviewer can check that the agent actually did what it claims.',
+      li: ['Report cards link to the page and offer winner iterations from the same place', 'Sessions, messages, scans and scores persist to the dashboard'],
+      code: '"Logo moved to the free top-right corner and raised above the card;\n headline re-measured and the CTA restacked. 16/16 checks passed."' }
+  ];
+  var rail = document.getElementById('rail'), detail = document.getElementById('rail-detail');
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  function show(i) {
+    var s = STEPS[i];
+    Array.prototype.forEach.call(rail.children, function (b, j) { b.setAttribute('aria-expanded', String(j === i)); });
+    detail.innerHTML = '<div><h3>' + esc(s.h) + '</h3><p>' + esc(s.p) + '</p><ul>' + s.li.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul></div>' +
+      '<pre class="code">' + esc(s.code) + '</pre>';
+  }
+  STEPS.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.className = 'step'; b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'step-' + i;
+    b.innerHTML = '<span class="n">' + esc(s.n) + '</span><span class="t">' + esc(s.t) + '</span><span class="who"><i style="background:' + s.c + '"></i>' + esc(s.who) + '</span>';
+    b.addEventListener('click', function () { show(i); });
+    rail.appendChild(b);
+  });
+  show(0);
+
+  var FLOWS = [
+    { t: 'Create from blank', first: 'Prompt on an empty page, optionally "×4" for variants.',
+      steps: ['Planner may call set_canvas_size when the prompt names a format (1080×1920 Story, 1200×628 ad)', 'create_design spec per variant, replacing the empty page or adding pages', 'Renderer measures and stacks, lint fixes errors, report card per page', 'Visual QA on hero designs, then the summary'],
+      tags: [['plan', 'DeepSeek plans'], ['img', 'gpt-image-1 only if needed'], ['see', 'vision QA']] },
+    { t: 'Edit the current page', first: 'Prompt with or without a selection on a page that has content.',
+      steps: ['Vision looks at the snapshot first and lists defects', 'Planner writes update_design ops on existing ids with a rationale', 'Ops applied to the mirror, text re-measured, cards restacked, lint auto-fix', 'Editor applies the same ops; QA loop re-renders and re-checks up to 5 rounds'],
+      tags: [['see', 'vision before and after'], ['plan', 'ops on ids']] },
+    { t: 'Reference-based variants', first: 'Attach an image, pick one from the brand\'s reference library, or use the canvas as a style reference.',
+      steps: ['gpt-4.1 writes a brief: layout, mood, copy angle, imagery, what to keep and what is off-brand', 'Planner creates N designs from the brief using only brand assets, colours and fonts', 'Each variant validated and reported separately'],
+      tags: [['see', 'vision brief'], ['plan', 'N create_design calls']] },
+    { t: 'Winner iterations', first: 'Iterate button on any page: pick dimensions (hook, colourway, CTA, imagery, layout) and a count.',
+      steps: ['The page is duplicated N times with suffixed ids, kept next to the source', 'One small planner turn per variant proposes ops that change exactly one dimension', 'Ops are filtered by the dimension whitelist, remapped to the clone\'s ids, validated and fixed', 'Comparison grid with scores, keep or discard each, variants stay editable pages'],
+      tags: [['plan', 'parallel planner turns'], ['img', 'no new images']] },
+    { t: 'Brand scan and remake', first: 'Upload any creative, or scan the current page, in the Brand scan tab.',
+      steps: ['gpt-4.1 scores the image against the brand: palette, logo, type, tone, layout, with a fix list', 'Scan records persist to the session and the dashboard', 'Remake on-brand feeds the image as a reference plus the fix list into the create flow'],
+      tags: [['see', 'vision scoring'], ['plan', 'remake = create']] }
+  ];
+  var tabs = document.getElementById('flow-tabs'), body = document.getElementById('flow-body');
+  function showFlow(i) {
+    var f = FLOWS[i];
+    Array.prototype.forEach.call(tabs.children, function (b, j) { b.setAttribute('aria-selected', String(j === i)); });
+    body.innerHTML = '<div><div class="eyebrow">Trigger</div><p style="margin-top:6px;color:var(--fg-2)">' + esc(f.first) + '</p><div class="meta">' + f.tags.map(function (t) { return '<span class="tag ' + t[0] + '">' + esc(t[1]) + '</span>'; }).join('') + '</div></div>' +
+      '<div><div class="eyebrow">Then</div><ol>' + f.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol></div>';
+  }
+  FLOWS.forEach(function (f, i) {
+    var b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.id = 'flow-' + i; b.textContent = f.t;
+    b.addEventListener('click', function () { showFlow(i); });
+    tabs.appendChild(b);
+  });
+  showFlow(0);
+})();
+</script>
