@@ -79,19 +79,30 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
       finalText = msg.content || finalText;
       break;
     }
-    for (const call of msg.tool_calls) {
-      if (signal?.aborted) return;
-      const fn = (call as any).function;
+    // Slow, side-effect-free tools (image generation, search) run concurrently; canvas-mutating
+    // tools run in order so pages/ops arrive at the editor deterministically.
+    const PARALLEL = new Set(['generate_image', 'search_assets', 'lint_page']);
+    const run = async (call: any): Promise<string> => {
+      const fn = call.function;
       const tool = toolByName.get(fn.name);
-      let result: string;
       try {
         const args = JSON.parse(fn.arguments || '{}');
-        result = tool ? await tool.execute(args, ctx) : `ERROR: unknown tool ${fn.name}`;
+        return tool ? await tool.execute(args, ctx) : `ERROR: unknown tool ${fn.name}`;
       } catch (e: any) {
-        result = e instanceof SyntaxError ? 'ERROR: arguments were not valid JSON. Re-send the call with valid JSON.' : `ERROR: ${e?.message || e}`;
+        return e instanceof SyntaxError ? 'ERROR: arguments were not valid JSON. Re-send the call with valid JSON.' : `ERROR: ${e?.message || e}`;
       }
-      console.log(`[agent] ${fn.name} -> ${result.slice(0, 300)}`);
-      messages.push({ role: 'tool', tool_call_id: call.id, content: result });
+    };
+    const calls = msg.tool_calls as any[];
+    const results = new Map<string, string>();
+    await Promise.all(calls.filter((c) => PARALLEL.has(c.function.name)).map(async (c) => results.set(c.id, await run(c))));
+    for (const c of calls) {
+      if (signal?.aborted) return;
+      if (!results.has(c.id)) results.set(c.id, await run(c));
+    }
+    for (const c of calls) {
+      const result = results.get(c.id)!;
+      console.log(`[agent] ${c.function.name} -> ${result.slice(0, 300)}`);
+      messages.push({ role: 'tool', tool_call_id: c.id, content: result });
     }
   }
 

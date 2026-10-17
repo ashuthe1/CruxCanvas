@@ -45,7 +45,7 @@ export const logoRule: LintRule = {
       if (intruders.length) out.push({ rule: 'Logo clear space', severity: 'warn', elementId: l.id, message: `${intruders.map((i) => i.name || i.type).join(', ')} intrudes on the logo clear space.` });
       // partially outside the canvas / hidden behind imagery drawn later
       const idx = els.indexOf(l);
-      const cover = els.slice(idx + 1).find((e) => (e.type === 'image' || e.type === 'svg') && overlaps(e, l));
+      const cover = els.slice(idx + 1).find((e) => (e.type === 'image' || e.type === 'svg' || (e.type === 'figure' && (e.opacity ?? 1) > 0.5)) && overlaps(e, l));
       if (cover) {
         const pill = els.find((e) => role(e) === 'logo-pill' && contains(e, l));
         out.push({ rule: 'Logo hidden', severity: 'error', elementId: l.id, message: `"${cover.name || role(cover)}" is drawn over the logo.`, fix: [...(pill ? [{ op: 'raise' as const, id: pill.id }] : []), { op: 'raise' as const, id: l.id }] });

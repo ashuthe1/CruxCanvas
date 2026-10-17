@@ -54,6 +54,10 @@ export function serializeCanvas(store: StoreType) {
 export function applyOps(store: StoreType, pageId: string, ops: ElementOp[]) {
   const page = store.pages.find((p: any) => p.id === pageId) || store.activePage;
   if (!page) return;
+  const hadSelection = store.selectedElements.length > 0;
+  const done = () => {
+    if (!hadSelection) store.selectElements([]);
+  };
   for (const op of ops) {
     try {
       if (op.op === 'set') {
@@ -72,6 +76,7 @@ export function applyOps(store: StoreType, pageId: string, ops: ElementOp[]) {
       console.warn('op failed', op, e);
     }
   }
+  done();
 }
 
 /** Add a full page JSON (Polotno format) to the store, optionally replacing an existing page. */

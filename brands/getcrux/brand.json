@@ -3,20 +3,65 @@
   "name": "GetCrux",
   "tagline": "Creative OS for launching high performing ads",
   "colors": [
-    { "name": "Crux Orange", "hex": "#F26524", "role": "primary accent — logo mark, highlight words, slashes, CTAs on dark" },
-    { "name": "Crux Indigo", "hex": "#2B3A8F", "role": "wordmark text and headlines on light backgrounds" },
-    { "name": "Charcoal", "hex": "#333333", "role": "body text and primary CTA pill on light backgrounds" },
-    { "name": "Ink", "hex": "#141414", "role": "dark section backgrounds (data stories, product shots)" },
-    { "name": "Paper", "hex": "#FDFBF5", "role": "default light background (case studies, announcements)" },
-    { "name": "Peach", "hex": "#FCE5DA", "role": "soft warm background / glow" },
-    { "name": "White", "hex": "#FFFFFF", "role": "cards, text on dark" },
-    { "name": "Signal Mint", "hex": "#3DD68C", "role": "small tags and positive data points on dark — small areas only" },
-    { "name": "Agent Violet", "hex": "#6C63FF", "role": "chart highlight bars on dark — small areas only" }
+    {
+      "name": "Crux Orange",
+      "hex": "#F26524",
+      "role": "primary accent — logo mark, highlight words, slashes, CTAs on dark"
+    },
+    {
+      "name": "Crux Indigo",
+      "hex": "#2B3A8F",
+      "role": "wordmark text and headlines on light backgrounds"
+    },
+    {
+      "name": "Charcoal",
+      "hex": "#333333",
+      "role": "body text and primary CTA pill on light backgrounds"
+    },
+    {
+      "name": "Ink",
+      "hex": "#141414",
+      "role": "dark section backgrounds (data stories, product shots)"
+    },
+    {
+      "name": "Paper",
+      "hex": "#FDFBF5",
+      "role": "default light background (case studies, announcements)"
+    },
+    {
+      "name": "Peach",
+      "hex": "#FCE5DA",
+      "role": "soft warm background / glow"
+    },
+    {
+      "name": "White",
+      "hex": "#FFFFFF",
+      "role": "cards, text on dark"
+    },
+    {
+      "name": "Signal Mint",
+      "hex": "#3DD68C",
+      "role": "small tags and positive data points on dark — small areas only"
+    },
+    {
+      "name": "Agent Violet",
+      "hex": "#6C63FF",
+      "role": "chart highlight bars on dark — small areas only"
+    }
   ],
   "fonts": {
-    "headline": { "family": "GetCruxHeadline", "file": "fonts/headline.ttf" },
-    "body": { "family": "GetCruxBody", "file": "fonts/body.ttf" },
-    "bodyBold": { "family": "GetCruxBodyBold", "file": "fonts/bodybold.ttf" },
+    "headline": {
+      "family": "GetCruxHeadline",
+      "file": "fonts/headline.ttf"
+    },
+    "body": {
+      "family": "GetCruxBody",
+      "file": "fonts/body.ttf"
+    },
+    "bodyBold": {
+      "family": "GetCruxBodyBold",
+      "file": "fonts/bodybold.ttf"
+    },
     "notes": "Headlines: GetCruxHeadline (Clash Grotesk Semibold), usually UPPERCASE for statement headlines, tight line-height ~1.05; mixed-case allowed for case-study style headlines. Body & CTA: GetCruxBody / GetCruxBodyBold. Never use other font families."
   },
   "logo": {
@@ -27,8 +72,18 @@
       "mark": "logo_getcrux_mark",
       "mark-white": "logo_getcrux_mark_white"
     },
-    "variantColors": { "full-colour": "#2B3A8F", "navy": "#2B3A8F", "white": "#FFFFFF", "mark": "#F26524", "mark-white": "#FFFFFF" },
-    "pillColors": { "white": "#FFFFFF", "ink": "#141414", "paper": "#FDFBF5" },
+    "variantColors": {
+      "full-colour": "#2B3A8F",
+      "navy": "#2B3A8F",
+      "white": "#FFFFFF",
+      "mark": "#F26524",
+      "mark-white": "#FFFFFF"
+    },
+    "pillColors": {
+      "white": "#FFFFFF",
+      "ink": "#141414",
+      "paper": "#FDFBF5"
+    },
     "aspectRatio": 3.5,
     "minWidthRatio": 0.16,
     "preferredWidthRatio": 0.22,
@@ -42,18 +97,48 @@
   },
   "layout": {
     "marginRatio": 0.07,
-    "card": { "fill": "#FFFFFF", "cornerRadiusRatio": 0.025, "paddingRatio": 0.06, "notes": "Cards are used sparingly; most GetCrux layouts put text directly on Paper or Ink backgrounds with generous margins." },
+    "card": {
+      "fill": "#FFFFFF",
+      "cornerRadiusRatio": 0.025,
+      "paddingRatio": 0.06,
+      "notes": "Cards are used sparingly; most GetCrux layouts put text directly on Paper or Ink backgrounds with generous margins."
+    },
     "cta": {
       "style": "pill",
-      "onLight": { "bg": "#333333", "text": "#FFFFFF" },
-      "onDark": { "bg": "#F26524", "text": "#FFFFFF" },
+      "onLight": {
+        "bg": "#333333",
+        "text": "#FFFFFF"
+      },
+      "onDark": {
+        "bg": "#F26524",
+        "text": "#FFFFFF"
+      },
       "fontSizeRatio": 0.024,
       "notes": "Short, uppercase-friendly copy: 'BOOK A DEMO', 'Get your free brand scan', 'Read the case study'."
     },
-    "headline": { "fontSizeRatio": 0.068, "maxLines": 3, "maxChars": 70, "lineHeight": 1.05 },
-    "subhead": { "fontSizeRatio": 0.027, "lineHeight": 1.35 },
-    "legal": { "fontSizeRatio": 0.016, "color": "#6B7280" },
-    "productStrip": { "items": ["ANALYSE", "RESEARCH", "CREATE", "PUBLISH"], "notes": "The four agent stages; can appear as a small uppercase strip." },
+    "headline": {
+      "fontSizeRatio": 0.068,
+      "maxLines": 3,
+      "maxChars": 70,
+      "lineHeight": 1.05
+    },
+    "subhead": {
+      "fontSizeRatio": 0.027,
+      "lineHeight": 1.35
+    },
+    "legal": {
+      "fontSizeRatio": 0.016,
+      "color": "#6B7280"
+    },
+    "productStrip": {
+      "items": [
+        "ANALYSE",
+        "RESEARCH",
+        "CREATE",
+        "PUBLISH"
+      ],
+      "notes": "The four agent stages; can appear as a small uppercase strip."
+    },
     "recipes": [
       "A) Case-study card — background #FDFBF5. Logo full-colour top-left at margin, width 0.24W. stack x=0.07W y=0.36H width=0.86W children: [label '//Case Study' or '//Insight' in #F26524 (role label), headline mixed-case in #2B3A8F 0.07S with the key number/word emphasised by being its own short line, (subhead charcoal)]. Optional faint diamond outline decor (shape rect rotated 45°, color #F26524, opacity 0.08) in a corner. CTA charcoal pill bottom-left.",
       "B) Data story on ink — background #141414. stack x=0.07W y=0.1H width=0.86W children: [label uppercase in #3DD68C, headline UPPERCASE white 0.07S, subhead white at 0.8 opacity]. Lower half: product-ui dashboard shot (width 0.86W) or a generated abstract chart illustration; logo white bottom-left; CTA orange pill with white text.",
@@ -63,9 +148,25 @@
     ]
   },
   "safeZones": {
-    "9:16": { "top": 0.14, "bottom": 0.35, "left": 0.06, "right": 0.06, "note": "Meta Stories/Reels: keep text, CTA and logo out of the top 14% and bottom 35%." },
-    "4:5": { "top": 0.06, "bottom": 0.1, "left": 0.05, "right": 0.05 },
-    "default": { "top": 0.05, "bottom": 0.05, "left": 0.05, "right": 0.05 }
+    "9:16": {
+      "top": 0.14,
+      "bottom": 0.35,
+      "left": 0.06,
+      "right": 0.06,
+      "note": "Meta Stories/Reels: keep text, CTA and logo out of the top 14% and bottom 35%."
+    },
+    "4:5": {
+      "top": 0.06,
+      "bottom": 0.1,
+      "left": 0.05,
+      "right": 0.05
+    },
+    "default": {
+      "top": 0.05,
+      "bottom": 0.05,
+      "left": 0.05,
+      "right": 0.05
+    }
   },
   "voice": {
     "tone": "Direct, data-backed, a little provocative. Speaks to growth marketers and creative teams. Numbers and proof over adjectives. Uppercase statements for big claims; plain sentences for insights.",
@@ -76,7 +177,11 @@
       "Insight: '88% of athleisure ads started in the last 28 days'",
       "Outcome: 'Scaled 10X with a 2-person marketing team'"
     ],
-    "avoid": ["fluffy adjectives", "more than one CTA", "lowercase brand name variants other than 'getcrux.' in the logo"]
+    "avoid": [
+      "fluffy adjectives",
+      "more than one CTA",
+      "lowercase brand name variants other than 'getcrux.' in the logo"
+    ]
   },
   "imagery": {
     "marks": "The orange X mark (four diamonds) can be used large as a decorative element, cropped off a corner, or small as a bullet. The '//' slash pair in orange is the eyebrow/label motif.",
@@ -99,7 +204,7 @@
   ],
   "imageStyles": {
     "illustration": "Minimal flat geometric illustration in the GetCrux style: orange (#F26524) and indigo (#2B3A8F) shapes on a transparent background, diamond and slash motifs, clean edges, no gradients except a subtle warm glow, confident tech-marketing feel. Absolutely no text, letters, numbers or logos. Isolated subject on a fully transparent background.",
-    "photo": "Editorial photograph of a modern growth-marketing team at work, bright natural light, candid, laptops and screens, warm tones. No text or logos anywhere.",
+    "photo": "Editorial photograph of a modern growth-marketing team at work, bright natural light, candid, laptops and screens, warm tones. No text or logos anywhere. Compose with the subject’s face in the upper-middle of the frame with clear headroom, so the image survives cropping.",
     "background": "Abstract minimal background: soft peach-to-white gradient (#FCE5DA to #FDFBF5) with faint thin diamond outlines, flat, no text.",
     "charm": "Small flat icon in orange (#F26524) on transparent background, geometric, no text."
   }
