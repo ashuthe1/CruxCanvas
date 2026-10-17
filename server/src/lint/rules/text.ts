@@ -14,9 +14,13 @@ export const contrastRule: LintRule = {
       const fg = parseHex(el.fill), bg = behind ? parseHex(behind) : null;
       if (!fg || !bg) continue;
       const c = contrast(fg, bg);
-      if (c < 4.5) {
-        const fix = contrast(bg, parseHex(dark)!) >= 4.5 ? dark : '#FFFFFF';
-        out.push({ rule: 'Low text contrast', severity: 'error' as const, elementId: el.id, message: `${label(el)} has ${c.toFixed(1)}:1 contrast on ${behind}; needs 4.5:1.`, fix: [{ op: 'set' as const, id: el.id, props: { fill: fix } }] });
+      // WCAG AA: 4.5:1 for body text, 3:1 for large text (≥24px, or ≥19px bold)
+      const bold = el.fontFamily === brand.fonts.bodyBold.family || el.fontFamily === brand.fonts.headline.family;
+      const large = (el.fontSize || 0) >= 24 || ((el.fontSize || 0) >= 19 && bold);
+      const need = large ? 3 : 4.5;
+      if (c < need) {
+        const fix = contrast(bg, parseHex(dark)!) >= need ? dark : '#FFFFFF';
+        out.push({ rule: 'Low text contrast', severity: 'error' as const, elementId: el.id, message: `${label(el)} has ${c.toFixed(1)}:1 contrast on ${behind}; needs ${need}:1.`, fix: [{ op: 'set' as const, id: el.id, props: { fill: fix } }] });
       }
     }
     return out;
@@ -48,7 +52,8 @@ export const toneRule: LintRule = {
       const t = el.text || '';
       if (t.length > brand.layout.headline.maxChars) out.push({ rule: 'Headline too long', severity: 'info' as const, elementId: el.id, message: `Headline is ${t.length} chars; keep under ${brand.layout.headline.maxChars}.` });
       if (/!/.test(t)) out.push({ rule: 'Tone of voice', severity: 'info' as const, elementId: el.id, message: 'Avoid exclamation marks in headlines.', fix: [{ op: 'set' as const, id: el.id, props: { text: t.replace(/!/g, '.') } }] });
-      if (t.length > 4 && t === t.toUpperCase() && /[A-Z]/.test(t)) out.push({ rule: 'Tone of voice', severity: 'info' as const, elementId: el.id, message: 'Headlines are sentence case, not ALL CAPS.' });
+      const capsBanned = (brand.voice.avoid || []).some((a) => /caps/i.test(a));
+      if (capsBanned && t.length > 4 && t === t.toUpperCase() && /[A-Z]/.test(t)) out.push({ rule: 'Tone of voice', severity: 'info' as const, elementId: el.id, message: 'Headlines are sentence case, not ALL CAPS.' });
     }
     return out;
   },

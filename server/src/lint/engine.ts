@@ -33,13 +33,17 @@ export class LintEngine {
     return { score, issues, passed };
   }
 
+  /** Warn-level rules whose fixes are pure, safe position nudges — the validator applies them too */
+  static SAFE_WARN_RULES = /^(Too close to edge|Safe zone|Text too small)/;
+
   /** Collect the auto-fix ops for issues of the given severities (deduped per element/prop) */
-  static collectFixes(result: LintResult, severities: Issue['severity'][] = ['error']): { ops: Op[]; fixed: string[] } {
+  static collectFixes(result: LintResult, severities: Issue['severity'][] = ['error'], includeSafeWarns = false): { ops: Op[]; fixed: string[] } {
     const ops: Op[] = [];
     const fixed: string[] = [];
     const seen = new Set<string>();
     for (const i of result.issues) {
-      if (!i.fix || !severities.includes(i.severity)) continue;
+      const wanted = severities.includes(i.severity) || (includeSafeWarns && i.severity === 'warn' && LintEngine.SAFE_WARN_RULES.test(i.rule));
+      if (!i.fix || !wanted) continue;
       let used = false;
       for (const op of i.fix) {
         const key = op.op === 'set' ? `${op.id}:${Object.keys(op.props).sort().join(',')}` : op.op === 'delete' ? `del:${op.id}` : op.op === 'background' ? 'bg' : `add:${Math.random()}`;

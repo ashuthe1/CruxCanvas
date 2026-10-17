@@ -231,8 +231,30 @@ export class DesignRenderer {
         }
       }
     }
-    // logo (and its pill) always on top
+    // logo (and its pill) always on top, and imagery keeps out of its clear space
     const logoParts = ctx.children.filter((c) => c.custom?.role === 'logo' || c.custom?.role === 'logo-pill');
+    const logo = logoParts.find((c) => c.custom?.role === 'logo');
+    if (logo) {
+      const pad = logo.height * 0.5;
+      const zone = { x: logo.x - pad, y: logo.y - pad, w: logo.width + pad * 2, h: logo.height + pad * 2 };
+      for (const c of ctx.children) {
+        if (!['illustration', 'product-ui', 'charm'].includes(c.custom?.role)) continue;
+        const ox = c.x < zone.x + zone.w && c.x + c.width > zone.x, oy = c.y < zone.y + zone.h && c.y + c.height > zone.y;
+        if (!(ox && oy)) continue;
+        // try sliding horizontally away from the logo; otherwise shrink to clear it (keep bottom edge)
+        const logoOnLeft = logo.x + logo.width / 2 < W / 2;
+        const target = logoOnLeft ? zone.x + zone.w : zone.x - c.width;
+        if (target >= 0 && target + c.width <= W) c.x = Math.round(target);
+        else {
+          const scale = Math.max(0.6, 1 - (logoOnLeft ? zone.x + zone.w - c.x : c.x + c.width - zone.x) / c.width);
+          const nw = Math.round(c.width * scale), nh = Math.round(c.height * scale);
+          c.x = logoOnLeft ? c.x + (c.width - nw) : c.x;
+          c.y = c.y + (c.height - nh);
+          c.width = nw;
+          c.height = nh;
+        }
+      }
+    }
     if (logoParts.length) page.children = ctx.children.filter((c) => !logoParts.includes(c)).concat(logoParts);
     return page;
   }

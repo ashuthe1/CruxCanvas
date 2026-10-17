@@ -15,7 +15,7 @@ export function validateAndFix(ctx: ToolContext, page: any, emitOps: boolean, na
   let lint = ctx.lint(page);
   const autoFixed: string[] = [];
   for (let round = 0; round < 2; round++) {
-    const { ops, fixed } = LintEngine.collectFixes(lint, ['error']);
+    const { ops, fixed } = LintEngine.collectFixes(lint, ['error'], true);
     if (!ops.length) break;
     applyOpsCompact(page, ops);
     if (emitOps) ctx.emit({ type: 'ops', pageId: page.id, ops });

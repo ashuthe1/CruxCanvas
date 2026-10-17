@@ -2,7 +2,7 @@
 
 An AI copilot inside a real, layered image editor that designs **on-brand, fully editable** images for any
 onboarded brand: create from a blank canvas, edit the current design, or recreate the style of reference ads with the
-brand's own assets. Built for the GetCrux AI Hackathon (17 Oct 2026); Xero is the first tenant.
+brand's own assets. Built for the GetCrux AI Hackathon (17 Oct 2026). Two tenants ship in the repo: **Xero** (the provided brand kit) and **GetCrux** (onboarded from getcrux.ai and its LinkedIn page with the onboarding script).
 
 > "Create 4 different images like this." → four editable pages, each validated against the brand rules, in ~60 s.
 
@@ -65,6 +65,7 @@ design with the rationale, what was auto-fixed, what's still flagged and the che
 * **Blank** – prompt → design spec → page. `×N` creates N meaningfully different variants as pages.
 * **Edit** – the active page (and selection) is serialised compactly into context; the agent emits targeted
   `set/delete/add/raise` ops on existing element ids. Moving a card moves its contents. Undo works.
+* **Templates** – the Templates side panel lists the brand's layout recipes as cards (with canvas-size presets); one click drafts the prompt for the copilot.
 * **Reference** – attach an image (upload, the brand's reference library, or "canvas as ref"). The vision model
   produces a normalised layout brief which the planner re-targets with the brand's assets.
 
@@ -87,8 +88,8 @@ Polotno runs on its public demo key; drop your own key into `web/src/store.ts` t
 ```bash
 # from a Google Drive brand kit (downloads, tags every asset with vision, drafts brand.json)
 npm run onboard --prefix server -- --brand acme --name "Acme" --drive <folder-url> [--references <folder-url>]
-# from a local folder (e.g. the bundled demo kit)
-npm run onboard --prefix server -- --brand crux --name "Crux" --from brands/_incoming/crux-kit
+# from a local folder (e.g. the bundled GetCrux kit gathered from getcrux.ai + LinkedIn)
+npm run onboard --prefix server -- --brand getcrux --name "GetCrux" --from brands/_incoming/getcrux-kit
 # re-tag an existing brand's assets
 npm run manifest --prefix server -- --brand xero
 ```
