@@ -160,7 +160,9 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
       const copy = last?.kind === 'status' && !last.done ? m.slice(0, -1).concat({ ...last, done: true }) : m;
       return copy.concat({ kind: 'status', text });
     });
-  const closeStatuses = (m: Msg[]) => m.map((x) => (x.kind === 'status' ? { ...x, done: true } : x.kind === 'trace' && x.live ? { ...x, live: false } : x));
+  const closeStatuses = (m: Msg[]) => m.map((x) => (x.kind === 'status' ? { ...x, done: true } : x));
+  // one trace block per turn: only the final message / done closes it
+  const closeTraces = (m: Msg[]) => m.map((x) => (x.kind === 'trace' && x.live ? { ...x, live: false } : x));
 
   const handleEvent = (e: AgentEvent) => {
     switch (e.type) {
@@ -214,13 +216,13 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
         })();
         break;
       case 'message':
-        setMsgs((m) => closeStatuses(m).concat({ kind: 'assistant', text: e.text }));
+        setMsgs((m) => closeTraces(closeStatuses(m)).concat({ kind: 'assistant', text: e.text }));
         break;
       case 'error':
         setMsgs((m) => closeStatuses(m).concat({ kind: 'assistant', text: '⚠️ ' + e.text }));
         break;
       case 'done':
-        setMsgs(closeStatuses);
+        setMsgs((m) => closeTraces(closeStatuses(m)));
         break;
     }
   };
