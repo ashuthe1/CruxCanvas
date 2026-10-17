@@ -61,6 +61,8 @@ export function applyOps(store: StoreType, pageId: string, ops: ElementOp[]) {
         if (el) el.set(op.props);
       } else if (op.op === 'delete') {
         store.deleteElements([op.id]);
+      } else if (op.op === 'raise') {
+        store.getElementById(op.id)?.moveTop();
       } else if (op.op === 'add') {
         page.addElement(op.element);
       } else if (op.op === 'background') {
@@ -96,4 +98,23 @@ export function addPageFromJSON(store: StoreType, pageJSON: any, replacePageId?:
 
 export async function pageToDataURL(store: StoreType, pageId: string, pixelRatio = 0.5) {
   return store.toDataURL({ pageId, pixelRatio, mimeType: 'image/jpeg', quality: 0.8 } as any);
+}
+
+/** Export every non-empty page as PNG inside a zip */
+export async function exportAllAsZip(store: StoreType, name = 'designs') {
+  const { default: JSZip } = await import('jszip');
+  const zip = new JSZip();
+  let i = 0;
+  for (const page of store.pages) {
+    if (!page.children.length) continue;
+    const url = await store.toDataURL({ pageId: page.id, pixelRatio: 2, mimeType: 'image/png' } as any);
+    zip.file(`${name}-${String(++i).padStart(2, '0')}.png`, url.split(',')[1], { base64: true });
+  }
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${name}.zip`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  return i;
 }

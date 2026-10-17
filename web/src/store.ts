@@ -1,18 +1,18 @@
 import { createStore } from 'polotno/model/store';
+import type { Brand } from './lib/api';
 
-// Polotno demo key: free for development/non-commercial use. Get your own at polotno.com/cabinet
+// Polotno demo key (development). Replace with your own key from polotno.com/cabinet.
 export const store = createStore({ key: 'nFA5H9elEytDyPyvKL7T', showCredit: true });
 
 store.setSize(1080, 1080);
 store.addPage();
 
-// Self-hosted brand fonts. Family names are shared with the server's design renderer.
-export const BRAND_FONTS = [
-  { fontFamily: 'XeroHeadline', url: '/fonts/headline.ttf' }, // Inter Tight 800
-  { fontFamily: 'XeroBody', url: '/fonts/body.ttf' }, // Inter 500
-  { fontFamily: 'XeroBodyBold', url: '/fonts/bodybold.ttf' }, // Inter 700
-];
-for (const f of BRAND_FONTS) store.addFont(f);
+/** Register the active brand's self-hosted fonts so the canvas renders them. */
+export function registerBrandFonts(brand: Brand) {
+  for (const f of Object.values(brand.fontUrls || {})) {
+    if (!store.fonts.some((x: any) => x.fontFamily === f.family)) store.addFont({ fontFamily: f.family, url: f.url });
+  }
+}
 
 export type StoreType = typeof store;
 

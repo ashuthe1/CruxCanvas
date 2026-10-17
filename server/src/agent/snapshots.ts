@@ -1,7 +1,6 @@
 /**
  * Round-trip to the browser: the agent asks the editor for a rendered snapshot of a page
- * (the real canvas, fonts and all) so a vision model can review it. The client answers via
- * POST /api/snapshot-reply.
+ * (the real canvas, fonts and all) so a vision model can review it.
  */
 const pending = new Map<string, { resolve: (dataUrl: string | null) => void; timer: NodeJS.Timeout }>();
 

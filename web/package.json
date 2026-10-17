@@ -13,6 +13,7 @@
     "@blueprintjs/core": "^6.21.0",
     "@blueprintjs/icons": "^6.14.1",
     "@blueprintjs/select": "^6.4.0",
+    "jszip": "^3.10.2",
     "mobx": "^7.0.6",
     "mobx-react-lite": "^5.1.0",
     "polotno": "^4.16.1",
