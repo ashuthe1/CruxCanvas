@@ -47,10 +47,21 @@ export function expandContainerMoves(page: CompactPage, ops: Op[]): Op[] {
     if (!el || !['card', 'logo-pill', 'cta-bg'].includes(role(el))) continue;
     const dx = op.props.x !== undefined ? op.props.x - el.x : 0;
     const dy = op.props.y !== undefined ? op.props.y - el.y : 0;
-    if (!dx && !dy) continue;
+    const newW = op.props.width !== undefined && role(el) === 'card' ? op.props.width : undefined;
+    if (!dx && !dy && newW === undefined) continue;
     for (const child of contentsOf(page, el)) {
-      if (ops.some((o) => o.op === 'set' && o.id === child.id && (o.props.x !== undefined || o.props.y !== undefined))) continue;
-      out.push({ op: 'set', id: child.id, props: { x: Math.round(child.x + dx), y: Math.round(child.y + dy) } });
+      const props: Record<string, number> = {};
+      if ((dx || dy) && !ops.some((o) => o.op === 'set' && o.id === child.id && (o.props.x !== undefined || o.props.y !== undefined))) {
+        props.x = Math.round(child.x + dx);
+        props.y = Math.round(child.y + dy);
+      }
+      // a narrower card narrows its text columns too (keep the existing left padding)
+      if (newW !== undefined && child.type === 'text') {
+        const pad = Math.max(0, child.x - el.x);
+        const maxW = Math.round(newW - pad * 2);
+        if (maxW > 40 && child.width > maxW && !ops.some((o) => o.op === 'set' && o.id === child.id && o.props.width !== undefined)) props.width = maxW;
+      }
+      if (Object.keys(props).length) out.push({ op: 'set', id: child.id, props });
     }
   }
   return out;

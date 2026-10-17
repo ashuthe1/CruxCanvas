@@ -50,6 +50,11 @@ export const createDesignTool: AgentTool = {
   },
   async execute(args, ctx) {
     const n = (ctx.state.designs = (ctx.state.designs || 0) + 1);
+    const allowed = Math.max(1, ctx.input.variants || 1) + 1; // one redo on top of what was asked
+    if (n > allowed) {
+      ctx.state.designs = allowed;
+      return `STOP: you have already created ${allowed} design${allowed > 1 ? 's' : ''} in this run. Do not create another — refine the existing page with small update_design ops, or finish with your summary.`;
+    }
     ctx.emit({ type: 'status', text: `Composing design ${n}${args.design?.name ? `: ${args.design.name}` : ''}…` });
     let raw = args.design;
     if (typeof raw === 'string') {

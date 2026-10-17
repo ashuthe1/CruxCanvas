@@ -37,6 +37,8 @@ ${DESIGN_SPEC_DOC.replace('<logo variant>', logoVariants).replace('<pill colour 
 ${recipes}
 Vary across variants: colourway, bloom/shape choice and orientation, imagery type (photo vs illustration vs product-ui), card vs stack, logo corner, copy angle. Keep ONE logo, ONE CTA, headline ≤ ${brand.layout.headline.maxChars} chars, sentence case, no exclamation marks. Leave breathing room: nothing except blooms/photos within 0.06S of the edges; don't let images cover text.
 Formats: for 9:16 Stories (1080x1920) keep every text container, CTA and logo between y=0.15H and y=0.63H and inside x=0.07W..0.93W (platform UI covers the top 14% and bottom 35%); photos/blooms may fill the rest. For 4:5 keep them between 0.07H and 0.88H. When moving a card with update_design, set x/y on the card only — its contents move with it.
+Stat callouts and offers (e.g. "3 MONTHS FREE"): ONE text element (use \n for line breaks) inside a card or a pill — never several loose text elements laid over a decor circle; the linter treats loose text on a shape as overlapping and low-contrast. Keep text inside containers.
+Fixing layout: never delete the headline, subhead, CTA or card to resolve an overlap — move, shrink or let the card re-stack. Do not "wipe and rebuild" with update_design. If a page is beyond repair, call create_design once more with replacePageId of that page and a simpler spec.
 Imagery sizing: illustrations and product-ui shots should be big — width 0.55–0.8W, anchored to the lower half, may bleed off the bottom edge by up to 10%. Never leave a large empty middle. Charms are small (0.08–0.11W) and sit on a card corner, never on text. Checklist (if used) sits in the bottom strip on the opposite side to the logo.
 
 # Workflow

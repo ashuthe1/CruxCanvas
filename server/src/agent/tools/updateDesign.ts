@@ -1,6 +1,7 @@
 import type { AgentTool, ToolContext } from '../../core/interfaces.js';
 import type { CompactPage, Op } from '../../core/types.js';
-import { applyOpsCompact, expandContainerMoves, restackCards } from '../../lint/index.js';
+import { applyOpsCompact, expandContainerMoves, restackCards, role } from '../../lint/index.js';
+import { remeasureText } from './remeasure.js';
 import { lintSummary, validateAndFix } from './createDesign.js';
 import { darkestColor } from '../../render/renderer.js';
 
@@ -95,9 +96,20 @@ export const updateDesignTool: AgentTool = {
     if (r > (ctx.userIsEditing ? 4 : 2)) return `STOP: you have already adjusted ${page.id} ${r - 1} times. Remaining lint items are acceptable — do not call update_design again for this page; finish with your summary.`;
 
     const rawOps: Op[] = Array.isArray(args.ops) ? args.ops : [];
+    // Never let a layout fix turn into "wipe the page and rebuild": that thrashes and loses the design.
+    const asksRemoval = /\b(remove|delete|drop|get rid|without|strip|clear|only keep)\b/i.test(ctx.input.message);
+    const deletes = rawOps.filter((o) => o.op === 'delete');
+    const contentDeletes = deletes.filter((o) => {
+      const el = page.elements.find((e) => e.id === (o as any).id);
+      return el && (el.type === 'text' || ['card', 'cta-bg'].includes(role(el)));
+    });
+    if (!asksRemoval && (contentDeletes.length > 2 || deletes.length > 4)) {
+      return `REFUSED: this call deletes ${deletes.length} elements (${contentDeletes.length} of them text/card). Do not rebuild a page with update_design — move, shrink or re-stack the existing elements instead. If the layout is beyond repair, call create_design ONCE with replacePageId="${page.id}" and a simpler card-based spec.`;
+    }
     const ops = prepareOps(page, rawOps, ctx);
     ctx.emit({ type: 'status', text: `Applying ${rawOps.length} change${rawOps.length === 1 ? '' : 's'}…` });
     applyOpsCompact(page, ops);
+    remeasureText(ctx, page, ops); // new copy / size / width → real height, siblings shift, card grows
     // keep card contents from overlapping after a move/resize: re-flow tagged children top-to-bottom
     const restack = restackCards(page, ctx.brand.layout.card.paddingRatio, ctx.canvas.W, ctx.canvas.H);
     if (restack.length) ctx.state.trace?.({ kind: 'fix', title: `Re-stacked card contents (${restack.length} position${restack.length > 1 ? 's' : ''} adjusted) so nothing inside the card overlaps`, data: restack });
