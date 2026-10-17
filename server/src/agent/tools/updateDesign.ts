@@ -2,6 +2,7 @@ import type { AgentTool } from '../../core/interfaces.js';
 import type { Op } from '../../core/types.js';
 import { applyOpsCompact, expandContainerMoves } from '../../lint/index.js';
 import { lintSummary, validateAndFix } from './createDesign.js';
+import { darkestColor } from '../../render/renderer.js';
 
 export const updateDesignTool: AgentTool = {
   definition: {
@@ -23,7 +24,7 @@ export const updateDesignTool: AgentTool = {
 
     const rawOps: Op[] = Array.isArray(args.ops) ? args.ops : [];
     const { W, H } = ctx.canvas;
-    const dark = ctx.brand.colors[0]?.hex || '#000000';
+    const dark = darkestColor(ctx.brand);
     for (const op of rawOps) {
       if (op.op !== 'add' || !op.element) continue;
       const el = op.element;

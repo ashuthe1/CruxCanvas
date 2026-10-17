@@ -6,9 +6,15 @@
 import { randomUUID } from 'crypto';
 import type { Asset, BrandKit } from '../core/types.js';
 import { TextMeasurer } from './text.js';
+import { luminance, parseHex } from '../core/color.js';
 import { normalizeTextRole, type ChecklistEl, type ContainerEl, type CtaEl, type Design, type TextEl } from './schema.js';
 
 const uid = () => randomUUID().slice(0, 8);
+
+/** Default text colour: the darkest palette colour (works for any brand, whatever colors[0] is) */
+export function darkestColor(brand: BrandKit) {
+  return brand.colors.map((c) => ({ hex: c.hex, l: luminance(parseHex(c.hex) || [0, 0, 0]) })).sort((a, b) => a.l - b.l)[0]?.hex || '#000000';
+}
 
 type Ctx = { W: number; H: number; S: number; children: any[] };
 
@@ -20,7 +26,7 @@ export class DesignRenderer {
   constructor(private brand: BrandKit, private assets: Asset[], resolve: (rel: string) => string) {
     this.tm = new TextMeasurer(brand, resolve);
     this.fonts = { headline: brand.fonts.headline.family, body: brand.fonts.body.family, bodyBold: brand.fonts.bodyBold.family };
-    this.dark = brand.colors[0]?.hex || '#000000';
+    this.dark = darkestColor(brand);
   }
 
   private asset(id: string) {

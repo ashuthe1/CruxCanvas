@@ -7,7 +7,7 @@ export const contrastRule: LintRule = {
   title: 'Text contrast (WCAG AA)',
   run({ page, brand }) {
     const out = [];
-    const dark = brand.colors[0]?.hex || '#000000';
+    const palette = brand.colors.map((c) => c.hex).concat('#FFFFFF');
     for (const el of page.elements) {
       if (el.type !== 'text') continue;
       const behind = backgroundBehind(page, el);
@@ -19,8 +19,10 @@ export const contrastRule: LintRule = {
       const large = (el.fontSize || 0) >= 24 || ((el.fontSize || 0) >= 19 && bold);
       const need = large ? 3 : 4.5;
       if (c < need) {
-        const fix = contrast(bg, parseHex(dark)!) >= need ? dark : '#FFFFFF';
-        out.push({ rule: 'Low text contrast', severity: 'error' as const, elementId: el.id, message: `${label(el)} has ${c.toFixed(1)}:1 contrast on ${behind}; needs ${need}:1.`, fix: [{ op: 'set' as const, id: el.id, props: { fill: fix } }] });
+        // best-contrast brand colour against this background
+        const best = palette.map((hex) => ({ hex, c: contrast(bg, parseHex(hex)!) })).sort((a, b) => b.c - a.c)[0];
+        const fix = best && best.c >= need ? [{ op: 'set' as const, id: el.id, props: { fill: best.hex } }] : undefined;
+        out.push({ rule: 'Low text contrast', severity: 'error' as const, elementId: el.id, message: `${label(el)} has ${c.toFixed(1)}:1 contrast on ${behind}; needs ${need}:1.${fix ? '' : ' No palette colour reaches it — change the background.'}`, fix });
       }
     }
     return out;
