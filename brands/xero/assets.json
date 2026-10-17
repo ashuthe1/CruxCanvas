@@ -1225,7 +1225,11 @@
       "rounded",
       "horizontal"
     ],
-    "colour": "white"
+    "colour": "white",
+    "vectorUrl": "/brands/xero/assets/10_Logo/01_0f4c5387-a60d-4a27-93e8-9f5223676154.svg",
+    "vectorColours": [
+      "#FFFFFF"
+    ]
   },
   {
     "id": "10_Logo_02_2f020a69_e294_4971_b448_760f8b1827ad",
@@ -1247,7 +1251,11 @@
       "brand",
       "horizontal"
     ],
-    "colour": "navy"
+    "colour": "navy",
+    "vectorUrl": "/brands/xero/assets/10_Logo/02_2f020a69-e294-4971-b448-760f8b1827ad.svg",
+    "vectorColours": [
+      "#000857"
+    ]
   },
   {
     "id": "10_Logo_03_a6d69555_61d3_43ba_a7ab_e38d56a3805c",
@@ -1270,7 +1278,11 @@
       "circular",
       "brand"
     ],
-    "colour": "light-blue"
+    "colour": "light-blue",
+    "vectorUrl": "/brands/xero/assets/10_Logo/03_a6d69555-61d3-43ba-a7ab-e38d56a3805c.svg",
+    "vectorColours": [
+      "#3FCCFF"
+    ]
   },
   {
     "id": "11_Product_UI_References_01_b00ba535_06d5_46c9_9413_0990a8b3",

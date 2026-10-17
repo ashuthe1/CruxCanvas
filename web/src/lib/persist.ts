@@ -5,12 +5,28 @@
 import type { StoreType } from '../store';
 import { updateProject, type Project } from './projects';
 import { pageToDataURL } from './canvas';
+import { getAssets } from './api';
+
+/** Older pages reference bitmap logos; swap in the vectorised file when the brand has one (crisp at any size). */
+async function upgradeLogosToVector(store: StoreType, brandId: string) {
+  const assets = await getAssets(brandId);
+  const byId = new Map(assets.filter((a) => a.vectorUrl).map((a) => [a.id, a.vectorUrl!]));
+  if (!byId.size) return;
+  for (const page of store.pages) {
+    for (const el of page.children as any[]) {
+      const vec = el.custom?.role === 'logo' && el.custom?.assetId ? byId.get(el.custom.assetId) : undefined;
+      if (vec && el.src !== vec) el.set({ src: vec });
+    }
+  }
+  store.history.clear();
+}
 
 export function loadProjectIntoStore(store: StoreType, project: Project) {
   const c = project.canvas;
   if (c && c.pages?.length) {
     store.loadJSON(c);
     if (c.width && c.height) store.setSize(c.width, c.height);
+    upgradeLogosToVector(store, project.brandId).catch(() => {});
   } else {
     store.loadJSON({ width: 1080, height: 1080, pages: [] });
     store.setSize(1080, 1080);

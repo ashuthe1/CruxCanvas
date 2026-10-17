@@ -26,7 +26,7 @@ export type AgentEvent =
   | { type: 'error'; text: string }
   | { type: 'done' };
 
-export type Asset = { id: string; category: string; name: string; url: string; width: number; height: number; tags: string[]; hasAlpha?: boolean; dominant?: string; colour?: string };
+export type Asset = { id: string; category: string; name: string; url: string; width: number; height: number; tags: string[]; hasAlpha?: boolean; dominant?: string; colour?: string; vectorUrl?: string };
 
 export type Brand = {
   id: string;

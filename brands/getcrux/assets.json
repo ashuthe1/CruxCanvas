@@ -137,7 +137,11 @@
       "abstract",
       "logo"
     ],
-    "colour": "white"
+    "colour": "white",
+    "vectorUrl": "/brands/getcrux/assets/logo/getcrux_mark_white.svg",
+    "vectorColours": [
+      "#FFFFFF"
+    ]
   },
   {
     "id": "logo_getcrux_mark",
@@ -159,7 +163,12 @@
       "modern",
       "bright"
     ],
-    "colour": "orange"
+    "colour": "orange",
+    "vectorUrl": "/brands/getcrux/assets/logo/getcrux_mark.svg",
+    "vectorColours": [
+      "#FA5213",
+      "#FD6D37"
+    ]
   },
   {
     "id": "logo_getcrux_wordmark_2x",
@@ -181,7 +190,13 @@
       "geometric",
       "professional"
     ],
-    "colour": "red"
+    "colour": "red",
+    "vectorUrl": "/brands/getcrux/assets/logo/getcrux_wordmark_2x.svg",
+    "vectorColours": [
+      "#0C266F",
+      "#183792",
+      "#F84D0F"
+    ]
   },
   {
     "id": "logo_getcrux_wordmark_navy",
@@ -202,7 +217,13 @@
       "modern",
       "minimalist"
     ],
-    "colour": "orange"
+    "colour": "orange",
+    "vectorUrl": "/brands/getcrux/assets/logo/getcrux_wordmark_navy.svg",
+    "vectorColours": [
+      "#2B3A8F",
+      "#F54C0E",
+      "#FD7643"
+    ]
   },
   {
     "id": "logo_getcrux_wordmark_white",
@@ -224,7 +245,11 @@
       "simple",
       "modern"
     ],
-    "colour": "white"
+    "colour": "white",
+    "vectorUrl": "/brands/getcrux/assets/logo/getcrux_wordmark_white.svg",
+    "vectorColours": [
+      "#FFFFFF"
+    ]
   },
   {
     "id": "logo_getcrux_wordmark",
@@ -246,7 +271,13 @@
       "tech",
       "clean"
     ],
-    "colour": "orange"
+    "colour": "orange",
+    "vectorUrl": "/brands/getcrux/assets/logo/getcrux_wordmark.svg",
+    "vectorColours": [
+      "#09216B",
+      "#193894",
+      "#F54C0E"
+    ]
   },
   {
     "id": "product_ui_agents",

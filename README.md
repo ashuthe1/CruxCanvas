@@ -130,6 +130,10 @@ The pipeline: download → classify + tag each image (sharp metadata, opaque-pix
 sample the palette and read guideline pages to draft `brand.json` → print a review summary. Then refresh the editor and
 pick the brand from the switcher.
 
+## Documentation
+`docs/` holds the HLD, architecture and flow diagrams, the onboarding guide, the demo script and
+[image-pipeline.md](docs/image-pipeline.md): how imagery is sourced, generated, placed, kept sharp (vector logos) and kept cheap.
+
 ## Repo map
 ```
 brands/                 tenant workspaces (xero = real kit; _incoming = kits waiting to be onboarded)
@@ -146,4 +150,8 @@ server/test             vitest suites
 web/src/components      CopilotPanel, LintPanel, ReportCard, IteratePanel (picker + comparison grid)
 web/src/sections        Brand kit side panel
 web/src/lib             api client, brand selection, canvas ops, autosave
+```
+
+# Flow
+```
 ```

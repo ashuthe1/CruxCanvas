@@ -42,9 +42,10 @@ const BrandPanel = observer(({ store }: { store: any }) => {
     const maxW = store.width * (a.category === 'logo' ? 0.22 : 0.5);
     const scale = Math.min(1, maxW / a.width);
     const w = a.width * scale, h = a.height * scale;
+    const src = a.vectorUrl || a.url; // vectorised logos stay crisp at any size
     page.addElement({
-      type: a.url.endsWith('.svg') ? 'svg' : 'image',
-      src: a.url,
+      type: src.endsWith('.svg') ? 'svg' : 'image',
+      src,
       x: (store.width - w) / 2,
       y: (store.height - h) / 2,
       width: w,

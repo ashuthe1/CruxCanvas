@@ -58,6 +58,9 @@ export type Asset = {
   colour?: string;
   description: string;
   tags: string[];
+  /** crisp vector version of a bitmap logo, produced by `npm run vectorize` */
+  vectorUrl?: string;
+  vectorColours?: string[];
 };
 
 export type Op =

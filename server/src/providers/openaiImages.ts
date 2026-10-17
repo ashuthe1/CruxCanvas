@@ -11,7 +11,9 @@ export class OpenAIImages implements IImageModel {
         model: this.name,
         prompt,
         size: opts.size,
-        quality: 'medium',
+        // medium is ~1/3 the cost and latency of high and is plenty for 1080-px social canvases;
+        // set IMAGE_QUALITY=high for print or hero work
+        quality: (process.env.IMAGE_QUALITY as any) || 'medium',
         n: 1,
         output_format: 'png',
         ...(opts.transparent ? { background: 'transparent' } : {}),

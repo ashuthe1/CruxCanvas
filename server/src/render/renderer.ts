@@ -190,7 +190,9 @@ export class DesignRenderer {
             const pillFill = (this.brand.logo as any).pillColors?.[el.pill] || this.brand.colors.find((c) => c.name.toLowerCase() === el.pill!.toLowerCase())?.hex || '#FFFFFF';
             ctx.children.push({ id: 'el_' + uid(), type: 'figure', subType: 'rect', name: 'Logo pill', x: x - pad, y: y - pad * 0.6, width: w + pad * 2, height: h + pad * 1.2, fill: pillFill, cornerRadius: (h + pad * 1.2) / 2, strokeWidth: 0, custom: { role: 'logo-pill' } });
           }
-          ctx.children.push({ id: 'el_' + uid(), type: 'image', name: `${this.brand.name} logo`, src: asset.url, x, y, width: w, height: h, keepRatio: true, custom: { assetId: asset.id, role: 'logo', variant: el.variant } });
+          // prefer the vectorised wordmark: crisp at any export size
+          const vec = asset.vectorUrl;
+          ctx.children.push({ id: 'el_' + uid(), type: vec ? 'svg' : 'image', name: `${this.brand.name} logo`, src: vec || asset.url, x, y, width: w, height: h, keepRatio: true, custom: { assetId: asset.id, role: 'logo', variant: el.variant } });
           break;
         }
         case 'image': {
