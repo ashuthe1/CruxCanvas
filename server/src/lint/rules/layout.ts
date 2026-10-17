@@ -91,6 +91,55 @@ export const imageOverTextRule: LintRule = {
   },
 };
 
+/** Text drawn over a filled shape that is not its own container (e.g. a label sitting on a CTA pill) */
+export const textOverShapeRule: LintRule = {
+  id: 'text-over-shape',
+  title: 'Text never sits on another element’s shape',
+  run({ page, S }) {
+    const out = [];
+    const els = page.elements;
+    for (const t of els) {
+      if (t.type !== 'text') continue;
+      for (const f of els) {
+        if (f.type !== 'figure' || f === t) continue;
+        const r = role(f);
+        if (r === 'card' || r === 'background' || r === 'shape' || r === 'logo-pill') continue; // containers / decor are fine
+        const gf = f.group || f.custom?.group, gt = t.group || t.custom?.group;
+        if (gf && gf === gt) continue; // the CTA's own pill
+        if (!overlaps(t, f, -3)) continue;
+        out.push({ rule: 'Text over a button', severity: 'error' as const, elementId: t.id, message: `${label(t)} overlaps "${f.name || r}".`, fix: [{ op: 'set' as const, id: t.id, props: { y: Math.round(f.y - t.height - S * 0.015) } }] });
+      }
+    }
+    return out;
+  },
+};
+
+/** Illustrations, photos and product shots must not be cut off beyond a small intentional bleed */
+export const imageryCutOffRule: LintRule = {
+  id: 'imagery-cut-off',
+  title: 'Imagery not cut off',
+  run({ page, W, H }) {
+    const out = [];
+    for (const el of page.elements) {
+      if (!(el.type === 'image' || el.type === 'svg')) continue;
+      const r = role(el);
+      if (!['illustration', 'product-ui', 'charm', 'logo'].includes(r)) continue; // blooms/photos/backgrounds may bleed by design
+      const visibleW = Math.max(0, Math.min(el.x + el.width, W) - Math.max(el.x, 0));
+      const visibleH = Math.max(0, Math.min(el.y + el.height, H) - Math.max(el.y, 0));
+      const hidden = 1 - (visibleW * visibleH) / Math.max(1, el.width * el.height);
+      const limit = r === 'logo' ? 0.0 : 0.12;
+      if (hidden <= limit) continue;
+      const props: Record<string, number> = {};
+      if (el.y + el.height > H) props.y = Math.max(0, Math.round(H - el.height));
+      if (el.y < 0) props.y = 0;
+      if (el.x + el.width > W) props.x = Math.max(0, Math.round(W - el.width));
+      if (el.x < 0) props.x = 0;
+      out.push({ rule: 'Image cut off', severity: 'error' as const, elementId: el.id, message: `${Math.round(hidden * 100)}% of "${el.name || r}" lies outside the canvas.`, fix: [{ op: 'set' as const, id: el.id, props }] });
+    }
+    return out;
+  },
+};
+
 export const onCanvasRule: LintRule = {
   id: 'on-canvas',
   title: 'Key elements fully on canvas',

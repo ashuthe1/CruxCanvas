@@ -70,7 +70,8 @@ export const textOverlapRule: LintRule = {
     for (let i = 0; i < texts.length; i++) {
       for (let j = i + 1; j < texts.length; j++) {
         const a = texts[i], b = texts[j];
-        if (a.custom?.group && a.custom.group === b.custom?.group) continue;
+        const ga = a.group || a.custom?.group, gb = b.group || b.custom?.group;
+        if (ga && ga === gb) continue;
         if (!overlaps(a, b, -2)) continue;
         const lower = a.y <= b.y ? b : a, upper = lower === a ? b : a;
         out.push({ rule: 'Overlapping text', severity: 'error' as const, elementId: lower.id, message: `${label(upper)} and ${label(lower)} overlap.`, fix: [{ op: 'set' as const, id: lower.id, props: { y: Math.round(upper.y + upper.height + S * 0.015) } }] });

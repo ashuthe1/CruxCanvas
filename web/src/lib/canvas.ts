@@ -35,6 +35,7 @@ export function serializePage(page: any) {
       }
       if (el.custom?.role && !base.role) base.role = el.custom.role;
       if (el.custom?.container) base.container = el.custom.container;
+      if (el.custom?.group) base.group = el.custom.group; // CTA pill + text move as one unit
       if (el.custom?.variant) base.custom = { variant: el.custom.variant, assetId: el.custom.assetId };
       return base;
     }),

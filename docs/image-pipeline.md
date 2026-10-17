@@ -119,3 +119,25 @@ is sent as compact one-line entries for that reason.
   or a one-off upscaler on export would close that gap.
 * Potrace tracing smooths 60-px bitmaps well but is not a substitute for the brand's real vector files; the onboarding
   script should accept `.svg` logos directly when a tenant has them (it already serves SVG assets).
+
+## 8. Transparency and the visual QA loop (how an edit really runs)
+
+```
+user message ─► observe: structured canvas (ids, boxes, text, selection)
+             ─► look: vision inspects a snapshot of the ACTIVE page → defects list (overlaps, cut-offs, unreadable)
+             ─► plan/act: planner calls update_design {rationale, ops} → ops applied, card contents re-stacked,
+                           validator (lint + auto-fix) → report card
+             ─► final validation on every touched page
+             ─► visual QA: editor renders the page → vision checks pixels → defects? feed back → fix → re-check (≤2 rounds)
+             ─► summary
+```
+
+* Every step is streamed as a `trace` event and shown in the chat as a collapsible **steps** block: what the agent saw
+  (element list), what the vision check found, the planner's rationale and the exact ops, what the validator fixed,
+  and what the final visual QA concluded. Click a step to expand its payload.
+* The snapshot is sent on every edit as `canvasSnapshot` and labelled *current render observations* — defects to fix,
+  never a style to copy. The "canvas as ref" chip is the only path that treats the canvas as a reference, and it is
+  one-shot.
+* Spatial language is turned into arithmetic in the prompt ("bottom of the card" = card.y + card.height − padding −
+  height), and card contents are re-flowed after every edit so a moved label can never land on the CTA.
+* New deterministic rules close the gaps the transcript exposed: *Text over a button* and *Image cut off*.

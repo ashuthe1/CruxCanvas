@@ -90,6 +90,8 @@ export type CompactEl = {
   name?: string;
   role?: string;
   container?: string;
+  /** elements that belong together (e.g. CTA pill + its text) */
+  group?: string;
   x: number;
   y: number;
   width: number;
@@ -131,9 +133,23 @@ export type AgentEvent =
   | { type: 'duplicate_page'; sourcePageId: string; pageId: string; suffix: string; custom: Record<string, any> }
   /** one controlled A/B variant finished (or was rejected because nothing changed) */
   | { type: 'variant'; pageId: string; sourcePageId: string; dimension: string; label: string; score: number; dropped: string[]; rejected?: string }
+  /** one visible step of the agent's work, for the transparent trace in the chat */
+  | { type: 'trace'; step: TraceStep }
   | { type: 'message'; text: string }
   | { type: 'error'; text: string }
   | { type: 'done' };
+
+/** One visible step of the agent's work (what it saw, decided, did, verified) */
+export type TraceStep = {
+  id: string;
+  kind: 'observe' | 'vision' | 'plan' | 'tool' | 'validate' | 'fix' | 'note';
+  title: string;
+  /** one-paragraph human explanation */
+  detail?: string;
+  /** structured payload shown when expanded (ops, lint issues, vision findings…) */
+  data?: any;
+  ms?: number;
+};
 
 /** Final validation / rationale card shown in the chat */
 export type DesignReport = {
@@ -175,5 +191,7 @@ export type AgentInput = {
   history: { role: 'user' | 'assistant'; content: string }[];
   canvas: CanvasState;
   references?: string[];
+  /** a render of the active page as it looks right now — inspected, never copied */
+  canvasSnapshot?: string;
   variants?: number;
 };

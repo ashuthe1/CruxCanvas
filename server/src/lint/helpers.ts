@@ -64,6 +64,46 @@ export function moveWith(page: CompactPage, el: CompactEl, props: Record<string,
   return ops;
 }
 
+/**
+ * Re-flow a card's tagged contents top-to-bottom (in their current vertical order) so nothing inside
+ * a card can overlap after an edit; grows the card when needed. Returns the ops that were applied.
+ */
+export function restackCards(page: CompactPage, padRatio: number, W: number, H: number): Op[] {
+  const S = Math.min(W, H);
+  const gap = Math.round(S * 0.022);
+  const pad = Math.round(W * padRatio);
+  const out: Op[] = [];
+  for (const card of page.elements.filter((e) => role(e) === 'card')) {
+    const kids = page.elements.filter((e) => (e.container || e.custom?.container) === card.id);
+    if (kids.length < 2) continue;
+    // CTA pill + text (same group) move as one unit
+    const units = new Map<string, CompactEl[]>();
+    for (const k of kids) {
+      const g = k.group || k.custom?.group;
+      const key = g ? `g:${g}` : k.id;
+      (units.get(key) || units.set(key, []).get(key)!).push(k);
+    }
+    const blocks = [...units.values()].map((els) => ({ els, top: Math.min(...els.map((e) => e.y)), bottom: Math.max(...els.map((e) => e.y + e.height)) })).sort((a, b) => a.top - b.top);
+    let y = card.y + pad;
+    for (const b of blocks) {
+      const dy = y - b.top;
+      if (Math.abs(dy) > 1) {
+        for (const e of b.els) {
+          e.y = Math.round(e.y + dy);
+          out.push({ op: 'set', id: e.id, props: { y: e.y } });
+        }
+      }
+      y += b.bottom - b.top + gap;
+    }
+    const needed = y - gap + pad - card.y;
+    if (needed > card.height + 1) {
+      card.height = Math.round(needed);
+      out.push({ op: 'set', id: card.id, props: { height: card.height } });
+    }
+  }
+  return out;
+}
+
 /** Apply ops to a compact page (server-side mirror of the canvas) */
 export function applyOpsCompact(page: CompactPage, ops: Op[]) {
   for (const op of ops) {

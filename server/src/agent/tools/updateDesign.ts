@@ -1,6 +1,6 @@
 import type { AgentTool, ToolContext } from '../../core/interfaces.js';
 import type { CompactPage, Op } from '../../core/types.js';
-import { applyOpsCompact, expandContainerMoves } from '../../lint/index.js';
+import { applyOpsCompact, expandContainerMoves, restackCards } from '../../lint/index.js';
 import { lintSummary, validateAndFix } from './createDesign.js';
 import { darkestColor } from '../../render/renderer.js';
 
@@ -73,7 +73,15 @@ export const updateDesignTool: AgentTool = {
       name: 'update_design',
       description:
         'Apply element operations to an existing page. ops: {op:"set",id,props:{x,y,width,height,text,fontSize,fill,src,opacity,rotation,...}} | {op:"delete",id} | {op:"raise",id} (bring to front) | {op:"add",element:{type:"text"|"image"|"figure", x,y,width,height, text?, fontSize?, fill?, assetId? (library image), src? (generated image), subType?:"rect"|"circle", cornerRadius?, custom:{role}}} | {op:"background",value:"#hex"}. Prefer "set" on existing ids over adding. Moving a card moves its contents. Returns the updated lint report.',
-      parameters: { type: 'object', properties: { pageId: { type: 'string' }, ops: { type: 'array', items: { type: 'object' } } }, required: ['pageId', 'ops'] },
+      parameters: {
+        type: 'object',
+        properties: {
+          pageId: { type: 'string' },
+          rationale: { type: 'string', description: 'One sentence, user-facing: what you are changing and why (shown in the agent trace).' },
+          ops: { type: 'array', items: { type: 'object' } },
+        },
+        required: ['pageId', 'rationale', 'ops'],
+      },
     },
   },
   async execute(args, ctx) {
@@ -88,7 +96,10 @@ export const updateDesignTool: AgentTool = {
     const ops = prepareOps(page, rawOps, ctx);
     ctx.emit({ type: 'status', text: `Applying ${rawOps.length} change${rawOps.length === 1 ? '' : 's'}…` });
     applyOpsCompact(page, ops);
-    ctx.emit({ type: 'ops', pageId: page.id, ops });
+    // keep card contents from overlapping after a move/resize: re-flow tagged children top-to-bottom
+    const restack = restackCards(page, ctx.brand.layout.card.paddingRatio, ctx.canvas.W, ctx.canvas.H);
+    if (restack.length) ctx.state.trace?.({ kind: 'fix', title: `Re-stacked card contents (${restack.length} position${restack.length > 1 ? 's' : ''} adjusted) so nothing inside the card overlaps`, data: restack });
+    ctx.emit({ type: 'ops', pageId: page.id, ops: ops.concat(restack) });
     (ctx.state.touched ||= new Set<string>()).add(page.id);
     const { report, lint } = validateAndFix(ctx, page, true);
     ctx.emit({ type: 'lint', pageId: page.id, result: lint });

@@ -3,7 +3,7 @@ import { paletteRule } from './rules/palette.js';
 import { fontsRule } from './rules/fonts.js';
 import { logoRule } from './rules/logo.js';
 import { contrastRule, textSizeRule, toneRule, textOverlapRule, ctaRule } from './rules/text.js';
-import { edgesRule, safeZoneRule, cardContentsRule, imageOverTextRule, onCanvasRule } from './rules/layout.js';
+import { edgesRule, safeZoneRule, cardContentsRule, imageOverTextRule, onCanvasRule, textOverShapeRule, imageryCutOffRule } from './rules/layout.js';
 
 /** Default rule registry. Order matters only for the "passed" list in reports. */
 export const defaultLintEngine = new LintEngine([
@@ -13,8 +13,10 @@ export const defaultLintEngine = new LintEngine([
   contrastRule,
   textSizeRule,
   textOverlapRule,
+  textOverShapeRule,
   cardContentsRule,
   imageOverTextRule,
+  imageryCutOffRule,
   onCanvasRule,
   edgesRule,
   safeZoneRule,

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport } from '../lib/api';
+import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport, type TraceStep } from '../lib/api';
 import { addPageFromJSON, applyOps, duplicatePage, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage, variantsOf } from '../lib/canvas';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
@@ -8,6 +8,7 @@ import { PROMPT_EVENT } from '../sections/TemplatesSection';
 import { LintPanel } from './LintPanel';
 import { ReportCard } from './ReportCard';
 import { ScanPanel } from './ScanPanel';
+import { AgentTrace } from './AgentTrace';
 import { addProjectScan, type Project } from '../lib/projects';
 import { IteratePicker, IterationGrid, type VariantCard } from './IteratePanel';
 
@@ -15,6 +16,7 @@ type Msg =
   | { kind: 'user'; text: string; refs?: string[] }
   | { kind: 'assistant'; text: string }
   | { kind: 'status'; text: string; done?: boolean }
+  | { kind: 'trace'; steps: TraceStep[]; live?: boolean }
   | { kind: 'report'; report: DesignReport & { pageId: string; thumb?: string } }
   | { kind: 'iteration'; count: number; pageId?: string };
 
@@ -158,7 +160,7 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
       const copy = last?.kind === 'status' && !last.done ? m.slice(0, -1).concat({ ...last, done: true }) : m;
       return copy.concat({ kind: 'status', text });
     });
-  const closeStatuses = (m: Msg[]) => m.map((x) => (x.kind === 'status' ? { ...x, done: true } : x));
+  const closeStatuses = (m: Msg[]) => m.map((x) => (x.kind === 'status' ? { ...x, done: true } : x.kind === 'trace' && x.live ? { ...x, live: false } : x));
 
   const handleEvent = (e: AgentEvent) => {
     switch (e.type) {
@@ -175,6 +177,15 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
         setLint(e.result);
         pageScoresRef.current = { ...pageScoresRef.current, [e.pageId]: e.result.score };
         onProjectChange?.({ pageScores: pageScoresRef.current });
+        break;
+      case 'trace':
+        // append to the live trace block of this turn (create it on the first step)
+        setMsgs((m) => {
+          const idx = m.map((x) => x.kind).lastIndexOf('trace');
+          const cur = idx >= 0 ? (m[idx] as Extract<Msg, { kind: 'trace' }>) : null;
+          if (cur && cur.live) return m.map((x, i) => (i === idx ? { kind: 'trace', steps: [...cur.steps, e.step], live: true } : x));
+          return m.concat({ kind: 'trace', steps: [e.step], live: true });
+        });
         break;
       case 'report': {
         const entry: Msg = { kind: 'report', report: { ...e.report, pageId: e.pageId } };
@@ -220,20 +231,26 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
     setInput('');
     setBusy(true);
     const allRefs = [...refs];
-    if (useCanvasAsRef && store.activePage) {
+    let canvasSnapshot: string | undefined;
+    if (store.activePage?.children?.length) {
       try {
-        allRefs.push(await pageToDataURL(store, store.activePage.id, 0.5));
+        await store.waitLoading?.();
+        const shot = await pageToDataURL(store, store.activePage.id, 0.5);
+        // the agent always gets to LOOK at the current page; only an explicit toggle makes it a style reference
+        canvasSnapshot = shot;
+        if (useCanvasAsRef) allRefs.push(shot);
       } catch {}
     }
     setMsgs((m) => m.concat({ kind: 'user', text: message, refs: allRefs }));
     setRefs([]);
+    setUseCanvasAsRef(false); // one-shot
     const history = msgs
       .filter((m): m is Extract<Msg, { kind: 'user' | 'assistant' }> => m.kind === 'user' || m.kind === 'assistant')
       .slice(-8)
       .map((m) => ({ role: m.kind as 'user' | 'assistant', content: m.text }));
     abortRef.current = new AbortController();
     try {
-      await streamAgent({ message, history, canvas: serializeCanvas(store), references: allRefs, variants }, handleEvent, abortRef.current.signal);
+      await streamAgent({ message, history, canvas: serializeCanvas(store), references: allRefs, canvasSnapshot, variants }, handleEvent, abortRef.current.signal);
     } catch (err: any) {
       if (err?.name !== 'AbortError') handleEvent({ type: 'error', text: String(err?.message || err) });
     } finally {
@@ -425,7 +442,9 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
         <>
           <div className="chat-log" ref={logRef}>
             {msgs.map((m, i) =>
-              m.kind === 'status' ? (
+              m.kind === 'trace' ? (
+                <AgentTrace key={i} steps={m.steps} live={m.live} />
+              ) : m.kind === 'status' ? (
                 <div key={i} className={`msg status ${m.done ? 'done' : ''}`}>
                   <span className="dot" /> {m.text}
                 </div>
@@ -522,7 +541,7 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
               >
                 🖼 Library
               </button>
-              <button className={`chip ${useCanvasAsRef ? 'on' : ''}`} onClick={() => setUseCanvasAsRef(!useCanvasAsRef)} title="Send a snapshot of the current page as a reference">
+              <button className={`chip ${useCanvasAsRef ? 'on' : ''}`} onClick={() => setUseCanvasAsRef(!useCanvasAsRef)} title="Use the current page as a STYLE reference to recreate (one-shot). The agent already looks at the current page on every edit.">
                 canvas as ref
               </button>
               <select value={variants} onChange={(e) => setVariants(Number(e.target.value))} className="btn-ghost" title="Number of variants to generate">

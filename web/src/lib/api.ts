@@ -10,6 +10,8 @@ export type ElementOp =
 export type LintIssue = { id: string; rule: string; severity: 'error' | 'warn' | 'info'; message: string; elementId?: string; fix?: ElementOp[] };
 export type LintResult = { score: number; issues: LintIssue[]; passed: string[] };
 
+export type TraceStep = { id: string; kind: 'observe' | 'vision' | 'plan' | 'tool' | 'validate' | 'fix' | 'note'; title: string; detail?: string; data?: any; ms?: number };
+
 export type DesignReport = { name?: string; rationale?: string; score: number; checks: { rule: string; ok: boolean; detail?: string }[]; autoFixed: string[] };
 
 export type AgentEvent =
@@ -20,6 +22,7 @@ export type AgentEvent =
   | { type: 'size'; width: number; height: number }
   | { type: 'snapshot_request'; pageId: string; requestId: string }
   | { type: 'report'; pageId: string; report: DesignReport }
+  | { type: 'trace'; step: TraceStep }
   | { type: 'duplicate_page'; sourcePageId: string; pageId: string; suffix: string; custom: Record<string, any> }
   | { type: 'variant'; pageId: string; sourcePageId: string; dimension: string; label: string; score: number; dropped: string[]; rejected?: string }
   | { type: 'message'; text: string }
@@ -88,6 +91,8 @@ export type AgentRequest = {
   history: { role: 'user' | 'assistant'; content: string }[];
   canvas: { width: number; height: number; pages: any[]; activePageId: string; selectedIds: string[] };
   references?: string[];
+  /** render of the active page as it is now — inspected by vision, never used as a style reference */
+  canvasSnapshot?: string;
   variants?: number;
 };
 

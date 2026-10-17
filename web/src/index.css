@@ -264,3 +264,31 @@ body { overflow: hidden; background: #f5f6f8; }
 .copilot-header h3 { white-space: nowrap; }
 .copilot-header .sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
 .copilot-header .brand-select { max-width: 110px; }
+
+/* --- agent trace (what the copilot saw / decided / did / checked) --- */
+.trace { align-self: stretch; border: 1px solid var(--border); border-radius: 10px; background: #fafbff; font-size: 12px; }
+.trace-head { width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 7px 10px; cursor: pointer; color: #374151; text-align: left; }
+.trace-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; }
+.trace-dot.live { background: var(--bloom-blue); animation: pulse 1s infinite; }
+.trace-title { flex: 1; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trace-caret { color: #9ca3af; }
+.trace-steps { list-style: none; margin: 0; padding: 2px 6px 8px; display: flex; flex-direction: column; gap: 2px; border-top: 1px solid var(--border); }
+.trace-row { width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 6px 6px; border-radius: 8px; cursor: pointer; text-align: left; color: #1f2937; }
+.trace-row:disabled { cursor: default; }
+.trace-row:not(:disabled):hover { background: #eef2ff; }
+.trace-icon { width: 18px; text-align: center; }
+.trace-kind { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; width: 52px; flex-shrink: 0; }
+.trace-text { flex: 1; line-height: 1.35; }
+.trace-ms { color: #9ca3af; font-size: 11px; }
+.trace-step.vision .trace-kind { color: #7c3aed; }
+.trace-step.validate .trace-kind { color: #15803d; }
+.trace-step.fix .trace-kind { color: #b45309; }
+.trace-step.note .trace-kind { color: #b91c1c; }
+.trace-detail { margin: 0 6px 6px 32px; padding: 8px 10px; background: #fff; border: 1px solid var(--border); border-radius: 8px; max-height: 260px; overflow: auto; }
+.trace-detail p { margin: 0 0 6px; color: #374151; }
+.trace-detail pre { margin: 0; font-size: 11px; white-space: pre-wrap; word-break: break-word; color: #374151; }
+.trace-list { margin: 0; padding-left: 16px; }
+.trace-list li { margin-bottom: 4px; }
+.trace-list b { text-transform: capitalize; color: #111827; }
+.trace-list em { color: #1d4ed8; font-style: normal; }
+.trace-list code { display: block; font-size: 10.5px; color: #6b7280; }
