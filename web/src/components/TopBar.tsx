@@ -1,11 +1,10 @@
-import { STATUS_LABEL, timeAgo, type Project, type ProjectStatus } from '../lib/projects';
+import { STATUS_LABEL, type Project, type ProjectStatus } from '../lib/projects';
 
 /** Editor chrome: session identity, status, save state and the global actions. */
 export function TopBar({
   project,
   brandName,
   brandColor,
-  savedAt,
   onBack,
   onRename,
   onStar,
@@ -16,7 +15,6 @@ export function TopBar({
   project: Project;
   brandName?: string;
   brandColor?: string;
-  savedAt: string | null;
   onBack: () => void;
   onRename: (title: string) => void;
   onStar: () => void;
@@ -50,10 +48,6 @@ export function TopBar({
           </option>
         ))}
       </select>
-      <span className="saved">
-        <span className={`save-dot ${savedAt ? 'ok' : ''}`} />
-        {savedAt ? `Saved ${timeAgo(savedAt)}` : 'Not saved yet'}
-      </span>
       <div className="topbar-actions">
         <button className="btn-ghost" onClick={onNewPage} title="Add a blank page">
           ＋ Page

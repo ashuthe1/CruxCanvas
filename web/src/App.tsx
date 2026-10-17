@@ -23,7 +23,7 @@ type View = { kind: 'dashboard' } | { kind: 'editor'; project: Project; tab?: 'c
 
 export default function App() {
   const [view, setView] = useState<View | null>(null);
-  const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [, setSavedAt] = useState<string | null>(null); // kept for autosave callbacks
   const [brandInfo, setBrandInfo] = useState<{ name: string; color: string } | null>(null);
   const saverRef = useRef<Saver | null>(null);
   const projectRef = useRef<Project | null>(null);
@@ -106,7 +106,6 @@ export default function App() {
           project={p}
           brandName={brandInfo?.name}
           brandColor={brandInfo?.color}
-          savedAt={savedAt}
           onBack={backToDashboard}
           onRename={(title) => patchMeta({ title })}
           onStar={() => patchMeta({ starred: !p.starred })}
