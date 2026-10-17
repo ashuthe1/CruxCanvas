@@ -9,6 +9,7 @@ import { deliverSnapshot } from '../agent/snapshots.js';
 import { analyzeReferences } from '../agent/references.js';
 import { searchAssets } from '../brands/index.js';
 import { GENERATED_DIR } from '../agent/tools/generateImage.js';
+import { scanCreative } from '../scan/brandScan.js';
 
 export type ApiDeps = { brands: IBrandRepository; providers: Providers; lint: LintEngine };
 
@@ -47,6 +48,15 @@ export function createApi(deps: ApiDeps) {
   }));
 
   r.post('/analyze', wrap(async (req, res) => res.json(await analyzeReferences(deps.providers.vision, req.body.images || []))));
+
+  // ---- brand scan: audit any flat creative against the brand ----
+  r.post('/scan', wrap(async (req, res) => {
+    const id = brandIdOf(req);
+    const image = req.body?.image;
+    if (!image) return res.status(400).json({ error: 'image (data URL) required' });
+    const report = await scanCreative(image, { brand: await deps.brands.get(id), assets: await deps.brands.assets(id), vision: deps.providers.vision, resolve: (rel) => deps.brands.resolve(id, rel) });
+    res.json(report);
+  }));
 
   // ---- snapshots (visual review round-trip + debugging) ----
   r.post('/snapshot-reply', (req, res) => res.json({ ok: deliverSnapshot(req.body?.requestId, req.body?.dataUrl) }));

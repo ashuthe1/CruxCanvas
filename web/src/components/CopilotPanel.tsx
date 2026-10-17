@@ -8,6 +8,7 @@ import { clearCanvas } from '../lib/persist';
 import { PROMPT_EVENT } from '../sections/TemplatesSection';
 import { LintPanel } from './LintPanel';
 import { ReportCard } from './ReportCard';
+import { ScanPanel } from './ScanPanel';
 
 type Msg =
   | { kind: 'user'; text: string; refs?: string[] }
@@ -37,7 +38,7 @@ async function urlToDataUrl(url: string): Promise<string> {
 }
 
 export const CopilotPanel = observer(({ store }: { store: any }) => {
-  const [tab, setTab] = useState<'chat' | 'lint'>('chat');
+  const [tab, setTab] = useState<'chat' | 'lint' | 'scan'>('chat');
   const [brands, setBrands] = useState<BrandSummary[]>([]);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [brandId, setBrandIdState] = useState(getBrandId());
@@ -257,9 +258,22 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
         <button className={tab === 'lint' ? 'active' : ''} onClick={() => setTab('lint')}>
           Brand check {lint ? (lint.issues.length ? <span className="badge warn">{lint.issues.length}</span> : <span className="badge ok">✓</span>) : ''}
         </button>
+        <button className={tab === 'scan' ? 'active' : ''} onClick={() => setTab('scan')} title="Audit any creative against this brand">
+          Brand scan
+        </button>
       </div>
 
-      {tab === 'lint' ? (
+      {tab === 'scan' ? (
+        <ScanPanel
+          store={store}
+          brandName={brand?.name || 'the'}
+          onRemake={(brief, image) => {
+            setTab('chat');
+            setRefs([image]);
+            setTimeout(() => send(brief), 60);
+          }}
+        />
+      ) : tab === 'lint' ? (
         <LintPanel lint={lint} onFix={(ops) => applyOps(store, store.activePage.id, ops)} onAutoFix={autoFixAll} onFixAll={() => send('Fix all brand compliance issues on the current page, including the judgement calls.')} />
       ) : (
         <>

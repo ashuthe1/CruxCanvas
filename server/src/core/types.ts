@@ -137,6 +137,32 @@ export type DesignReport = {
   autoFixed: string[];
 };
 
+/** Brand scan of a flat creative (uploaded image, reference, or a rendered page) */
+export type ScanCheck = { rule: string; ok: boolean; severity: Severity; detail: string; fix?: string };
+export type ScanElement = { type: string; text?: string; box: { x: number; y: number; w: number; h: number }; color?: string; background?: string; notes?: string };
+export type ScanReport = {
+  score: number;
+  verdict: 'on-brand' | 'needs-work' | 'off-brand';
+  width: number;
+  height: number;
+  aspect: string;
+  summary: string;
+  checks: ScanCheck[];
+  extracted: {
+    headline?: string;
+    subhead?: string;
+    cta?: string;
+    legal?: string;
+    logo: { present: boolean; variant?: string; widthRatio?: number; position?: string; notes?: string };
+    fontsLookLikeBrand?: boolean;
+    fontNotes?: string;
+    layout: string;
+    elements: ScanElement[];
+  };
+  palette: { detected: { hex: string; share: number; nearest: string; distance: number; onBrand: boolean }[]; coverageOnBrand: number };
+  remakeBrief: string;
+};
+
 export type AgentInput = {
   message: string;
   history: { role: 'user' | 'assistant'; content: string }[];

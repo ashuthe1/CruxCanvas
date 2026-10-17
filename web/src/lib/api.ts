@@ -58,6 +58,25 @@ export async function lintPage(page: any, width: number, height: number): Promis
   return r.json();
 }
 
+export type ScanCheck = { rule: string; ok: boolean; severity: 'error' | 'warn' | 'info'; detail: string; fix?: string };
+export type ScanReport = {
+  score: number;
+  verdict: 'on-brand' | 'needs-work' | 'off-brand';
+  width: number;
+  height: number;
+  aspect: string;
+  summary: string;
+  checks: ScanCheck[];
+  extracted: { headline?: string; subhead?: string; cta?: string; legal?: string; logo: any; fontsLookLikeBrand?: boolean; fontNotes?: string; layout: string; elements: any[] };
+  palette: { detected: { hex: string; share: number; nearest: string; distance: number; onBrand: boolean }[]; coverageOnBrand: number };
+  remakeBrief: string;
+};
+export async function scanCreative(image: string): Promise<ScanReport> {
+  const r = await fetch('/api/scan', { method: 'POST', headers: headers({ 'content-type': 'application/json' }), body: JSON.stringify({ image }) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({})))?.error || `Scan failed (${r.status})`);
+  return r.json();
+}
+
 export async function sendSnapshotReply(requestId: string, dataUrl: string) {
   await fetch('/api/snapshot-reply', { method: 'POST', headers: headers({ 'content-type': 'application/json' }), body: JSON.stringify({ requestId, dataUrl }) });
 }
