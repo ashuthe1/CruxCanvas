@@ -7,11 +7,12 @@ import { Workspace } from 'polotno/canvas/workspace';
 import { PagesTimeline } from 'polotno/pages-timeline';
 import { store } from './store';
 import { BrandSection } from './sections/BrandSection';
+import { TemplatesSection } from './sections/TemplatesSection';
 import { CopilotPanel } from './components/CopilotPanel';
 import { getBrandId, onBrandChange } from './lib/brand';
 import { restoreCanvas, startAutosave } from './lib/persist';
 
-const sections = [BrandSection, ...DEFAULT_SECTIONS.filter((s: any) => ['text', 'elements', 'upload', 'background', 'layers', 'size'].includes(s.name))];
+const sections = [BrandSection, TemplatesSection, ...DEFAULT_SECTIONS.filter((s: any) => ['text', 'elements', 'upload', 'background', 'layers', 'size'].includes(s.name))];
 
 export default function App() {
   useEffect(() => {

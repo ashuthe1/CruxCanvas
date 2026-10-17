@@ -5,6 +5,7 @@ import { addPageFromJSON, applyOps, exportAllAsZip, pageToDataURL, serializeCanv
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
 import { clearCanvas } from '../lib/persist';
+import { PROMPT_EVENT } from '../sections/TemplatesSection';
 import { LintPanel } from './LintPanel';
 import { ReportCard } from './ReportCard';
 
@@ -63,15 +64,32 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
         setBrand(b);
         registerBrandFonts(b);
         setRefLib(null);
-        setMsgs([{ kind: 'assistant', text: `Hi! I'm the ${b.name} brand copilot. Describe what you want, attach a reference, or select something on the canvas and tell me how to change it.` }]);
+        setMsgs([{ kind: 'assistant', text: `Hi! I'm the ${b.name} brand copilot. Describe what you want, attach a reference, pick a layout from Templates, or select something on the canvas and tell me how to change it.` }]);
       })
-      .catch(console.error);
+      .catch(async () => {
+        // stored brand no longer exists → fall back to the first available one
+        const list = await listBrands().catch(() => []);
+        if (list[0] && list[0].id !== brandId) switchBrand(list[0].id);
+      });
   }, [brandId]);
 
   const switchBrand = (id: string) => {
     setBrandId(id);
     setBrandIdState(id);
   };
+
+  // prompts coming from the side panel (Templates)
+  useEffect(() => {
+    const h = (e: Event) => {
+      const { text, send: go } = (e as CustomEvent).detail || {};
+      if (!text) return;
+      setTab('chat');
+      setInput(text);
+      if (go) setTimeout(() => send(text), 50);
+    };
+    window.addEventListener(PROMPT_EVENT, h);
+    return () => window.removeEventListener(PROMPT_EVENT, h);
+  });
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' });
@@ -86,7 +104,8 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
         const page = store.activePage;
         if (!page) return;
         try {
-          setLint(await lintPage(serializePage(page), store.width, store.height));
+          const res = await lintPage(serializePage(page), store.width, store.height);
+          if (res && Array.isArray(res.issues)) setLint(res);
         } catch {}
       }, 600);
     };

@@ -1,0 +1,324 @@
+{
+  "logo_getcrux_wordmark_dark": {
+    "name": "getcrux logo",
+    "description": "Getcrux logo featuring an orange geometric symbol and navy wordmark with a small orange dot",
+    "tags": [
+      "logo",
+      "geometric symbol",
+      "orange",
+      "navy",
+      "wordmark",
+      "horizontal",
+      "modern",
+      "tech"
+    ],
+    "category": "logo",
+    "colour": "navy",
+    "isGuideline": false,
+    "file": "logo/getcrux_wordmark_dark.png"
+  },
+  "logo_getcrux_icon": {
+    "name": "orange geometric logo",
+    "description": "abstract orange geometric symbol with four diamond shapes arranged in a tilted square pattern",
+    "tags": [
+      "orange",
+      "geometric",
+      "abstract",
+      "diamond shapes",
+      "tilted square",
+      "modern",
+      "minimal",
+      "symbol"
+    ],
+    "category": "logo",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "logo/getcrux_icon.svg"
+  },
+  "logo_getcrux_wordmark_light": {
+    "name": "y combinator logo",
+    "description": "Y Combinator logo with orange square and white Y symbol beside the wordmark 'Combinator' in orange",
+    "tags": [
+      "orange",
+      "white",
+      "wordmark",
+      "symbol",
+      "horizontal",
+      "tech",
+      "startup",
+      "modern"
+    ],
+    "category": "logo",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "logo/getcrux_wordmark_light.png"
+  },
+  "product_ui_agents": {
+    "name": "orange gradient background",
+    "description": "Vertical orange gradient background with warm shades transitioning from light to dark.",
+    "tags": [
+      "orange",
+      "gradient",
+      "vertical stripes",
+      "warm",
+      "background",
+      "smooth",
+      "soft transition",
+      "portrait"
+    ],
+    "category": "background",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "product_ui/agents.png"
+  },
+  "product_ui_command_centre": {
+    "name": "doordash delivery promo",
+    "description": "Promotional product UI banner with DoorDash branding featuring a parachuting delivery bag",
+    "tags": [
+      "doordash",
+      "delivery",
+      "parachute",
+      "bag",
+      "red",
+      "white",
+      "clouds",
+      "bold text",
+      "horizontal",
+      "clean"
+    ],
+    "category": "product-ui",
+    "colour": "red",
+    "isGuideline": false,
+    "file": "product_ui/command_centre.png"
+  },
+  "logo_getcrux_linkedin_banner": {
+    "name": "getcrux logo and branding",
+    "description": "Getcrux logo with geometric icon and headline branded colors",
+    "tags": [
+      "orange",
+      "blue",
+      "top-left",
+      "geometric",
+      "modern",
+      "professional",
+      "horizontal",
+      "bright"
+    ],
+    "category": "logo",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "logo/getcrux_linkedin_banner.png"
+  },
+  "product_ui_hero_product": {
+    "name": "soft pink orange gradient",
+    "description": "A smooth gradient background with warm pink and orange colors blending softly.",
+    "tags": [
+      "gradient",
+      "warm",
+      "pink",
+      "orange",
+      "soft",
+      "fluid",
+      "abstract",
+      "background"
+    ],
+    "category": "background",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "product_ui/hero_product.png"
+  },
+  "logo_getcrux_wordmark_white": {
+    "name": "simple white wordmark",
+    "description": "minimalist white text logo on transparent background",
+    "tags": [
+      "white",
+      "wordmark",
+      "minimalist",
+      "horizontal",
+      "clean",
+      "simple",
+      "modern"
+    ],
+    "category": "logo",
+    "colour": "white",
+    "isGuideline": false,
+    "file": "logo/getcrux_wordmark_white.png"
+  },
+  "logo_getcrux_wordmark": {
+    "name": "getcrux logo",
+    "description": "Logo featuring an orange symbol next to the dark blue wordmark 'getcrux' with an orange dot.",
+    "tags": [
+      "orange symbol",
+      "dark blue text",
+      "wordmark",
+      "horizontal layout",
+      "modern",
+      "tech",
+      "clean"
+    ],
+    "category": "logo",
+    "colour": "dark-blue",
+    "isGuideline": false,
+    "file": "logo/getcrux_wordmark.png"
+  },
+  "logo_getcrux_mark_white": {
+    "name": "gradient tech logo",
+    "description": "Abstract logo with gradient blue and pink overlapping shapes forming a geometric design",
+    "tags": [
+      "gradient",
+      "blue",
+      "pink",
+      "overlapping",
+      "geometric",
+      "modern",
+      "abstract",
+      "logo"
+    ],
+    "category": "logo",
+    "colour": "blue",
+    "isGuideline": false,
+    "file": "logo/getcrux_mark_white.png"
+  },
+  "logo_getcrux_wordmark_2x": {
+    "name": "getcrux logo",
+    "description": "Logo featuring a geometric orange symbol and blue wordmark text.",
+    "tags": [
+      "orange symbol",
+      "blue text",
+      "horizontal layout",
+      "modern",
+      "tech",
+      "geometric",
+      "professional"
+    ],
+    "category": "logo",
+    "colour": "blue",
+    "isGuideline": false,
+    "file": "logo/getcrux_wordmark_2x.png"
+  },
+  "logo_getcrux_wordmark_navy": {
+    "name": "blue orange tech logo",
+    "description": "A tech-style logo with orange geometric shapes and blue text on a navy background.",
+    "tags": [
+      "navy background",
+      "orange geometric shapes",
+      "horizontal layout",
+      "tech style",
+      "modern",
+      "minimalist"
+    ],
+    "category": "logo",
+    "colour": "navy",
+    "isGuideline": false,
+    "file": "logo/getcrux_wordmark_navy.png"
+  },
+  "logo_getcrux_mark": {
+    "name": "orange diamond pattern",
+    "description": "Abstract logo with orange diamond shapes arranged diagonally",
+    "tags": [
+      "orange",
+      "diamond",
+      "abstract",
+      "geometric",
+      "diagonal",
+      "modern",
+      "bright"
+    ],
+    "category": "logo",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "logo/getcrux_mark.png"
+  },
+  "illustration_agents_trio": {
+    "name": "connected smiling squares",
+    "description": "Three connected diamond-shaped squares with smiling faces in orange, dark blue, and peach colors.",
+    "tags": [
+      "connected",
+      "smiling faces",
+      "diamond shapes",
+      "orange",
+      "dark blue",
+      "peach",
+      "friendly",
+      "simple"
+    ],
+    "category": "illustration",
+    "colour": "orange",
+    "isGuideline": false,
+    "file": "illustration/agents_trio.png"
+  },
+  "background_ink_grid": {
+    "name": "dark grid background",
+    "description": "dark background with a subtle diamond grid pattern and gradient lighting on bottom right",
+    "tags": [
+      "dark",
+      "black",
+      "grid pattern",
+      "diamond shapes",
+      "bottom-right glow",
+      "subtle",
+      "minimal",
+      "background"
+    ],
+    "category": "background",
+    "colour": "black",
+    "isGuideline": false,
+    "file": "background/ink_grid.png"
+  },
+  "illustration_ad_cards_stack": {
+    "name": "video analytics cards",
+    "description": "stack of blue and orange cards showing a play button and bar chart representing video analytics",
+    "tags": [
+      "blue",
+      "orange",
+      "cards",
+      "stacked",
+      "play button",
+      "bar chart",
+      "analytics",
+      "flat illustration"
+    ],
+    "category": "illustration",
+    "colour": "dark-blue",
+    "isGuideline": false,
+    "file": "illustration/ad_cards_stack.png"
+  },
+  "illustration_feedback_loop": {
+    "name": "circular process with rocket",
+    "description": "Circular flowchart of blue and orange arrows with icons including a rocket, magnifying glass, and charts",
+    "tags": [
+      "circular",
+      "arrows",
+      "rocket",
+      "magnifying glass",
+      "chart",
+      "blue",
+      "orange",
+      "flat",
+      "business",
+      "growth"
+    ],
+    "category": "illustration",
+    "colour": "blue",
+    "isGuideline": false,
+    "file": "illustration/feedback_loop.png"
+  },
+  "background_peach_glow": {
+    "name": "soft peach gradient",
+    "description": "a smooth gradient background blending soft peach to off-white with subtle crisscross lines",
+    "tags": [
+      "peach",
+      "gradient",
+      "soft",
+      "light",
+      "crisscross",
+      "diagonal lines",
+      "warm",
+      "subtle texture"
+    ],
+    "category": "background",
+    "colour": "beige",
+    "isGuideline": false,
+    "file": "background/peach_glow.png"
+  }
+}
