@@ -126,6 +126,11 @@ export function duplicatePage(store: StoreType, sourcePageId: string, pageId: st
   return page;
 }
 
+/** Variant pages produced by winner iterations for a source page (newest batch first) */
+export function variantsOf(store: StoreType, sourcePageId: string) {
+  return store.pages.filter((p: any) => p.custom?.variantOf === sourcePageId);
+}
+
 export async function pageToDataURL(store: StoreType, pageId: string, pixelRatio = 0.5) {
   return store.toDataURL({ pageId, pixelRatio, mimeType: 'image/jpeg', quality: 0.8 } as any);
 }

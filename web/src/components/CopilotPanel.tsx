@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport } from '../lib/api';
-import { addPageFromJSON, applyOps, duplicatePage, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage } from '../lib/canvas';
+import { addPageFromJSON, applyOps, duplicatePage, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage, variantsOf } from '../lib/canvas';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
 import { PROMPT_EVENT } from '../sections/TemplatesSection';
@@ -16,7 +16,7 @@ type Msg =
   | { kind: 'assistant'; text: string }
   | { kind: 'status'; text: string; done?: boolean }
   | { kind: 'report'; report: DesignReport & { pageId: string; thumb?: string } }
-  | { kind: 'iteration'; count: number };
+  | { kind: 'iteration'; count: number; pageId?: string };
 
 type Iteration = { original: VariantCard; variants: VariantCard[]; busy: boolean };
 
@@ -265,15 +265,17 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
     const onEvent = (e: AgentEvent) => {
       if (e.type === 'duplicate_page') {
         duplicatePage(store, e.sourcePageId, e.pageId, e.suffix, e.custom);
-        setIteration((it) => (it ? { ...it, variants: it.variants.concat({ pageId: e.pageId, dimension: e.custom?.dimension, label: '', kept: null }) } : it));
+        setIteration((it) => (it ? { ...it, variants: it.variants.concat({ pageId: e.pageId, dimension: e.custom?.dimension, label: '', kept: null, pending: true }) } : it));
       } else if (e.type === 'variant') {
         if (e.rejected) {
           try {
             store.deletePages([e.pageId]);
           } catch {}
-          patchVariant(e.pageId, { label: e.label, rejected: e.rejected, kept: false });
+          patchVariant(e.pageId, { label: e.label, rejected: e.rejected, kept: false, pending: false });
         } else {
-          patchVariant(e.pageId, { label: e.label, score: e.score, dropped: e.dropped });
+          patchVariant(e.pageId, { label: e.label, score: e.score, dropped: e.dropped, pending: false });
+          const vp = store.pages.find((p: any) => p.id === e.pageId);
+          vp?.set({ custom: { ...(vp.custom || {}), label: e.label, score: e.score, dropped: e.dropped } });
           setTimeout(() => thumbOf(e.pageId).then((thumb) => patchVariant(e.pageId, { thumb })).catch(() => {}), 300);
         }
       } else {
@@ -286,10 +288,30 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
       if (err?.name !== 'AbortError') handleEvent({ type: 'error', text: String(err?.message || err) });
     } finally {
       setBusy(false);
-      setIteration((it) => (it ? { ...it, busy: false } : it));
-      setMsgs((m) => closeStatuses(m).concat({ kind: 'iteration', count }));
+      setIteration((it) => (it ? { ...it, busy: false, variants: it.variants.map((v) => (v.pending ? { ...v, pending: false, rejected: v.rejected || 'the run ended before this variant was produced' } : v)) } : it));
+      setMsgs((m) => closeStatuses(m).concat({ kind: 'iteration', count, pageId: page.id }));
       store.selectPage(page.id);
     }
+  };
+  /** Rebuild the comparison grid from the pages on the canvas (works after a reload, when the run state is gone) */
+  const openComparison = (sourceId?: string) => {
+    const page = store.activePage;
+    const originalId = sourceId || (page?.custom?.variantOf as string) || page?.id;
+    const variants = originalId ? variantsOf(store, originalId) : [];
+    if (!variants.length) return;
+    const original = store.pages.find((p: any) => p.id === originalId);
+    const it: Iteration = {
+      original: { pageId: originalId, label: original?.custom?.name || 'Current page', score: original?.id === page?.id ? lint?.score : undefined, kept: true },
+      variants: variants.map((v: any) => ({ pageId: v.id, dimension: v.custom?.dimension, label: v.custom?.label || '', score: v.custom?.score, dropped: v.custom?.dropped, kept: null })),
+      busy: false,
+    };
+    setIteration(it);
+    setShowGrid(true);
+    [originalId, ...variants.map((v: any) => v.id)].forEach((id) =>
+      thumbOf(id)
+        .then((thumb) => setIteration((cur) => (cur ? { ...cur, original: cur.original.pageId === id ? { ...cur.original, thumb } : cur.original, variants: cur.variants.map((v) => (v.pageId === id ? { ...v, thumb } : v)) } : cur)))
+        .catch(() => {}),
+    );
   };
   const keepVariant = (pageId: string) => patchVariant(pageId, { kept: true });
   const discardVariant = (pageId: string) => {
@@ -339,6 +361,11 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
         >
           ⑂ Iterate
         </button>
+        {!!store.activePage && (variantsOf(store, store.activePage.custom?.variantOf || store.activePage.id).length > 0) && (
+          <button className="btn-ghost" title="Compare this page's winner iterations side by side" onClick={() => openComparison()}>
+            ⊞ Compare
+          </button>
+        )}
         <button className="btn-ghost" title="Download all pages as PNG (zip)" onClick={() => exportAllAsZip(store, `${brandId}-designs`)}>
           ⬇
         </button>
@@ -414,7 +441,7 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
               ) : m.kind === 'iteration' ? (
                 <div key={i} className="msg assistant">
                   Compared {m.count} controlled variant{m.count > 1 ? 's' : ''} against the original.{' '}
-                  <button className="link" style={{ background: 'none', border: 0, color: 'var(--bloom-blue)', cursor: 'pointer', padding: 0, font: 'inherit' }} onClick={() => setShowGrid(true)}>
+                  <button className="link" style={{ background: 'none', border: 0, color: 'var(--bloom-blue)', cursor: 'pointer', padding: 0, font: 'inherit' }} onClick={() => (iteration && (!m.pageId || iteration.original.pageId === m.pageId) ? setShowGrid(true) : openComparison(m.pageId))}>
                     Open comparison
                   </button>
                 </div>

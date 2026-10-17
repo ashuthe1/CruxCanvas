@@ -11,6 +11,8 @@ export type VariantCard = {
   dropped?: string[];
   rejected?: string;
   kept?: boolean | null;
+  /** still being composed by the planner */
+  pending?: boolean;
 };
 
 const scoreColor = (s?: number) => (s === undefined ? '#9ca3af' : s >= 90 ? '#16a34a' : s >= 70 ? '#f59e0b' : '#ef4444');
@@ -146,7 +148,7 @@ function VariantTile({
   return (
     <div className={`variant-tile ${isOriginal ? 'original' : ''} ${card.kept === true ? 'kept' : card.kept === false ? 'discarded' : ''}`}>
       <div className="variant-thumb" onClick={() => onJump(card.pageId)} title="Jump to this page on the canvas">
-        {card.thumb ? <img src={card.thumb} alt="" /> : <div className="variant-pending">{card.score === undefined ? 'Composing…' : 'Rendering…'}</div>}
+        {card.thumb ? <img src={card.thumb} alt="" /> : <div className="variant-pending">{card.pending ? 'Composing…' : 'Rendering…'}</div>}
       </div>
       <div className="variant-meta">
         <span className="variant-dim" style={isOriginal ? { background: '#e5e7eb', color: '#374151' } : undefined}>
@@ -167,10 +169,10 @@ function VariantTile({
             <span className="hint">Discarded</span>
           ) : (
             <>
-              <button className={`btn-ghost ${card.kept ? 'on' : ''}`} onClick={() => onKeep?.(card.pageId)} disabled={card.score === undefined}>
+              <button className={`btn-ghost ${card.kept ? 'on' : ''}`} onClick={() => onKeep?.(card.pageId)} disabled={card.pending}>
                 {card.kept ? '✓ Kept' : 'Keep'}
               </button>
-              <button className="btn-ghost danger" onClick={() => onDiscard?.(card.pageId)} disabled={card.score === undefined}>
+              <button className="btn-ghost danger" onClick={() => onDiscard?.(card.pageId)} disabled={card.pending}>
                 Discard
               </button>
             </>
