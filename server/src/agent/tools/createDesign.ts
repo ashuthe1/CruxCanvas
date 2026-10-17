@@ -51,7 +51,15 @@ export const createDesignTool: AgentTool = {
   async execute(args, ctx) {
     const n = (ctx.state.designs = (ctx.state.designs || 0) + 1);
     ctx.emit({ type: 'status', text: `Composing design ${n}${args.design?.name ? `: ${args.design.name}` : ''}…` });
-    const parsed = DesignSchema.safeParse(args.design);
+    let raw = args.design;
+    if (typeof raw === 'string') {
+      try {
+        raw = JSON.parse(raw);
+      } catch {
+        return 'ERROR: design must be a JSON object, not a string.';
+      }
+    }
+    const parsed = DesignSchema.safeParse(raw);
     if (!parsed.success) return 'ERROR: invalid design spec: ' + parsed.error.issues.slice(0, 6).map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
 
     const renderer = new DesignRenderer(ctx.brand, ctx.assets, (rel) => brandRepository().resolve(ctx.brand.id, rel));

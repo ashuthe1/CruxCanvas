@@ -49,6 +49,14 @@ export const updateDesignTool: AgentTool = {
         }
       }
     }
+    // images keep their aspect ratio when only one dimension is set (otherwise the canvas crops them)
+    for (const op of rawOps) {
+      if (op.op !== 'set') continue;
+      const el = page.elements.find((e) => e.id === op.id);
+      if (!el || !(el.type === 'image' || el.type === 'svg') || !el.width || !el.height) continue;
+      if (op.props.width !== undefined && op.props.height === undefined) op.props.height = Math.round(op.props.width * (el.height / el.width));
+      else if (op.props.height !== undefined && op.props.width === undefined) op.props.width = Math.round(op.props.height * (el.width / el.height));
+    }
     const ops = expandContainerMoves(page, rawOps);
     ctx.emit({ type: 'status', text: `Applying ${rawOps.length} change${rawOps.length === 1 ? '' : 's'}…` });
     applyOpsCompact(page, ops);

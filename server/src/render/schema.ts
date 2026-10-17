@@ -3,9 +3,23 @@ import { z } from 'zod';
 
 const num = z.number();
 
+export const TEXT_ROLES = ['headline', 'subhead', 'body', 'label', 'legal', 'stat'] as const;
+export type TextRole = (typeof TEXT_ROLES)[number];
+/** Tolerate role synonyms the planner may invent ("quote", "eyebrow", "caption"…) */
+export function normalizeTextRole(role?: string): TextRole {
+  const r = (role || 'body').toLowerCase();
+  if ((TEXT_ROLES as readonly string[]).includes(r)) return r as TextRole;
+  if (/head|title|quote|hero/.test(r)) return 'headline';
+  if (/sub|deck|intro|lede/.test(r)) return 'subhead';
+  if (/label|eyebrow|tag|kicker|overline|category/.test(r)) return 'label';
+  if (/legal|footnote|disclaimer|source|caption|terms/.test(r)) return 'legal';
+  if (/stat|number|metric|figure|price/.test(r)) return 'stat';
+  return 'body';
+}
+
 export const TextSpec = z.object({
   kind: z.literal('text'),
-  role: z.enum(['headline', 'subhead', 'body', 'label', 'legal', 'stat']).optional(),
+  role: z.string().optional(),
   text: z.string(),
   x: num.optional(), y: num.optional(), width: num.optional(),
   fontSize: num.optional(),

@@ -22,6 +22,13 @@ export const logoRule: LintRule = {
         const ratio = l.width / l.height;
         out.push({ rule: 'Logo too small', severity: 'error', elementId: l.id, message: `Logo is ${Math.round(l.width)}px wide; minimum is ${Math.round(minW)}px (${Math.round(brand.logo.minWidthRatio * 100)}% of width).`, fix: [{ op: 'set', id: l.id, props: { width: Math.round(minW), height: Math.round(minW / ratio) } }] });
       }
+      // distorted / cropped wordmark: element aspect drifted from the asset's aspect
+      const asset = assets.find((a) => a.id === l.assetId || a.id === l.custom?.assetId);
+      if (asset && asset.width && asset.height && l.height) {
+        const want = asset.width / asset.height, have = l.width / l.height;
+        if (Math.abs(want - have) / want > 0.08)
+          out.push({ rule: 'Logo distorted', severity: 'error', elementId: l.id, message: 'The logo box no longer matches the artwork’s proportions (it would crop or stretch).', fix: [{ op: 'set', id: l.id, props: { height: Math.round(l.width / want) } }] });
+      }
       const behind = backgroundBehind(page, l);
       const variant = variantOf(l);
       if (behind && variant && variantColor(variant)) {

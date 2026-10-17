@@ -6,7 +6,7 @@
 import { randomUUID } from 'crypto';
 import type { Asset, BrandKit } from '../core/types.js';
 import { TextMeasurer } from './text.js';
-import type { ChecklistEl, ContainerEl, CtaEl, Design, TextEl } from './schema.js';
+import { normalizeTextRole, type ChecklistEl, type ContainerEl, type CtaEl, type Design, type TextEl } from './schema.js';
 
 const uid = () => randomUUID().slice(0, 8);
 
@@ -29,7 +29,7 @@ export class DesignRenderer {
 
   private textDefaults(el: TextEl, S: number) {
     const L = this.brand.layout;
-    const role = el.role || 'body';
+    const role = normalizeTextRole(el.role);
     const ratio = role === 'headline' ? L.headline.fontSizeRatio : role === 'subhead' ? L.subhead.fontSizeRatio : role === 'legal' ? L.legal.fontSizeRatio : role === 'stat' ? 0.16 : role === 'label' ? 0.022 : 0.026;
     const fontKey = el.font || (role === 'headline' || role === 'stat' ? 'headline' : role === 'label' ? 'bodyBold' : 'body');
     const family = this.fonts[fontKey];
