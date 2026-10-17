@@ -128,6 +128,8 @@ export type AgentEvent =
   | { type: 'lint'; pageId: string; result: LintResult }
   | { type: 'size'; width: number; height: number }
   | { type: 'snapshot_request'; pageId: string; requestId: string }
+  /** the server asks the editor for its current structured canvas to re-sync the mirror */
+  | { type: 'state_request'; requestId: string }
   | { type: 'report'; pageId: string; report: DesignReport }
   /** clone sourcePageId as pageId; every element id becomes `${id}_${suffix}` (containers remapped too) */
   | { type: 'duplicate_page'; sourcePageId: string; pageId: string; suffix: string; custom: Record<string, any> }

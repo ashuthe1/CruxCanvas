@@ -21,6 +21,7 @@ export type AgentEvent =
   | { type: 'lint'; pageId: string; result: LintResult }
   | { type: 'size'; width: number; height: number }
   | { type: 'snapshot_request'; pageId: string; requestId: string }
+  | { type: 'state_request'; requestId: string }
   | { type: 'report'; pageId: string; report: DesignReport }
   | { type: 'trace'; step: TraceStep }
   | { type: 'duplicate_page'; sourcePageId: string; pageId: string; suffix: string; custom: Record<string, any> }
@@ -80,6 +81,10 @@ export async function scanCreative(image: string): Promise<ScanReport> {
   const r = await fetch('/api/scan', { method: 'POST', headers: headers({ 'content-type': 'application/json' }), body: JSON.stringify({ image }) });
   if (!r.ok) throw new Error((await r.json().catch(() => ({})))?.error || `Scan failed (${r.status})`);
   return r.json();
+}
+
+export async function sendStateReply(requestId: string, canvas: any) {
+  await fetch('/api/state-reply', { method: 'POST', headers: headers({ 'content-type': 'application/json' }), body: JSON.stringify({ requestId, canvas }) });
 }
 
 export async function sendSnapshotReply(requestId: string, dataUrl: string) {

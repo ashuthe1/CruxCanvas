@@ -1,10 +1,12 @@
 /**
- * Round-trip to the browser: the agent asks the editor for a rendered snapshot of a page
- * (the real canvas, fonts and all) so a vision model can review it.
+ * Round-trips to the browser during an agent run:
+ *  - snapshot: the editor renders a page (real canvas, fonts and all) for visual QA
+ *  - state:    the editor sends its current structured canvas so the server mirror can be re-synced
+ *              before final validation (guards against any op the client applied differently)
  */
-const pending = new Map<string, { resolve: (dataUrl: string | null) => void; timer: NodeJS.Timeout }>();
+const pending = new Map<string, { resolve: (payload: any) => void; timer: NodeJS.Timeout }>();
 
-export function waitForSnapshot(requestId: string, timeoutMs = 15000): Promise<string | null> {
+function wait<T>(requestId: string, timeoutMs: number): Promise<T | null> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
       pending.delete(requestId);
@@ -13,12 +15,16 @@ export function waitForSnapshot(requestId: string, timeoutMs = 15000): Promise<s
     pending.set(requestId, { resolve, timer });
   });
 }
-
-export function deliverSnapshot(requestId: string, dataUrl: string) {
+function deliver(requestId: string, payload: any) {
   const p = pending.get(requestId);
   if (!p) return false;
   clearTimeout(p.timer);
   pending.delete(requestId);
-  p.resolve(dataUrl);
+  p.resolve(payload);
   return true;
 }
+
+export const waitForSnapshot = (requestId: string, timeoutMs = 15000) => wait<string>(requestId, timeoutMs);
+export const deliverSnapshot = (requestId: string, dataUrl: string) => deliver(requestId, dataUrl);
+export const waitForState = (requestId: string, timeoutMs = 8000) => wait<any>(requestId, timeoutMs);
+export const deliverState = (requestId: string, canvas: any) => deliver(requestId, canvas);

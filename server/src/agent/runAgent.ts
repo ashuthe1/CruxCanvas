@@ -15,7 +15,7 @@ import { buildSystemPrompt } from './prompt.js';
 import { validateAndFix, lintSummary } from './tools/createDesign.js';
 import { analyzeReferences } from './references.js';
 import { inspectRender, type VisualQA } from './visualQA.js';
-import { waitForSnapshot } from './snapshots.js';
+import { waitForSnapshot, waitForState } from './snapshots.js';
 
 export type AgentDeps = { brandId: string; brands: IBrandRepository; providers: Providers; lint: LintEngine; tools: AgentTool[] };
 
@@ -175,8 +175,26 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
 
   await runPlanner();
 
-  // ---- 4. final deterministic validation ----
+  // ---- 4. re-sync the mirror with the editor's real state, then final deterministic validation ----
   const touched: Set<string> = ctx.state.touched || new Set();
+  const syncWithEditor = async () => {
+    const requestId = randomUUID();
+    const wait = waitForState(requestId);
+    emit({ type: 'state_request', requestId });
+    const canvas = await wait;
+    if (!canvas?.pages) {
+      trace({ kind: 'note', title: 'Editor state sync skipped (no reply)' });
+      return;
+    }
+    let diffs = 0;
+    for (const p of canvas.pages as CompactPage[]) {
+      const mine = pages.get(p.id);
+      if (mine && JSON.stringify(mine.elements.map((e) => [e.id, Math.round(e.x), Math.round(e.y)])) !== JSON.stringify(p.elements.map((e) => [e.id, Math.round(e.x), Math.round(e.y)]))) diffs++;
+      pages.set(p.id, JSON.parse(JSON.stringify(p)));
+    }
+    if (canvas.width && canvas.height) ctx.canvas = { W: canvas.width, H: canvas.height };
+    trace({ kind: 'observe', title: diffs ? `Re-synced with the editor: ${diffs} page${diffs > 1 ? 's' : ''} differed from the server mirror (editor wins)` : 'Re-synced with the editor: mirror matches the real canvas', detail: 'Validation and visual QA run on the editor’s actual layer order and coordinates, not on the server’s assumption of them.' });
+  };
   const validateTouched = () => {
     for (const id of touched) {
       const page = pages.get(id);
@@ -189,6 +207,7 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
   };
   if (touched.size) {
     emit({ type: 'status', text: `Final brand validation on ${touched.size} page${touched.size > 1 ? 's' : ''}…` });
+    await syncWithEditor();
     validateTouched();
   }
 
@@ -222,6 +241,7 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
       messages.push({ role: 'user', content: `VISUAL QA of the rendered page ${page.id} found defects that must be fixed now with update_design (use the element ids; coordinates are absolute):\n${JSON.stringify(errors)}\nCurrent elements:\n${JSON.stringify(page.elements.map((e) => ({ id: e.id, role: e.role || e.type, x: e.x, y: e.y, width: e.width, height: e.height, text: e.text })))}\nFix every defect, then reply with a one-line summary.` });
       ctx.state.rounds = new Map(); // allow fixes
       await runPlanner();
+      await syncWithEditor();
       validateTouched();
     }
   }

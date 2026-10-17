@@ -5,7 +5,7 @@ import { IMAGE_ROLES, backgroundBehind, contains, overlaps, role } from '../help
 export const logoRule: LintRule = {
   id: 'logo',
   title: 'Logo usage',
-  run({ brand, page, W, assets }) {
+  run({ brand, page, W, H, assets }) {
     const out: any[] = [];
     const els = page.elements;
     const logoIds = new Set(Object.values(brand.logo.assets));
@@ -37,7 +37,9 @@ export const logoRule: LintRule = {
           const better = Object.entries(brand.logo.variantColors || {}).map(([v, hex]) => ({ v, c: contrast(bgRgb, parseHex(hex)!) })).sort((a, b) => b.c - a.c)[0];
           if (better && better.v !== variant) {
             const asset = assets.find((a) => a.id === brand.logo.assets[better.v]);
-            out.push({ rule: 'Logo colourway', severity: 'error', elementId: l.id, message: `${variant} logo has poor contrast on ${behind}. Use the ${better.v} version.`, fix: asset ? [{ op: 'set', id: l.id, props: { src: asset.url, custom: { ...(l.custom || {}), assetId: asset.id, role: 'logo', variant: better.v } } }] : undefined });
+            // an svg layer must get an svg source (the vectorised file); a bitmap layer can take either
+            const src = asset ? (l.type === 'svg' ? asset.vectorUrl || asset.url : asset.vectorUrl || asset.url) : undefined;
+            out.push({ rule: 'Logo colourway', severity: 'error', elementId: l.id, message: `${variant} logo has poor contrast on ${behind}. Use the ${better.v} version.`, fix: asset && src ? [{ op: 'set', id: l.id, props: { src, custom: { ...(l.custom || {}), assetId: asset.id, role: 'logo', variant: better.v } } }] : undefined });
           }
         }
       } else if (!behind && !els.some((e) => role(e) === 'logo-pill' && contains(e, l))) {
@@ -50,6 +52,28 @@ export const logoRule: LintRule = {
       const pad = l.height * 0.5;
       const intruders = els.filter((e) => e !== l && !IMAGE_ROLES.has(role(e)) && !['card', 'logo-pill', 'cta-bg', 'shape', 'background'].includes(role(e)) && overlaps(l, e, pad));
       if (intruders.length) out.push({ rule: 'Logo clear space', severity: 'warn', elementId: l.id, message: `${intruders.map((i) => i.name || i.type).join(', ')} intrudes on the logo clear space.` });
+      // logo straddling a content card (half on the card, half off) — move it to the best free corner
+      const cardHit = els.find((e) => role(e) === 'card' && overlaps(l, e, 0) && !contains(e, l));
+      const insideCard = els.find((e) => role(e) === 'card' && contains(e, l));
+      if (cardHit || insideCard) {
+        const m = Math.round(Math.min(W, H) * (brand.layout.marginRatio || 0.06));
+        const corners = [
+          { x: m, y: H - m - l.height, name: 'bottom-left' },
+          { x: W - m - l.width, y: H - m - l.height, name: 'bottom-right' },
+          { x: W - m - l.width, y: m, name: 'top-right' },
+          { x: m, y: m, name: 'top-left' },
+        ];
+        const blockers = els.filter((e) => e !== l && (role(e) === 'card' || e.type === 'text' || role(e) === 'cta-bg'));
+        // prefer the free corner nearest to where the logo was put (respects "move it to the top"), never a random one
+        const dist = (c: { x: number; y: number }) => Math.hypot(c.x - l.x, c.y - l.y);
+        const free = corners.filter((c) => !blockers.some((b) => overlaps({ ...l, x: c.x, y: c.y }, b, pad))).sort((a, b) => dist(a) - dist(b))[0];
+        if (free) {
+          out.push({ rule: 'Logo overlaps card', severity: 'error', elementId: l.id, message: `The logo ${insideCard ? 'sits inside' : 'straddles the edge of'} the content card; moved to the nearest free corner (${free.name}).`, fix: [{ op: 'set', id: l.id, props: { x: Math.round(free.x), y: Math.round(free.y) } }, { op: 'raise', id: l.id }] });
+        } else {
+          // nowhere free: don't fight the user silently — keep it on top and flag that the card must make room
+          out.push({ rule: 'Logo overlaps card', severity: 'warn', elementId: l.id, message: 'The logo overlaps the content card and no corner is free. Make room: move or shrink the card so the logo gets a clear strip.', fix: [{ op: 'raise', id: l.id }] });
+        }
+      }
       // partially outside the canvas / hidden behind imagery drawn later
       const idx = els.indexOf(l);
       const cover = els.slice(idx + 1).find((e) => (e.type === 'image' || e.type === 'svg' || (e.type === 'figure' && (e.opacity ?? 1) > 0.5)) && overlaps(e, l));

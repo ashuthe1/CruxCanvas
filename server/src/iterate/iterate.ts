@@ -134,7 +134,7 @@ function keepImageAspect(ctx: ToolContext, page: CompactPage, ops: Op[]): Op[] {
     const aspect = asset && asset.width && asset.height ? asset.width / asset.height : el.width && el.height ? el.width / el.height : undefined;
     if (!aspect) continue;
     if (asset) {
-      p.src = asset.url;
+      p.src = asset.vectorUrl || asset.url; // never hand a PNG to an svg layer
       p.custom = { ...(el.custom || {}), ...(p.custom || {}), assetId: asset.id, role: p.custom?.role || el.role || asset.category };
       const w = p.width ?? el.width;
       p.width = w;

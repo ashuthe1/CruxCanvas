@@ -5,7 +5,7 @@ import type { IBrandRepository, Providers } from '../core/interfaces.js';
 import { LintEngine } from '../lint/index.js';
 import { runAgent } from '../agent/runAgent.js';
 import { defaultTools } from '../agent/tools/index.js';
-import { deliverSnapshot } from '../agent/snapshots.js';
+import { deliverSnapshot, deliverState } from '../agent/snapshots.js';
 import { analyzeReferences } from '../agent/references.js';
 import { searchAssets } from '../brands/index.js';
 import { GENERATED_DIR } from '../agent/tools/generateImage.js';
@@ -62,6 +62,7 @@ export function createApi(deps: ApiDeps) {
 
   // ---- snapshots (visual review round-trip + debugging) ----
   r.post('/snapshot-reply', (req, res) => res.json({ ok: deliverSnapshot(req.body?.requestId, req.body?.dataUrl) }));
+  r.post('/state-reply', (req, res) => res.json({ ok: deliverState(req.body?.requestId, req.body?.canvas) }));
   r.post('/snapshot', (req, res) => {
     const m = /^data:image\/(png|jpeg);base64,(.+)$/.exec(req.body?.dataUrl || '');
     if (!m) return res.status(400).json({ error: 'dataUrl required' });

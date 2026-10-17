@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport, type TraceStep } from '../lib/api';
+import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, sendStateReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport, type TraceStep } from '../lib/api';
 import { addPageFromJSON, applyOps, duplicatePage, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage, variantsOf } from '../lib/canvas';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
@@ -209,11 +209,15 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
         (async () => {
           try {
             await store.waitLoading?.();
-            await sendSnapshotReply(e.requestId, await pageToDataURL(store, e.pageId, 0.6));
+            await sendSnapshotReply(e.requestId, await pageToDataURL(store, e.pageId, 0.75));
           } catch (err) {
             console.warn('snapshot failed', err);
           }
         })();
+        break;
+      case 'state_request':
+        // the server re-syncs its mirror with what the editor actually has (layer order, coordinates)
+        sendStateReply(e.requestId, serializeCanvas(store)).catch((err) => console.warn('state reply failed', err));
         break;
       case 'message':
         setMsgs((m) => closeTraces(closeStatuses(m)).concat({ kind: 'assistant', text: e.text }));
@@ -237,7 +241,7 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
     if (store.activePage?.children?.length) {
       try {
         await store.waitLoading?.();
-        const shot = await pageToDataURL(store, store.activePage.id, 0.5);
+        const shot = await pageToDataURL(store, store.activePage.id, 0.75);
         // the agent always gets to LOOK at the current page; only an explicit toggle makes it a style reference
         canvasSnapshot = shot;
         if (useCanvasAsRef) allRefs.push(shot);

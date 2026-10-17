@@ -30,7 +30,8 @@ export function prepareOps(page: CompactPage, rawOps: Op[], ctx: ToolContext): O
     } else if (el.type === 'image' && el.assetId && !el.src) {
       const a = ctx.assets.find((x) => x.id === el.assetId);
       if (a) {
-        el.src = a.url;
+        el.src = a.vectorUrl || a.url; // vector logos stay crisp; other assets have no vectorUrl
+        if (a.vectorUrl) el.type = 'svg';
         el.custom = { ...(el.custom || {}), assetId: a.id, role: el.custom?.role || a.category };
         if (el.width && !el.height) el.height = Math.round(el.width / (a.width / a.height));
       }
@@ -52,7 +53,8 @@ export function prepareOps(page: CompactPage, rawOps: Op[], ctx: ToolContext): O
     if ((el.type === 'image' || el.type === 'svg') && op.props.assetId) {
       const a = ctx.assets.find((x) => x.id === op.props.assetId);
       if (a) {
-        op.props.src = a.url;
+        // an svg layer must receive an svg source; a bitmap layer can take either
+        op.props.src = el.type === 'svg' ? a.vectorUrl || a.url : a.vectorUrl || a.url;
         op.props.custom = { ...(el.custom || {}), ...(op.props.custom || {}), assetId: a.id, role: op.props.custom?.role || el.role || el.custom?.role || a.category };
         const w = op.props.width ?? el.width;
         if (op.props.height === undefined && a.width && a.height) op.props.height = Math.round(w / (a.width / a.height));
