@@ -18,6 +18,7 @@ export type ProjectSummary = {
   lastMessage?: string;
   scanCount: number;
   tags: string[];
+  usage?: import('./api').UsageTotals;
 };
 export type ScanRecord = { id: string; createdAt: string; source: 'upload' | 'library' | 'page'; thumb: string; report: ScanReport; remadePageId?: string };
 export type Project = ProjectSummary & { canvas: any | null; messages: any[]; scans: ScanRecord[]; pageScores: Record<string, number> };

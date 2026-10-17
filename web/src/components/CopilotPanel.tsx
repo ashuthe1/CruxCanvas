@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, sendStateReply, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport, type TraceStep } from '../lib/api';
+import { streamAgent, streamIterate, lintPage, getBrand, listBrands, getReferences, getIterationDimensions, sendSnapshotReply, sendStateReply, addUsage, type AgentEvent, type LintResult, type Brand, type BrandSummary, type DesignReport, type TraceStep } from '../lib/api';
 import { addPageFromJSON, applyOps, duplicatePage, pageToDataURL, serializeCanvas, serializePage, variantsOf } from '../lib/canvas';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
@@ -70,6 +70,8 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
   const [lint, setLint] = useState<LintResult | null>(null);
   const [refLib, setRefLib] = useState<{ name: string; url: string }[] | null>(null);
   const [showRefLib, setShowRefLib] = useState(false);
+  const projectRef = useRef(project);
+  projectRef.current = project;
   const [showIterate, setShowIterate] = useState(false);
   const [iteration, setIteration] = useState<Iteration | null>(null);
   const [showGrid, setShowGrid] = useState(false);
@@ -226,6 +228,10 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
         break;
       case 'error':
         setMsgs((m) => closeStatuses(m).concat({ kind: 'assistant', text: '⚠️ ' + e.text }));
+        break;
+      case 'usage':
+        // running per-session total of model calls, tokens and estimated cost (persisted with the project)
+        onProjectChange?.({ usage: addUsage(projectRef.current?.usage, e.usage) });
         break;
       case 'done':
         setMsgs((m) => closeTraces(closeStatuses(m)));
@@ -430,7 +436,7 @@ export const CopilotPanel = observer(({ store, project, initialTab, onProjectCha
             if (!project) return;
             try {
               const saved = await addProjectScan(project.id, rec);
-              onProjectChange?.({ scans: [saved, ...(project.scans || [])] });
+              onProjectChange?.({ scans: [saved, ...(project.scans || [])], ...(rec.report?.usage ? { usage: addUsage(projectRef.current?.usage, rec.report.usage) } : {}) });
             } catch (e) {
               console.warn('scan not saved', e);
             }

@@ -139,6 +139,7 @@ export type AgentEvent =
   | { type: 'trace'; step: TraceStep }
   | { type: 'message'; text: string }
   | { type: 'error'; text: string }
+  | { type: 'usage'; usage: import('./usage.js').UsageTotals }
   | { type: 'done' };
 
 /** One visible step of the agent's work (what it saw, decided, did, verified) */

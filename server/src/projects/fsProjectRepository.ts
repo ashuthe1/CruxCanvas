@@ -80,7 +80,7 @@ export class FsProjectRepository implements IProjectRepository {
   }
   async update(id: string, patch: Partial<Project>) {
     const p = this.read(id);
-    const allowed: (keyof Project)[] = ['title', 'status', 'starred', 'tags', 'canvas', 'messages', 'pageScores', 'thumb', 'brandId'];
+    const allowed: (keyof Project)[] = ['title', 'status', 'starred', 'tags', 'canvas', 'messages', 'pageScores', 'thumb', 'brandId', 'usage'];
     for (const k of allowed) if (k in patch) (p as any)[k] = (patch as any)[k];
     p.updatedAt = new Date().toISOString();
     this.write(this.derive(p));

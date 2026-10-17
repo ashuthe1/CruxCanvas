@@ -17,6 +17,8 @@ export type ProjectSummary = {
   lastMessage?: string;
   scanCount: number;
   tags: string[];
+  /** running model-usage total for the session (estimate) */
+  usage?: import('../core/usage.js').UsageTotals;
 };
 
 export type ScanRecord = { id: string; createdAt: string; source: 'upload' | 'library' | 'page'; thumb: string; report: ScanReport; remadePageId?: string };

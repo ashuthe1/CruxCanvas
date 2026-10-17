@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { listBrands, getBrand, type BrandSummary } from '../lib/api';
+import { listBrands, getBrand, formatUsage, type BrandSummary } from '../lib/api';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { createProject, deleteProject, duplicateProject, listProjects, updateProject, timeAgo, STATUS_LABEL, type ProjectStatus, type ProjectSummary, getProject } from '../lib/projects';
+import { Workspace } from 'polotno/canvas/workspace';
+import { getOffscreenStore, upgradeStaleThumbs } from '../lib/thumbs';
 
 type Filter = 'all' | 'starred' | 'in-progress' | 'review' | 'done' | 'draft';
 
@@ -31,6 +33,7 @@ export function Dashboard({ onOpen }: { onOpen: (projectId: string, opts?: { tab
     setBrands(bs);
     setProjects(ps);
     setLoading(false);
+    void upgradeStaleThumbs(ps, (id, thumb) => setProjects((prev) => prev.map((p) => (p.id === id ? { ...p, thumb } : p))));
     const colors: Record<string, string> = {};
     await Promise.all(bs.map(async (b) => {
       try {
@@ -144,6 +147,9 @@ export function Dashboard({ onOpen }: { onOpen: (projectId: string, opts?: { tab
 
   return (
     <div className="dash" onClick={() => setMenu(null)}>
+      <div className="thumb-renderer" aria-hidden>
+        <Workspace store={getOffscreenStore()} components={{ PageControls: () => null }} />
+      </div>
       <header className="dash-hero">
         <div className="dash-hero-text">
           <div className="dash-kicker">Brand Copilot · workspace</div>
@@ -336,6 +342,7 @@ export function Dashboard({ onOpen }: { onOpen: (projectId: string, opts?: { tab
                       <span>
                         {p.pageCount} page{p.pageCount === 1 ? '' : 's'}
                       </span>
+                      {p.usage?.calls ? <span className="muted usage" title="Estimated model cost for this session">{formatUsage(p.usage).split(' · ')[0]}</span> : null}
                       {p.scanCount > 0 && (
                         <span>
                           {p.scanCount} scan{p.scanCount === 1 ? '' : 's'}

@@ -4,7 +4,7 @@
  */
 import type { StoreType } from '../store';
 import { updateProject, type Project } from './projects';
-import { pageToDataURL } from './canvas';
+import { pageThumbnail } from './thumbs';
 import { getAssets } from './api';
 
 /** Older pages reference bitmap logos; swap in the vectorised file when the brand has one (crisp at any size). */
@@ -59,7 +59,7 @@ export function startAutosave(store: StoreType, projectId: () => string | null, 
       if (first) {
         try {
           await store.waitLoading?.();
-          thumb = await pageToDataURL(store, first.id, 0.18);
+          thumb = await pageThumbnail(store, first.id);
         } catch {}
       }
       const p = await updateProject(id, { canvas: store.toJSON(), pageScores: scores, ...(thumb ? { thumb } : {}) });

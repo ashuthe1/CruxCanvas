@@ -28,6 +28,7 @@ export type AgentEvent =
   | { type: 'variant'; pageId: string; sourcePageId: string; dimension: string; label: string; score: number; dropped: string[]; rejected?: string }
   | { type: 'message'; text: string }
   | { type: 'error'; text: string }
+  | { type: 'usage'; usage: UsageTotals }
   | { type: 'done' };
 
 export type Asset = { id: string; category: string; name: string; url: string; width: number; height: number; tags: string[]; hasAlpha?: boolean; dominant?: string; colour?: string; vectorUrl?: string };
@@ -67,7 +68,44 @@ export async function lintPage(page: any, width: number, height: number): Promis
 }
 
 export type ScanCheck = { rule: string; ok: boolean; severity: 'error' | 'warn' | 'info'; detail: string; fix?: string };
+export type UsageTotals = {
+  calls: number;
+  inputTokens: number;
+  cachedTokens: number;
+  outputTokens: number;
+  images: number;
+  ms: number;
+  costUsd: number;
+  byKind: Record<'planner' | 'vision' | 'image', { calls: number; costUsd: number; ms: number }>;
+  estimate: true;
+};
+/** Sum two usage totals (the session keeps a running total) */
+export function addUsage(a: UsageTotals | undefined, b: UsageTotals): UsageTotals {
+  if (!a) return b;
+  const kinds = ['planner', 'vision', 'image'] as const;
+  const r4 = (n: number) => Math.round(n * 10000) / 10000;
+  return {
+    estimate: true,
+    calls: a.calls + b.calls,
+    inputTokens: a.inputTokens + b.inputTokens,
+    cachedTokens: a.cachedTokens + b.cachedTokens,
+    outputTokens: a.outputTokens + b.outputTokens,
+    images: a.images + b.images,
+    ms: a.ms + b.ms,
+    costUsd: r4(a.costUsd + b.costUsd),
+    byKind: Object.fromEntries(kinds.map((k) => [k, { calls: (a.byKind?.[k]?.calls || 0) + (b.byKind?.[k]?.calls || 0), costUsd: r4((a.byKind?.[k]?.costUsd || 0) + (b.byKind?.[k]?.costUsd || 0)), ms: (a.byKind?.[k]?.ms || 0) + (b.byKind?.[k]?.ms || 0) }])) as UsageTotals['byKind'],
+  };
+}
+/** "$0.04 · 38k tokens · 1 image" */
+export function formatUsage(u?: UsageTotals) {
+  if (!u || !u.calls) return '';
+  const tok = u.inputTokens + u.outputTokens;
+  const parts = [`≈ $${u.costUsd < 0.01 ? u.costUsd.toFixed(4) : u.costUsd.toFixed(2)}`, `${tok >= 1000 ? `${Math.round(tok / 1000)}k` : tok} tokens`];
+  if (u.images) parts.push(`${u.images} image${u.images > 1 ? 's' : ''}`);
+  return parts.join(' · ');
+}
 export type ScanReport = {
+  usage?: UsageTotals;
   score: number;
   verdict: 'on-brand' | 'needs-work' | 'off-brand';
   width: number;

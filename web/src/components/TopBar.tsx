@@ -1,4 +1,5 @@
 import { STATUS_LABEL, type Project, type ProjectStatus } from '../lib/projects';
+import { formatUsage } from '../lib/api';
 
 /** Editor chrome: session identity, status, save state and the global actions. */
 export function TopBar({
@@ -39,6 +40,11 @@ export function TopBar({
         onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
       />
       <div className="topbar-right">
+        {project.usage?.calls ? (
+          <span className="usage" title={`Model usage this session (estimate): ${project.usage.calls} calls · planner $${project.usage.byKind.planner.costUsd} · vision $${project.usage.byKind.vision.costUsd} · images $${project.usage.byKind.image.costUsd} · ${(project.usage.ms / 1000).toFixed(1)}s of model time`}>
+            {formatUsage(project.usage)}
+          </span>
+        ) : null}
         <button className={`star ${project.starred ? 'on' : ''}`} title={project.starred ? 'Unstar' : 'Star this session'} onClick={onStar}>
           {project.starred ? '★' : '☆'}
         </button>

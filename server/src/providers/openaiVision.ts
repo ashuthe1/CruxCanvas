@@ -1,11 +1,13 @@
 import type OpenAI from 'openai';
 import type { IVisionModel } from '../core/interfaces.js';
 import { withRetry } from './retry.js';
+import { recordChat } from '../core/usage.js';
 
 export class OpenAIVision implements IVisionModel {
   constructor(private client: OpenAI, public readonly name: string) {}
 
   async describeJSON(system: string, userText: string, images: string[], maxTokens = 1500) {
+    const t0 = Date.now();
     const res = await withRetry(() =>
       this.client.chat.completions.create({
         model: this.name,
@@ -17,6 +19,7 @@ export class OpenAIVision implements IVisionModel {
         ],
       }),
     );
+    recordChat('vision', this.name, res.usage, Date.now() - t0);
     try {
       return JSON.parse(res.choices[0].message.content || '{}');
     } catch {
@@ -25,6 +28,7 @@ export class OpenAIVision implements IVisionModel {
   }
 
   async describe(system: string, userText: string, image: string, maxTokens = 400) {
+    const t0 = Date.now();
     const res = await withRetry(() =>
       this.client.chat.completions.create({
         model: this.name,
@@ -35,6 +39,7 @@ export class OpenAIVision implements IVisionModel {
         ],
       }),
     );
+    recordChat('vision', this.name, res.usage, Date.now() - t0);
     return res.choices[0].message.content || '';
   }
 }

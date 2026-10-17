@@ -1,3 +1,4 @@
+import { withUsageMeter } from '../core/usage.js';
 import { Router } from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -56,8 +57,10 @@ export function createApi(deps: ApiDeps) {
     const id = brandIdOf(req);
     const image = req.body?.image;
     if (!image) return res.status(400).json({ error: 'image (data URL) required' });
-    const report = await scanCreative(image, { brand: await deps.brands.get(id), assets: await deps.brands.assets(id), vision: deps.providers.vision, resolve: (rel) => deps.brands.resolve(id, rel) });
-    res.json(report);
+    await withUsageMeter(async (meter) => {
+      const report = await scanCreative(image, { brand: await deps.brands.get(id), assets: await deps.brands.assets(id), vision: deps.providers.vision, resolve: (rel) => deps.brands.resolve(id, rel) });
+      res.json({ ...report, usage: meter.totals() });
+    });
   }));
 
   // ---- snapshots (visual review round-trip + debugging) ----
@@ -83,15 +86,19 @@ export function createApi(deps: ApiDeps) {
     const emit = (e: any) => {
       if (!res.writableEnded) res.write(JSON.stringify(e) + '\n');
     };
-    try {
-      await run(emit, ac.signal);
-    } catch (e: any) {
-      console.error(e);
-      emit({ type: 'error', text: e?.message || String(e) });
-    } finally {
-      emit({ type: 'done' });
-      res.end();
-    }
+    await withUsageMeter(async (meter) => {
+      try {
+        await run(emit, ac.signal);
+      } catch (e: any) {
+        console.error(e);
+        emit({ type: 'error', text: e?.message || String(e) });
+      } finally {
+        const usage = meter.totals();
+        if (usage.calls) emit({ type: 'usage', usage });
+        emit({ type: 'done' });
+        res.end();
+      }
+    });
   };
 
   // ---- agent (NDJSON stream) ----

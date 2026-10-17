@@ -176,7 +176,7 @@ body { overflow: hidden; background: #f5f6f8; }
 .pcard { background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform .12s, box-shadow .12s; display: flex; flex-direction: column; }
 .pcard:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(16,24,40,.10); }
 .pcard-thumb { position: relative; aspect-ratio: 4/3; display: grid; place-items: center; color: rgba(255,255,255,.7); font-weight: 700; font-size: 18px; background: #e5e7eb; }
-.pcard-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pcard-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .pcard-score { position: absolute; left: 10px; bottom: 10px; color: #fff; font-weight: 800; font-size: 12px; padding: 3px 8px; border-radius: 999px; }
 .pcard-star { position: absolute; right: 8px; top: 8px; width: 30px; height: 30px; border-radius: 50%; border: 0; background: rgba(255,255,255,.9); cursor: pointer; font-size: 16px; color: #9ca3af; }
 .pcard-star.on { color: #f59e0b; }
@@ -585,6 +585,13 @@ h1, h2, h3, h4, .display { font-family: var(--display); letter-spacing: -.01em; 
 .pcard { overflow: visible; position: relative; }
 .pcard:has(.pcard-dropdown) { z-index: 30; }
 .pcard-thumb { overflow: hidden; border-radius: 15px 15px 0 0; }
+.pcard-thumb:has(img) { background: var(--paper-2); }
+/* off-screen Polotno workspace that re-renders stale project thumbnails */
+.thumb-renderer { position: fixed; left: -4000px; top: 0; width: 900px; height: 900px; pointer-events: none; opacity: 0; }
 .pcard-dropdown { z-index: 40; border-radius: 12px; border-color: var(--line); min-width: 180px; }
 .pcard-dropdown button { padding: 10px 14px; }
 .pcard-dropdown button:hover { background: var(--paper-2); }
+
+/* quiet usage readouts */
+.topbar .usage { font-size: 12px; color: rgba(255,255,255,.45); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pcard-meta .usage { font-variant-numeric: tabular-nums; }
