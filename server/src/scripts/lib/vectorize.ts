@@ -37,7 +37,24 @@ async function colourClusters(buf: Buffer, maxColours = 3) {
     if (c) c.n += b.n;
     else clusters.push({ rgb: b.rgb, n: b.n });
   }
-  return clusters.filter((c) => c.n / total > 0.02).slice(0, maxColours).map((c) => ({ hex: toHex(c.rgb), rgb: c.rgb }));
+  // second pass: same hue family (a gradient or anti-aliasing of one ink) → one colour, keep the darker/most used
+  const hue = ([r, g, b]: [number, number, number]) => {
+    const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+    if (d < 25) return -1; // greys/whites have no hue
+    const h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return ((h * 60) + 360) % 360;
+  };
+  const merged: typeof clusters = [];
+  for (const c of clusters.sort((a, b) => b.n - a.n)) {
+    const hc = hue(c.rgb);
+    const same = merged.find((m) => {
+      const hm = hue(m.rgb);
+      return hc >= 0 && hm >= 0 && Math.min(Math.abs(hc - hm), 360 - Math.abs(hc - hm)) < 30;
+    });
+    if (same) same.n += c.n;
+    else merged.push({ ...c });
+  }
+  return merged.filter((c) => c.n / total > 0.02).slice(0, maxColours).map((c) => ({ hex: toHex(c.rgb), rgb: c.rgb }));
 }
 
 export async function vectorizeLogo(pngPath: string, outSvgPath = pngPath.replace(/\.(png|jpe?g|webp)$/i, '.svg'), scale = 6): Promise<VectorizeResult> {

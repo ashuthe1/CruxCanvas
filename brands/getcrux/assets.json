@@ -166,8 +166,7 @@
     "colour": "orange",
     "vectorUrl": "/brands/getcrux/assets/logo/getcrux_mark.svg",
     "vectorColours": [
-      "#FA5213",
-      "#FD6D37"
+      "#FA5213"
     ]
   },
   {
@@ -194,7 +193,6 @@
     "vectorUrl": "/brands/getcrux/assets/logo/getcrux_wordmark_2x.svg",
     "vectorColours": [
       "#0C266F",
-      "#183792",
       "#F84D0F"
     ]
   },
@@ -221,8 +219,7 @@
     "vectorUrl": "/brands/getcrux/assets/logo/getcrux_wordmark_navy.svg",
     "vectorColours": [
       "#2B3A8F",
-      "#F54C0E",
-      "#FD7643"
+      "#F54C0E"
     ]
   },
   {
@@ -275,7 +272,6 @@
     "vectorUrl": "/brands/getcrux/assets/logo/getcrux_wordmark.svg",
     "vectorColours": [
       "#09216B",
-      "#193894",
       "#F54C0E"
     ]
   },
