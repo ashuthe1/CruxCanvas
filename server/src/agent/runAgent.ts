@@ -19,8 +19,8 @@ import { waitForSnapshot, waitForState } from './snapshots.js';
 
 export type AgentDeps = { brandId: string; brands: IBrandRepository; providers: Providers; lint: LintEngine; tools: AgentTool[] };
 
-const MAX_ITER = 14;
-const VISUAL_QA_ROUNDS = 2;
+const MAX_ITER = 24;
+const VISUAL_QA_ROUNDS = 5;
 
 export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: AgentEvent) => void, signal?: AbortSignal) {
   const brand = await deps.brands.get(deps.brandId);
@@ -214,6 +214,7 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
   // ---- 5. visual QA loop: look at the real pixels, fix, look again (bounded) ----
   const qaTarget = touched.size === 1 ? [...touched][0] : touched.has(input.canvas.activePageId) ? input.canvas.activePageId : null;
   if (qaTarget && !(input.variants && input.variants > 1)) {
+    let lastSignature = '';
     for (let round = 0; round < VISUAL_QA_ROUNDS; round++) {
       if (signal?.aborted) return;
       const page = pages.get(qaTarget);
@@ -238,7 +239,14 @@ export async function runAgent(input: AgentInput, deps: AgentDeps, emit: (e: Age
       const errors = qa.issues.filter((i) => i.severity === 'error');
       trace({ kind: 'vision', title: errors.length ? `Visual QA round ${round + 1}: ${errors.length} defect${errors.length > 1 ? 's' : ''} to fix` : `Visual QA round ${round + 1}: render looks clean${qa.issues.length ? ` (${qa.issues.length} minor note${qa.issues.length > 1 ? 's' : ''})` : ''}`, detail: qa.summary, data: qa.issues, ms: Date.now() - t0 });
       if (!errors.length || round === VISUAL_QA_ROUNDS - 1) break;
-      messages.push({ role: 'user', content: `VISUAL QA of the rendered page ${page.id} found defects that must be fixed now with update_design (use the element ids; coordinates are absolute):\n${JSON.stringify(errors)}\nCurrent elements:\n${JSON.stringify(page.elements.map((e) => ({ id: e.id, role: e.role || e.type, x: e.x, y: e.y, width: e.width, height: e.height, text: e.text })))}\nFix every defect, then reply with a one-line summary.` });
+      // stop early when a round changed nothing (same defects reported twice) — the planner is stuck
+      const signature = errors.map((e) => `${e.elementIds.join('+')}:${e.problem.slice(0, 40)}`).sort().join('|');
+      if (signature === lastSignature) {
+        trace({ kind: 'note', title: 'Visual QA stopped: the same defects came back after a fix round', detail: 'Remaining items are listed above for you to adjust by hand or re-prompt.' });
+        break;
+      }
+      lastSignature = signature;
+      messages.push({ role: 'user', content: `VISUAL QA round ${round + 1} of the rendered page ${page.id} found defects that must be fixed now with update_design (use the element ids; coordinates are absolute; if an element must move, give the exact new x/y; if a card must make room, move or resize the card too):\n${JSON.stringify(errors)}\nCurrent elements (z-order back→front):\n${JSON.stringify(page.elements.map((e) => ({ id: e.id, role: e.role || e.type, x: e.x, y: e.y, width: e.width, height: e.height, text: e.text })))}\nFix every defect, then reply with a one-line summary of what you changed.` });
       ctx.state.rounds = new Map(); // allow fixes
       await runPlanner();
       await syncWithEditor();

@@ -34,7 +34,7 @@ export class LintEngine {
   }
 
   /** Warn-level rules whose fixes are pure, safe position nudges — the validator applies them too */
-  static SAFE_WARN_RULES = /^(Too close to edge|Safe zone|Text too small)/;
+  static SAFE_WARN_RULES = /^(Too close to edge|Safe zone|Text too small|Ragged alignment)/;
 
   /** Collect the auto-fix ops for issues of the given severities (deduped per element/prop) */
   static collectFixes(result: LintResult, severities: Issue['severity'][] = ['error'], includeSafeWarns = false): { ops: Op[]; fixed: string[] } {

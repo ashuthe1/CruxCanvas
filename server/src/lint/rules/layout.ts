@@ -140,6 +140,25 @@ export const imageryCutOffRule: LintRule = {
   },
 };
 
+/** Card contents share one left edge (label, headline, subhead, CTA) — ragged starts look amateur */
+export const cardAlignmentRule: LintRule = {
+  id: 'card-alignment',
+  title: 'Card contents aligned',
+  run({ page }) {
+    const out = [];
+    for (const card of page.elements.filter((e) => role(e) === 'card')) {
+      const kids = page.elements.filter((e) => (e.container || e.custom?.container) === card.id && (e.type === 'text' || role(e) === 'cta-bg'));
+      if (kids.length < 2) continue;
+      const lefts = kids.map((k) => Math.round(k.x));
+      const mode = lefts.sort((a, b) => lefts.filter((v) => v === a).length - lefts.filter((v) => v === b).length).pop()!;
+      const off = kids.filter((k) => Math.abs(k.x - mode) > 3 && (k.align || 'left') === 'left');
+      if (!off.length) continue;
+      out.push({ rule: 'Ragged alignment', severity: 'warn' as const, elementId: off[0].id, message: `${off.map(label).join(', ')} do not share the card's left edge (${mode}px).`, fix: off.map((k) => ({ op: 'set' as const, id: k.id, props: { x: mode } })) });
+    }
+    return out;
+  },
+};
+
 export const onCanvasRule: LintRule = {
   id: 'on-canvas',
   title: 'Key elements fully on canvas',

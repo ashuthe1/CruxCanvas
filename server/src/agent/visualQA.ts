@@ -17,14 +17,18 @@ export function elementListing(page: CompactPage) {
     .join('\n');
 }
 
-const CHECKLIST = `Go through this checklist and report every failure as an issue:
-1. OCCLUSION — is any text, logo, CTA or illustration partly or fully covered by another element (a card, image or shape drawn above it)? Compare the listing (lower z is behind) with what is actually visible. A logo that is partly hidden behind a card is an ERROR.
-2. CLIPPING — is any text, logo, CTA, illustration or product shot cut by the canvas edge beyond a small intentional bleed? ERROR for text/logo/CTA, ERROR for illustrations if more than ~10% is lost.
-3. CONTAINMENT — does every text and button sit fully inside the card it belongs to, with even padding? Text touching or spilling past the card edge is an ERROR.
-4. OVERLAP — do any two text blocks, or text and a button, overlap or touch? ERROR.
-5. READABILITY — is any text too small, low-contrast, or set on a busy image? Awkward line breaks (a single orphan word, a headline wrapping into 4+ lines, a CTA label wrapping) are WARN.
-6. PLACEMENT — is the logo in a clear corner with breathing room, not straddling a card or sitting on the illustration? Is the CTA where the eye lands after the headline? WARN unless it is clearly broken.
-7. COMPOSITION — large dead areas, elements floating with no alignment to the card or grid, imagery crammed into a corner, charms overlapping text. WARN.`;
+const CHECKLIST = `Go through this checklist and report every failure as an issue (ERROR = must fix, WARN = should fix):
+1. OCCLUSION — is any text, logo, CTA, charm or illustration partly or fully covered by another element (a card, image or shape drawn above it)? Compare the listing (lower z is behind) with what is actually visible. Anything partly hidden is an ERROR.
+2. CLIPPING — is any text, logo, CTA, illustration or product shot cut by the canvas edge beyond a small intentional bleed? ERROR for text/logo/CTA/charm; ERROR for illustrations or product shots losing more than ~10%.
+3. VISIBILITY — is every listed element actually visible (not zero-size, not transparent, not the same colour as its background, not rendered as a broken-image box or placeholder)? ERROR.
+4. CONTAINMENT — does every text and button sit fully inside the card it belongs to, with even padding on all sides? Text touching or spilling past the card edge is an ERROR; uneven padding is a WARN.
+5. OVERLAP — do any two text blocks, or text and a button, or a charm and text, overlap or touch? ERROR.
+6. ALIGNMENT — are the left edges of the label, headline, subhead and CTA inside a card aligned to one vertical line? Are the logo and the card aligned to the same outer margin? Is the vertical rhythm consistent (similar gaps between stacked items, nothing jammed or floating)? Misaligned by more than a few pixels is a WARN; clearly ragged is an ERROR.
+7. READABILITY — is any text too small, low-contrast, or set over a busy image or a bloom edge? Awkward line breaks (an orphan word on its own line, a headline wrapping into 4+ lines, a CTA label wrapping or clipped inside its pill, text truncated with an ellipsis) are WARN; unreadable text is an ERROR.
+8. IMAGE QUALITY — pixelated or blurry imagery (upscaled too far), an awkward crop (a face or product cut in half), distorted/stretched images or logos. ERROR for distortion and cut faces, WARN for softness.
+9. PLACEMENT — logo in a clear corner with breathing room, not straddling a card or sitting on the illustration; the CTA where the eye lands after the headline; imagery anchored to an edge or the card, not drifting mid-air. WARN unless clearly broken.
+10. COMPOSITION & BALANCE — large dead areas, everything crammed into one half, charms as clutter, unbalanced margins (e.g. 20 px on one side, 120 px on the other). WARN.
+11. BRAND SENSE — colours or shapes that obviously fight the brand look described by the palette (e.g. off-palette fills, neon accents). WARN.`;
 
 export async function inspectRender(vision: IVisionModel, dataUrl: string, page: CompactPage, W: number, H: number, focus?: string): Promise<VisualQA> {
   const res = await vision.describeJSON(
