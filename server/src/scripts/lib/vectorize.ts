@@ -32,7 +32,8 @@ async function colourClusters(buf: Buffer, maxColours = 3) {
   const bins = [...hist.values()].sort((a, b) => b.n - a.n);
   const clusters: { rgb: [number, number, number]; n: number }[] = [];
   for (const b of bins) {
-    const c = clusters.find((x) => distance(x.rgb, b.rgb) < 70);
+    // merge generously so a gradient-filled letterform becomes one flat colour instead of banded layers
+    const c = clusters.find((x) => distance(x.rgb, b.rgb) < 120);
     if (c) c.n += b.n;
     else clusters.push({ rgb: b.rgb, n: b.n });
   }

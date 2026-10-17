@@ -130,10 +130,6 @@ The pipeline: download → classify + tag each image (sharp metadata, opaque-pix
 sample the palette and read guideline pages to draft `brand.json` → print a review summary. Then refresh the editor and
 pick the brand from the switcher.
 
-## Documentation
-`docs/` holds the HLD, architecture and flow diagrams, the onboarding guide, the demo script and
-[image-pipeline.md](docs/image-pipeline.md): how imagery is sourced, generated, placed, kept sharp (vector logos) and kept cheap.
-
 ## Repo map
 ```
 brands/                 tenant workspaces (xero = real kit; _incoming = kits waiting to be onboarded)
@@ -154,4 +150,40 @@ web/src/lib             api client, brand selection, canvas ops, autosave
 
 # Flow
 ```
+The end-to-end flow
+1. The request leaves the editor (web/src/components/CopilotPanel.tsx → lib/api.ts)
+When you press Send, the client builds one JSON payload:
+* your message and the last 8 chat turns
+* a compact serialisation of the canvas: every page, every element with id, type, role, box, text, font, colour, plus which element is selected (lib/canvas.ts, serializePage). This is how the model "sees" the design without pixels.
+* any reference images as data URLs, and the variant count
+It POSTs to /api/agent with the x-brand-id header and reads back a newline-delimited stream of events.
+2. The server prepares the brain (server/src/agent/runAgent.ts)
+* Loads the brand kit and asset catalogue for that tenant from brands/<id>/.
+* If references were attached, calls the vision model (gpt-4.1) once to turn them into a brand-neutral layout brief: normalised boxes, palette, copy, hierarchy. DeepSeek cannot see images, so this is the bridge.
+* Builds the system prompt (agent/prompt.ts): brand rules, palette, fonts, logo rules, the full asset catalogue with ids and tags, the design-spec vocabulary, and the brand's layout recipes.
+3. The text model plans with tools (DeepSeek V4-Pro through the OpenAI-compatible adapter in providers/)
+The loop sends the messages plus tool definitions. Each reply either contains tool calls or a final summary. Tools are the only way it can touch the canvas:
+Tool	What happens
+set_canvas_size	emits a size event; the editor resizes the store
+generate_image	calls the image model (see step 4)
+create_design	the model writes a design spec; server renders, validates, emits a page
+update_design	targeted ops on existing element ids
+review_render	asks the editor for a real snapshot, sends it to the vision model for critique
+Slow pure tools like image generation run concurrently; canvas-mutating tools run in order.
+4. The image model (agent/tools/generateImage.ts → gpt-image-1)
+The model never generates text in pixels. It asks for a subject only, e.g. "candid florist in her shop". The server prepends the brand's image style from brand.json (palette, flat vector or editorial photo, transparent background for illustrations), picks the size the layout needs, and saves the PNG under server/generated/. The tool returns a URL and dimensions, and the planner places it as an ordinary image element in its spec.
+5. Rendering: design spec to editable layers (render/renderer.ts)
+The spec is a small vocabulary: cards and stacks with text and CTA children, images by asset id or generated URL, logo by variant, shapes, checklists. The renderer turns it into Polotno page JSON:
+* Real font metrics from the brand's TTF files via opentype.js measure every text block, so cards auto-size and headlines shrink to fit.
+* Photos are cover-cropped into their box with a face-safe focus. Charms park on card corners. Imagery is nudged out of text areas and the logo's clear space. The wordmark is forced on top and clamped on canvas.
+* Every layer gets custom.role (headline, cta, logo…) and container tags, which the linter and later edits rely on.
+6. Validation before anything reaches you (agent/tools/createDesign.ts → lint/)
+The rendered page runs through 13 deterministic rules. Error-level fixes and safe positional nudges are applied automatically on the server's mirror of the page, then the page is re-linted. The result is a report card: score, rationale, what was auto-fixed, what remains. The model only sees the remaining items.
+7. Events become canvas (CopilotPanel.handleEvent → lib/canvas.ts)
+The stream carries page (add or replace a Polotno page), ops (set, delete, raise, add on element ids, applied through the store so undo works), lint, report, status, snapshot_request and message. Polotno renders the layers with the registered brand fonts. Because they are normal layers, you can drag, retype or recolour anything afterwards.
+8. After the loop
+A final validation pass runs on every page touched, the summary message arrives, the live Brand check re-lints the active page, and now the project autosaves canvas, chat, scores and scans to /api/projects.
+Brand scan is the same machinery in reverse: sharp samples the pixels, the vision model extracts copy and boxes, the checks score it, and "Remake" feeds the image back into step 1 as a reference.
+Resuming the dashboard test once the API stops restarting.
+Scanning a library creative to verify scans persist to the session, then checking the dashboard feed.
 ```
