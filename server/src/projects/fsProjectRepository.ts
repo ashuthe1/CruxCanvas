@@ -73,6 +73,7 @@ export class FsProjectRepository implements IProjectRepository {
       messages: input.messages || [],
       scans: input.scans || [],
       pageScores: input.pageScores || {},
+      thumb: input.thumb,
     });
     this.write(p);
     return p;
