@@ -2,13 +2,14 @@ import { useState } from 'react';
 import type { DesignReport } from '../lib/api';
 
 /** The validator's reasoning for one design: rationale, auto-fixes, checks. */
-export function ReportCard({ report, onSelectPage }: { report: DesignReport & { pageId?: string }; onSelectPage?: () => void }) {
+export function ReportCard({ report, onSelectPage }: { report: DesignReport & { pageId?: string; thumb?: string }; onSelectPage?: () => void }) {
   const [open, setOpen] = useState(false);
   const failed = report.checks.filter((c) => !c.ok);
   const color = report.score >= 90 ? '#16a34a' : report.score >= 70 ? '#f59e0b' : '#ef4444';
   return (
-    <div className="report" onClick={onSelectPage}>
+    <div className="report" onClick={onSelectPage} title="Click to jump to this page">
       <div className="report-head">
+        {report.thumb ? <img className="report-thumb" src={report.thumb} alt="" /> : null}
         <span className="report-score" style={{ background: color }}>
           {report.score}
         </span>

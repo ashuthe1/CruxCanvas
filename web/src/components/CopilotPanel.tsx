@@ -4,6 +4,7 @@ import { streamAgent, lintPage, getBrand, listBrands, getReferences, sendSnapsho
 import { addPageFromJSON, applyOps, exportAllAsZip, pageToDataURL, serializeCanvas, serializePage } from '../lib/canvas';
 import { getBrandId, setBrandId } from '../lib/brand';
 import { registerBrandFonts } from '../store';
+import { clearCanvas } from '../lib/persist';
 import { LintPanel } from './LintPanel';
 import { ReportCard } from './ReportCard';
 
@@ -11,7 +12,7 @@ type Msg =
   | { kind: 'user'; text: string; refs?: string[] }
   | { kind: 'assistant'; text: string }
   | { kind: 'status'; text: string; done?: boolean }
-  | { kind: 'report'; report: DesignReport & { pageId: string } };
+  | { kind: 'report'; report: DesignReport & { pageId: string; thumb?: string } };
 
 const SUGGESTIONS = (brand: string) => [
   `Create a 1080×1080 Instagram post announcing a new ${brand} feature`,
@@ -119,9 +120,19 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
       case 'lint':
         setLint(e.result);
         break;
-      case 'report':
-        setMsgs((m) => closeStatuses(m).concat({ kind: 'report', report: { ...e.report, pageId: e.pageId } }));
+      case 'report': {
+        const entry: Msg = { kind: 'report', report: { ...e.report, pageId: e.pageId } };
+        setMsgs((m) => closeStatuses(m).concat(entry));
+        // attach a thumbnail once the page has rendered
+        setTimeout(async () => {
+          try {
+            await store.waitLoading?.();
+            const thumb = await pageToDataURL(store, e.pageId, 0.12);
+            setMsgs((m) => m.map((x) => (x === entry ? { kind: 'report', report: { ...entry.report, thumb } } : x)));
+          } catch {}
+        }, 400);
         break;
+      }
       case 'size':
         store.setSize(e.width, e.height);
         break;
@@ -209,6 +220,15 @@ export const CopilotPanel = observer(({ store }: { store: any }) => {
         </select>
         <button className="btn-ghost" title="Download all pages as PNG (zip)" onClick={() => exportAllAsZip(store, `${brandId}-designs`)}>
           ⬇
+        </button>
+        <button
+          className="btn-ghost"
+          title="New blank canvas (clears this brand's autosaved work)"
+          onClick={() => {
+            if (confirm('Start a new blank canvas? Current pages will be cleared.')) clearCanvas(store, brandId);
+          }}
+        >
+          ✚
         </button>
       </div>
       <div className="copilot-tabs">

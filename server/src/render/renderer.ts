@@ -177,7 +177,7 @@ export class DesignRenderer {
         case 'logo': {
           const asset = this.asset(this.brand.logo.assets[el.variant] || Object.values(this.brand.logo.assets)[0]);
           if (!asset) break;
-          const w = Math.max(el.width, Math.round(W * this.brand.logo.minWidthRatio)), h = Math.round(w / (asset.width / asset.height));
+          const w = Math.max(el.width, Math.ceil(W * this.brand.logo.minWidthRatio)), h = Math.round(w / (asset.width / asset.height));
           const { x, y } = clamp(el.x, el.y, w, h);
           if (el.pill) {
             const pad = h * 0.55;

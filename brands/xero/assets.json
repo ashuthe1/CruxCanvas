@@ -8,7 +8,7 @@
     "width": 1904,
     "height": 3438,
     "hasAlpha": true,
-    "dominant": "#8793A6",
+    "dominant": "#000859",
     "description": "Vertical strands of multicolored abstract bloom shapes in varying shades on a black background.",
     "tags": [
       "purple",
@@ -20,7 +20,7 @@
       "yellow",
       "green"
     ],
-    "colour": "purple"
+    "colour": "navy"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_09_17bea3ad_6ca3_487c_8ddb_c75be7d",
@@ -31,7 +31,7 @@
     "width": 601,
     "height": 593,
     "hasAlpha": true,
-    "dominant": "#3ECDFF",
+    "dominant": "#3ECCFF",
     "description": "A simple blue abstract blob shape with two rounded connected circles.",
     "tags": [
       "light blue",
@@ -43,7 +43,7 @@
       "flat",
       "simple"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_10_ebd4c9d2_469b_4d06_955c_deb8003",
@@ -54,7 +54,7 @@
     "width": 643,
     "height": 521,
     "hasAlpha": true,
-    "dominant": "#3ECDFF",
+    "dominant": "#3ECCFF",
     "description": "Abstract blue shape resembling a stylized bloom or petal with smooth edges.",
     "tags": [
       "light blue",
@@ -66,7 +66,7 @@
       "nature-inspired",
       "bright"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_11_a077e94f_6a78_4744_b184_83452c0",
@@ -77,7 +77,7 @@
     "width": 540,
     "height": 508,
     "hasAlpha": true,
-    "dominant": "#3ECDFF",
+    "dominant": "#3ECCFF",
     "description": "An abstract blue flower shape with four rounded petal-like lobes in a symmetrical arrangement, conveying a soft organic feel.",
     "tags": [
       "light blue",
@@ -89,7 +89,7 @@
       "symmetrical",
       "soft"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_12_5947930f_65e7_4070_b800_f073db9",
@@ -100,7 +100,7 @@
     "width": 516,
     "height": 506,
     "hasAlpha": true,
-    "dominant": "#3ECDFF",
+    "dominant": "#3ECCFF",
     "description": "An abstract bright blue shape resembling a stylized bloom or splash.",
     "tags": [
       "light blue",
@@ -112,7 +112,7 @@
       "fluid",
       "modern"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_13_0e5f6db4_8192_4b7d_91d4_9c1b12f",
@@ -123,7 +123,7 @@
     "width": 726,
     "height": 478,
     "hasAlpha": true,
-    "dominant": "#3ECDFF",
+    "dominant": "#3ECCFF",
     "description": "An abstract, irregular, bright blue shape resembling a bloom or splash.",
     "tags": [
       "light blue",
@@ -135,7 +135,7 @@
       "bright",
       "simple"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_14_64a3ecaa_7442_4db2_b5ed_4d200b5",
@@ -146,7 +146,7 @@
     "width": 777,
     "height": 478,
     "hasAlpha": true,
-    "dominant": "#3ECEFF",
+    "dominant": "#3ECCFF",
     "description": "A bright blue abstract brushstroke shape with smooth curves.",
     "tags": [
       "light blue",
@@ -159,7 +159,7 @@
       "fluid",
       "decorative"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_15_7312227c_678c_4214_9a22_22ae967",
@@ -170,7 +170,7 @@
     "width": 756,
     "height": 511,
     "hasAlpha": true,
-    "dominant": "#3ECEFF",
+    "dominant": "#3ECCFF",
     "description": "An abstract bright blue splash shape with smooth curved edges, resembling a fluid or paint splash.",
     "tags": [
       "light blue",
@@ -182,7 +182,7 @@
       "curved",
       "bloom"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_15_9adc152c_5362_4c6a_9c5b_867e884",
@@ -193,7 +193,7 @@
     "width": 839,
     "height": 756,
     "hasAlpha": true,
-    "dominant": "#3ECEFF",
+    "dominant": "#3ECCFF",
     "description": "Abstract pair of bright blue petals connected in the center, suggesting bloom or organic growth.",
     "tags": [
       "light blue",
@@ -204,7 +204,7 @@
       "nature",
       "soft shape"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_16_eae914bb_c4d3_4a8d_bb04_968dc97",
@@ -215,7 +215,7 @@
     "width": 621,
     "height": 534,
     "hasAlpha": true,
-    "dominant": "#3ECDFF",
+    "dominant": "#3ECCFF",
     "description": "A single abstract blue bloom petal with a smooth, curved shape",
     "tags": [
       "light blue",
@@ -226,7 +226,7 @@
       "abstract",
       "nature"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_17_eb16143d_f5d5_4e24_a4b8_45c0712",
@@ -237,7 +237,7 @@
     "width": 822,
     "height": 821,
     "hasAlpha": true,
-    "dominant": "#3FCEFF",
+    "dominant": "#3ECCFF",
     "description": "An abstract bloom shape in bright blue with rounded flowing forms on a transparent background.",
     "tags": [
       "light blue",
@@ -249,7 +249,7 @@
       "minimal",
       "shape"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_18_013f0702_1e76_4d79_9060_997da49",
@@ -260,7 +260,7 @@
     "width": 778,
     "height": 788,
     "hasAlpha": true,
-    "dominant": "#3ECEFF",
+    "dominant": "#3ECCFF",
     "description": "Smooth abstract organic shape in bright blue resembling a fluid splash or petal.",
     "tags": [
       "light blue",
@@ -272,7 +272,7 @@
       "curvy",
       "simple"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_19_dbe57cdd_8108_45f7_aa37_25c8e33",
@@ -283,7 +283,7 @@
     "width": 756,
     "height": 511,
     "hasAlpha": true,
-    "dominant": "#1F66D8",
+    "dominant": "#1F65D6",
     "description": "Abstract blue bloom shape with organic curves and a fluid form.",
     "tags": [
       "bloom blue",
@@ -295,7 +295,7 @@
       "simple",
       "modern"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_20_a71667e1_4cd1_433e_b0b3_3c049e3",
@@ -306,7 +306,7 @@
     "width": 576,
     "height": 321,
     "hasAlpha": true,
-    "dominant": "#1F66D7",
+    "dominant": "#1F65D6",
     "description": "An abstract, irregular blue shape with smooth curves representing a bloom in minimalistic style.",
     "tags": [
       "bloom blue",
@@ -317,7 +317,7 @@
       "minimal",
       "smooth"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_21_84e1928f_48f4_4955_ad64_5aba8c1",
@@ -328,7 +328,7 @@
     "width": 822,
     "height": 821,
     "hasAlpha": true,
-    "dominant": "#1F66D8",
+    "dominant": "#1F65D6",
     "description": "Abstract blue shape resembling a flowing blooming petal.",
     "tags": [
       "bloom blue",
@@ -340,7 +340,7 @@
       "nature",
       "rounded"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_22_4058ae97_efdb_41f6_b530_8a6df7b",
@@ -351,7 +351,7 @@
     "width": 778,
     "height": 788,
     "hasAlpha": true,
-    "dominant": "#1F66D8",
+    "dominant": "#1F65D6",
     "description": "A blue abstract organic shape with smooth curves and a fluid form.",
     "tags": [
       "bloom blue",
@@ -362,7 +362,7 @@
       "shape",
       "bloom"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_22_648da800_8090_4480_8c17_0e451e0",
@@ -373,7 +373,7 @@
     "width": 576,
     "height": 321,
     "hasAlpha": true,
-    "dominant": "#3ECDFF",
+    "dominant": "#3ECCFF",
     "description": "A smooth, curved abstract shape in bright sky blue resembling a stylized petal or bloom.",
     "tags": [
       "light blue",
@@ -385,7 +385,7 @@
       "bright",
       "smooth"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_23_74860eff_3259_4caf_9da6_1aa64df",
@@ -396,7 +396,7 @@
     "width": 540,
     "height": 508,
     "hasAlpha": true,
-    "dominant": "#1F65D7",
+    "dominant": "#1F65D6",
     "description": "Abstract blue flower shape with soft rounded petal forms symbolizing bloom.",
     "tags": [
       "bloom blue",
@@ -408,7 +408,7 @@
       "shape",
       "soft"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_24_051acdc8_0932_4227_8d3a_f39f0e3",
@@ -419,7 +419,7 @@
     "width": 643,
     "height": 521,
     "hasAlpha": true,
-    "dominant": "#1F65D7",
+    "dominant": "#1F65D6",
     "description": "An abstract blue organic bloom shape with smooth curves and fluid form.",
     "tags": [
       "bloom blue",
@@ -431,7 +431,7 @@
       "modern",
       "simple"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_25_af33aba5_4395_42d6_b958_c8e5302",
@@ -442,7 +442,7 @@
     "width": 726,
     "height": 478,
     "hasAlpha": true,
-    "dominant": "#1F66D7",
+    "dominant": "#1F65D6",
     "description": "An abstract, irregular blue organic blob shape with smooth edges representing a bloom category asset.",
     "tags": [
       "bloom blue",
@@ -454,7 +454,7 @@
       "bloom",
       "shape"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_26_8a2bba7a_ce40_48b0_b61c_7b5985b",
@@ -465,7 +465,7 @@
     "width": 777,
     "height": 478,
     "hasAlpha": true,
-    "dominant": "#1F66D8",
+    "dominant": "#1F65D6",
     "description": "An abstract blue scribble representing a modern artist's brushstroke, symbolizing bloom in a creative style.",
     "tags": [
       "bloom blue",
@@ -477,7 +477,7 @@
       "artistic",
       "creative"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_27_2c191e02_5d19_4aee_a593_e32b810",
@@ -488,7 +488,7 @@
     "width": 839,
     "height": 756,
     "hasAlpha": true,
-    "dominant": "#1F66D8",
+    "dominant": "#1F65D6",
     "description": "Abstract blue petal-like shape with soft rounded edges symbolizing bloom or growth.",
     "tags": [
       "bloom blue",
@@ -500,7 +500,7 @@
       "nature",
       "shape"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_27_83e372d1_d3c6_448c_96b1_db09577",
@@ -511,7 +511,7 @@
     "width": 601,
     "height": 593,
     "hasAlpha": true,
-    "dominant": "#1F65D7",
+    "dominant": "#1F65D6",
     "description": "Abstract blue bloom shape with two connected circular blobs symbolizing growth and fluidity.",
     "tags": [
       "bloom blue",
@@ -523,7 +523,7 @@
       "fluid",
       "growth"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_28_a030489e_2aa8_4ddc_a151_0227d17",
@@ -534,7 +534,7 @@
     "width": 621,
     "height": 534,
     "hasAlpha": true,
-    "dominant": "#1F65D7",
+    "dominant": "#1F65D6",
     "description": "A simple, solid blue abstract paisley-shaped bloom design with smooth curves and rounded edges.",
     "tags": [
       "bloom blue",
@@ -546,7 +546,7 @@
       "simple",
       "bold"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_29_5de69300_fd81_4d95_a096_ab71e39",
@@ -557,7 +557,7 @@
     "width": 516,
     "height": 506,
     "hasAlpha": true,
-    "dominant": "#1F66D7",
+    "dominant": "#1F65D6",
     "description": "An abstract, organic blue shape resembling a bloom with smooth, flowing edges.",
     "tags": [
       "bloom blue",
@@ -569,7 +569,7 @@
       "flowing",
       "rounded"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "06_Shapes_Cropping_Blooms_30_1dd5c9fe_de97_4788_a8fd_81f6ec7",
@@ -646,7 +646,7 @@
     "width": 516,
     "height": 506,
     "hasAlpha": true,
-    "dominant": "#000857",
+    "dominant": "#000856",
     "description": "An abstract navy blue blossom shape with smooth, flowing curves.",
     "tags": [
       "navy",
@@ -690,7 +690,7 @@
     "width": 839,
     "height": 756,
     "hasAlpha": true,
-    "dominant": "#000857",
+    "dominant": "#000856",
     "description": "Two abstract navy blue petal shapes representing bloom category.",
     "tags": [
       "navy",
@@ -734,7 +734,7 @@
     "width": 756,
     "height": 511,
     "hasAlpha": true,
-    "dominant": "#000857",
+    "dominant": "#000856",
     "description": "A fluid, organic navy blue abstract shape resembling a bloom or splash with smooth curves.",
     "tags": [
       "navy",
@@ -756,7 +756,7 @@
     "width": 777,
     "height": 478,
     "hasAlpha": true,
-    "dominant": "#000857",
+    "dominant": "#000856",
     "description": "An abstract navy blue organic shape resembling a blooming flower petal cluster.",
     "tags": [
       "navy",
@@ -822,7 +822,7 @@
     "width": 778,
     "height": 788,
     "hasAlpha": true,
-    "dominant": "#000857",
+    "dominant": "#000856",
     "description": "A navy blue abstract organic shape resembling a fluid bloom or splash, with smooth curves.",
     "tags": [
       "navy",
@@ -844,7 +844,7 @@
     "width": 433,
     "height": 344,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#FF719B",
     "description": "Bright illustration of a yellow beach chair, green calendar with checkmark, paper plane, sun, and dynamic pink shape in the background.",
     "tags": [
       "illustration",
@@ -857,7 +857,8 @@
       "beach chair",
       "paper plane",
       "sun"
-    ]
+    ],
+    "colour": "pink"
   },
   {
     "id": "07_Illustration_03_a6b018c4_2be8_480d_8ce6_a1016b188337_Tax_",
@@ -868,7 +869,7 @@
     "width": 473,
     "height": 376,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#3ECCFF",
     "description": "Colorful illustration featuring yellow coins with currency symbols and percentage, a green calendar with a checkmark, a ringing golden bell, and pink heart, all swirling in a dynamic blue spiral.",
     "tags": [
       "yellow",
@@ -883,7 +884,8 @@
       "illustration",
       "dynamic",
       "spiral"
-    ]
+    ],
+    "colour": "light-blue"
   },
   {
     "id": "07_Illustration_04_d558cb9b_8b23_42fe_a83c_8f48fece872d_Anyw",
@@ -894,7 +896,7 @@
     "width": 540,
     "height": 524,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#FF719B",
     "description": "A vibrant illustration featuring a ringing smartphone, purple link, and green planet with rings over a dynamic pink swirl.",
     "tags": [
       "illustration",
@@ -907,7 +909,8 @@
       "vibrant",
       "modern",
       "digital"
-    ]
+    ],
+    "colour": "pink"
   },
   {
     "id": "07_Illustration_05_e4db0ca9_3c34_4785_9be5_28027a390041_Char",
@@ -918,7 +921,7 @@
     "width": 2205,
     "height": 4466,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#C68BFA",
     "description": "A set of vertical rectangular bookmarks featuring small, colorful cartoon animals stacked vertically inside each bookmark frame.",
     "tags": [
       "illustration",
@@ -929,7 +932,8 @@
       "rectangular",
       "bright",
       "cute"
-    ]
+    ],
+    "colour": "purple"
   },
   {
     "id": "07_Illustration_06_7dcd5cfc_92b3_4d4d_bf31_74b5683ba887",
@@ -940,7 +944,7 @@
     "width": 638,
     "height": 631,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#3ECCFF",
     "description": "Illustration of a circular blue arrow surrounding money elements including coins, cash, and a wallet.",
     "tags": [
       "illustration",
@@ -952,7 +956,8 @@
       "blue",
       "circular",
       "financial growth"
-    ]
+    ],
+    "colour": "light-blue"
   },
   {
     "id": "07_Illustration_07_c4828698_0bfc_4972_97fb_613682f19db6",
@@ -963,7 +968,7 @@
     "width": 999,
     "height": 571,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#3DCCFF",
     "description": "Illustration of a dynamic blue swirl with sparkling stars, a yellow coin, and a purple folder conveying motion and energy.",
     "tags": [
       "blue",
@@ -974,7 +979,8 @@
       "dynamic",
       "sparkle",
       "playful"
-    ]
+    ],
+    "colour": "light-blue"
   },
   {
     "id": "07_Illustration_08_04ca290b_aa4a_4e6e_a7bc_5ca24fbbd70d",
@@ -985,7 +991,7 @@
     "width": 837,
     "height": 458,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#3ECCFF",
     "description": "colorful illustration of a smartphone, checkmark, and stars connected by a dynamic blue flow shape",
     "tags": [
       "illustration",
@@ -998,7 +1004,8 @@
       "yellow",
       "dynamic",
       "modern"
-    ]
+    ],
+    "colour": "light-blue"
   },
   {
     "id": "07_Illustration_09_699f7f9f_206c_4fa0_9049_4aaad608cf5b",
@@ -1009,7 +1016,7 @@
     "width": 680,
     "height": 487,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#3ECCFF",
     "description": "Illustration showing a blue upward curve with a green speedometer, yellow light bulb, and purple rising bar chart symbolizing growth and performance.",
     "tags": [
       "blue",
@@ -1023,7 +1030,8 @@
       "light bulb",
       "speedometer",
       "upward"
-    ]
+    ],
+    "colour": "light-blue"
   },
   {
     "id": "07_Illustration_10_d253b4ba_02cf_4612_9d18_b93c9784f78f",
@@ -1034,7 +1042,7 @@
     "width": 581,
     "height": 549,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#3DCCFF",
     "description": "A bright, playful illustration featuring a blue loop with a yellow bell, a pink clock, and purple stars, conveying alert and time-related themes.",
     "tags": [
       "blue",
@@ -1047,7 +1055,8 @@
       "playful",
       "illustration",
       "alert"
-    ]
+    ],
+    "colour": "light-blue"
   },
   {
     "id": "07_Illustration_11_a3b885b9_19ea_42af_a6c0_0f2032fd8a9f",
@@ -1058,7 +1067,7 @@
     "width": 837,
     "height": 458,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#1F65D6",
     "description": "Illustration showing a green mobile phone with a checkmark on screen connected by a blue curved ribbon to a purple checkmark circle and yellow stars.",
     "tags": [
       "illustration",
@@ -1069,7 +1078,8 @@
       "purple",
       "yellow",
       "curved ribbon"
-    ]
+    ],
+    "colour": "blue"
   },
   {
     "id": "07_Illustration_12_c2047bf4_60f9_4ccd_8d12_731f86bc64da",
@@ -1080,7 +1090,7 @@
     "width": 581,
     "height": 549,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#1F65D6",
     "description": "Illustration of a blue abstract shape with a yellow ringing bell, pink clock, and purple stars.",
     "tags": [
       "blue",
@@ -1092,7 +1102,8 @@
       "reminder",
       "abstract",
       "illustration"
-    ]
+    ],
+    "colour": "blue"
   },
   {
     "id": "07_Illustration_13_6b6de390_09ed_4464_b93c_1d5c9948532e",
@@ -1103,7 +1114,7 @@
     "width": 680,
     "height": 524,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#1F65D6",
     "description": "Illustration of blue abstract shape with light bulb, speedometer, and ascending bar chart symbolizing performance and growth.",
     "tags": [
       "blue",
@@ -1115,7 +1126,8 @@
       "bar chart",
       "growth",
       "performance"
-    ]
+    ],
+    "colour": "blue"
   },
   {
     "id": "07_Illustration_14_80d946dc_0309_4582_b09a_f5f39b885e2e",
@@ -1126,7 +1138,7 @@
     "width": 999,
     "height": 571,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#1F65D6",
     "description": "An abstract blue curved shape with floating green stars, yellow coin, and purple file folder icons symbolizing finance and data.",
     "tags": [
       "blue",
@@ -1137,7 +1149,8 @@
       "financial",
       "data",
       "illustration"
-    ]
+    ],
+    "colour": "blue"
   },
   {
     "id": "07_Illustration_15_eab8740c_41dc_4e32_a565_2f73d6629d1f",
@@ -1148,7 +1161,7 @@
     "width": 638,
     "height": 631,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#1F65D6",
     "description": "Illustration of a blue circular arrow surrounding green wallet, yellow coins with percentage sign, and purple rising bar chart, symbolizing financial growth and investment.",
     "tags": [
       "blue",
@@ -1162,7 +1175,8 @@
       "bar chart",
       "circular",
       "illustration"
-    ]
+    ],
+    "colour": "blue"
   },
   {
     "id": "07_Illustration_16_a34a5d04_839a_42b1_9afe_afdb309ff361",
@@ -1173,7 +1187,7 @@
     "width": 714,
     "height": 473,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#1F65D6",
     "description": "Colorful illustration featuring a checkmarked calendar, signed document with stamp, and percentage symbol wrapped in a blue ribbon swirl.",
     "tags": [
       "blue",
@@ -1187,7 +1201,8 @@
       "illustration",
       "swirl",
       "task"
-    ]
+    ],
+    "colour": "blue"
   },
   {
     "id": "10_Logo_01_0f4c5387_a60d_4a27_93e8_9f5223676154",
@@ -1221,7 +1236,7 @@
     "width": 210,
     "height": 60,
     "hasAlpha": true,
-    "dominant": "#000858",
+    "dominant": "#000857",
     "description": "Simple and modern navy blue text logo reading 'xero'.",
     "tags": [
       "navy",
@@ -1243,7 +1258,7 @@
     "width": 210,
     "height": 60,
     "hasAlpha": true,
-    "dominant": "#40D2FF",
+    "dominant": "#3ECCFF",
     "description": "The Xero logo in light blue lowercase letters with a circular 'o' design.",
     "tags": [
       "light blue",
@@ -1255,7 +1270,7 @@
       "circular",
       "brand"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "11_Product_UI_References_01_b00ba535_06d5_46c9_9413_0990a8b3",
@@ -1266,7 +1281,7 @@
     "width": 2433,
     "height": 1358,
     "hasAlpha": true,
-    "dominant": "#f8f8f8",
+    "dominant": "#F9FBFC",
     "description": "Tablet displaying Xero app dashboard with business overview charts and metrics on wooden kitchen background",
     "tags": [
       "product-ui",
@@ -1277,7 +1292,8 @@
       "business overview",
       "graphs",
       "horizontal"
-    ]
+    ],
+    "colour": "white"
   },
   {
     "id": "11_Product_UI_References_02_5edf1028_dbe4_4033_8f68_5968380b",
@@ -1288,7 +1304,7 @@
     "width": 5269,
     "height": 6540,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#FAFAF8",
     "description": "Hand holding a smartphone displaying the Xero finance dashboard with charts and graphs in blue tones.",
     "tags": [
       "smartphone",
@@ -1299,7 +1315,8 @@
       "payments",
       "invoices",
       "blue"
-    ]
+    ],
+    "colour": "white"
   },
   {
     "id": "11_Product_UI_References_03_50b369e5_bf73_44cb_b593_17bf1181",
@@ -1310,7 +1327,7 @@
     "width": 1024,
     "height": 1024,
     "hasAlpha": true,
-    "dominant": "#f8f8f8",
+    "dominant": "#FAFAFB",
     "description": "Laptop screen showing Xero business overview UI with various charts and data.",
     "tags": [
       "product-ui",
@@ -1321,7 +1338,8 @@
       "charts",
       "hands",
       "horizontal"
-    ]
+    ],
+    "colour": "white"
   },
   {
     "id": "11_Product_UI_References_04_6c44d039_be5f_4852_89ad_e95686da",
@@ -1332,7 +1350,7 @@
     "width": 1024,
     "height": 1024,
     "hasAlpha": true,
-    "dominant": "#f8f8f8",
+    "dominant": "#F9FBFD",
     "description": "Laptop screen showing Xero financial dashboard with charts, invoices, payables, and bank account details in blue and white interface.",
     "tags": [
       "xero",
@@ -1343,7 +1361,8 @@
       "blue",
       "white",
       "graphs"
-    ]
+    ],
+    "colour": "white"
   },
   {
     "id": "11_Product_UI_References_04_bb02ae0d_7850_47de_b5e7_4068b5d7",
@@ -1354,7 +1373,7 @@
     "width": 864,
     "height": 1152,
     "hasAlpha": true,
-    "dominant": "#f8f8f8",
+    "dominant": "#FAFBFB",
     "description": "Tablet displaying a business account financial dashboard with blue and red charts and data, held by a person with one hand and finger touching the screen.",
     "tags": [
       "tablet",
@@ -1365,7 +1384,8 @@
       "charts",
       "ui",
       "portrait"
-    ]
+    ],
+    "colour": "white"
   },
   {
     "id": "11_Product_UI_References_05_302252d6_de1e_48d3_aaa7_dbf990b1",
@@ -1376,7 +1396,7 @@
     "width": 1236,
     "height": 1706,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#FCFCFD",
     "description": "Mobile finance app showing overall cash balance, bank accounts, and outstanding invoices.",
     "tags": [
       "mobile",
@@ -1389,7 +1409,8 @@
       "white",
       "portrait",
       "product-ui"
-    ]
+    ],
+    "colour": "white"
   },
   {
     "id": "11_Product_UI_References_06_ca462775_a297_4c2b_9252_92c7c176",
@@ -1400,7 +1421,7 @@
     "width": 864,
     "height": 1152,
     "hasAlpha": true,
-    "dominant": "#f8f8f8",
+    "dominant": "#F7FBFD",
     "description": "Tablet UI showing Xero finance app with payments, invoices, and report charts in light blue and white theme.",
     "tags": [
       "product-ui",
@@ -1411,7 +1432,8 @@
       "white",
       "dashboard",
       "horizontal"
-    ]
+    ],
+    "colour": "white"
   },
   {
     "id": "22_Charms_01_abae37d0_cb6e_4e7c_8bc4_13542068ecd3",
@@ -1422,7 +1444,7 @@
     "width": 75,
     "height": 69,
     "hasAlpha": true,
-    "dominant": "#4ABDF7",
+    "dominant": "#3ECCFF",
     "description": "A simple 3D illustration of a blue paper plane pointing upward to the right, with white detail.",
     "tags": [
       "light blue",
@@ -1433,7 +1455,7 @@
       "pointing",
       "charm"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "22_Charms_02_418c1844_0245_4f33_aeb8_7a3e3b8ad23c",
@@ -1444,7 +1466,7 @@
     "width": 76,
     "height": 67,
     "hasAlpha": true,
-    "dominant": "#82D7FB",
+    "dominant": "#9FE5FF",
     "description": "A shiny blue heart-shaped charm with a light reflection on the right side.",
     "tags": [
       "light blue",
@@ -1456,7 +1478,7 @@
       "simple",
       "glossy"
     ],
-    "colour": "light blue"
+    "colour": "pale-blue"
   },
   {
     "id": "22_Charms_02_fe1e9f40_8d12_4890_a61a_89189bd35494",
@@ -1467,7 +1489,7 @@
     "width": 60,
     "height": 82,
     "hasAlpha": true,
-    "dominant": "#389BEA",
+    "dominant": "#1F65D6",
     "description": "A blue hourglass charm with light and dark blue tones and white highlights, symbolizing time.",
     "tags": [
       "light blue",
@@ -1480,7 +1502,7 @@
       "simple",
       "symbolic"
     ],
-    "colour": "light blue"
+    "colour": "blue"
   },
   {
     "id": "22_Charms_03_ca497862_09a8_4d79_803b_bfd96b145e47",
@@ -1491,7 +1513,7 @@
     "width": 75,
     "height": 77,
     "hasAlpha": true,
-    "dominant": "#4FCDFD",
+    "dominant": "#3ECCFF",
     "description": "Round blue charm with a white percent discount symbol, representing deals or offers.",
     "tags": [
       "light blue",
@@ -1502,7 +1524,7 @@
       "symbol",
       "sales"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "22_Charms_04_85d0a1a5_1c99_4250_aa9b_0db199de7374",
@@ -1513,7 +1535,7 @@
     "width": 75,
     "height": 77,
     "hasAlpha": true,
-    "dominant": "#90F0BF",
+    "dominant": "#ABFFD1",
     "description": "A circular green charm with a darker green check mark symbol in the center, representing confirmation or approval.",
     "tags": [
       "mint",
@@ -1526,7 +1548,7 @@
       "simple",
       "icon"
     ],
-    "colour": "mint"
+    "colour": "pale-blue"
   },
   {
     "id": "22_Charms_05_8eb79ce3_caff_42cd_a9e4_e75c0a26928f",
@@ -1537,7 +1559,7 @@
     "width": 71,
     "height": 72,
     "hasAlpha": true,
-    "dominant": "#62E4A4",
+    "dominant": "#6AEAAA",
     "description": "A green 3D thumbs-up icon conveying approval or positivity.",
     "tags": [
       "mint",
@@ -1561,7 +1583,7 @@
     "width": 71,
     "height": 72,
     "hasAlpha": true,
-    "dominant": "#48C2F3",
+    "dominant": "#52C7F4",
     "description": "A blue thumbs up hand gesture icon representing approval or like.",
     "tags": [
       "light blue",
@@ -1573,7 +1595,7 @@
       "charm",
       "icon"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "22_Charms_06_ffa56f64_1102_46c6_89b9_50301e6912ac",
@@ -1584,7 +1606,7 @@
     "width": 84,
     "height": 86,
     "hasAlpha": true,
-    "dominant": "#3ACAFE",
+    "dominant": "#3ECCFF",
     "description": "A bright blue hand making a snapping gesture with motion lines, symbolizing charm or a quick idea.",
     "tags": [
       "light blue",
@@ -1596,7 +1618,7 @@
       "icon",
       "symbol"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "22_Charms_07_c1d8ba28_b4bb_4067_bcfb_72de14e56c76",
@@ -1607,7 +1629,7 @@
     "width": 273,
     "height": 297,
     "hasAlpha": true,
-    "dominant": "#3DB1E7",
+    "dominant": "#3ECCFF",
     "description": "Two blue sparkling diamond shapes representing a charming and shiny effect.",
     "tags": [
       "light blue",
@@ -1618,7 +1640,7 @@
       "glow",
       "cute"
     ],
-    "colour": "light blue"
+    "colour": "light-blue"
   },
   {
     "id": "22_Charms_08_0dad3276_a933_47e9_9154_8958bc31193d",
@@ -1629,7 +1651,7 @@
     "width": 2205,
     "height": 4466,
     "hasAlpha": true,
-    "dominant": "#080808",
+    "dominant": "#C68BFA",
     "description": "A collection of colorful charms featuring various animals in bright, vibrant colors.",
     "tags": [
       "charm",
@@ -1640,7 +1662,8 @@
       "rectangular",
       "vertical",
       "small"
-    ]
+    ],
+    "colour": "purple"
   },
   {
     "id": "24_Background_Templates_01_4c697152_6594_4ae4_b069_d5cddec06",
@@ -1651,7 +1674,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#276BD8",
+    "dominant": "#FFFFFF",
     "description": "A background with a bold blue curved wave shape at the bottom and a white top area, in a square aspect ratio.",
     "tags": [
       "bloom blue",
@@ -1663,7 +1686,7 @@
       "minimal",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_02_fb7d193a_f8c7_4ccb_a138_ef2dd580c",
@@ -1674,7 +1697,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#286BD8",
+    "dominant": "#FFFFFF",
     "description": "A simple background with a blue wave shape at the top against a white base.",
     "tags": [
       "bloom blue",
@@ -1686,7 +1709,7 @@
       "landscape",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_03_040d2847_9b45_479f_9f9f_e26219542",
@@ -1697,7 +1720,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#2A6DD8",
+    "dominant": "#FFFFFF",
     "description": "White background with blue wavy shapes at the top and bottom edges, creating a clean and dynamic look.",
     "tags": [
       "bloom blue",
@@ -1709,7 +1732,7 @@
       "landscape",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_04_4bd578f8_72e9_4ed3_9361_d7642f371",
@@ -1720,7 +1743,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#286CD8",
+    "dominant": "#1F65D6",
     "description": "Abstract irregular blue shape on a white background, aligned left on a vertical canvas.",
     "tags": [
       "bloom blue",
@@ -1733,7 +1756,7 @@
       "simple",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "24_Background_Templates_05_85cd075f_f534_491c_b16d_e4561a00a",
@@ -1744,7 +1767,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#2267D7",
+    "dominant": "#1F65D6",
     "description": "Background with a smooth blue curve occupying the top portion and white below, in square format.",
     "tags": [
       "bloom blue",
@@ -1756,7 +1779,7 @@
       "background",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "24_Background_Templates_06_86d7d942_8d10_418d_b14e_bff3711c3",
@@ -1767,7 +1790,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#2569D7",
+    "dominant": "#FFFFFF",
     "description": "Abstract background with bold blue wave shapes over white, creating a dynamic flow.",
     "tags": [
       "bloom blue",
@@ -1779,7 +1802,7 @@
       "landscape",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_07_91655fef_5d8d_484f_a676_591f4859d",
@@ -1790,7 +1813,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#2468D7",
+    "dominant": "#FFFFFF",
     "description": "Background with a blue organic wave shape at the top and white area below in portrait orientation.",
     "tags": [
       "bloom blue",
@@ -1802,7 +1825,7 @@
       "minimal",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_08_e6d88a0d_da79_42d7_9ed6_364bdb339",
@@ -1813,7 +1836,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#2368D7",
+    "dominant": "#1F65D6",
     "description": "Abstract blue wavy shape at the top over a white background in a square format",
     "tags": [
       "bloom blue",
@@ -1825,7 +1848,7 @@
       "fluid",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "24_Background_Templates_09_74b0caa7_fa4e_4778_9338_b4bc5f152",
@@ -1836,7 +1859,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#2569D7",
+    "dominant": "#FFFFFF",
     "description": "Simple background with a blue organic wave shape at the bottom on white.",
     "tags": [
       "bloom blue",
@@ -1849,7 +1872,7 @@
       "landscape",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_10_c6a417a4_d8df_47a5_8d1a_3fc52f278",
@@ -1860,7 +1883,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#2368D7",
+    "dominant": "#1F65D6",
     "description": "A white background with a blue organic wave shape rising from the bottom, creating a smooth and dynamic look.",
     "tags": [
       "bloom blue",
@@ -1872,7 +1895,7 @@
       "dynamic",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "24_Background_Templates_11_54fded8e_91ec_4c63_8eee_b248b06db",
@@ -1883,7 +1906,7 @@
     "width": 579,
     "height": 579,
     "hasAlpha": true,
-    "dominant": "#2267D7",
+    "dominant": "#1F65D6",
     "description": "Background with a smooth curved blue area at the bottom right on a white square canvas, creating a modern and clean look.",
     "tags": [
       "bloom blue",
@@ -1895,7 +1918,7 @@
       "clean",
       "square"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "24_Background_Templates_12_caec33cd_a21c_4d71_aa40_066470dd8",
@@ -1906,7 +1929,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#2267D7",
+    "dominant": "#FFFFFF",
     "description": "A portrait background with a blue wavy shape at the top and white below, creating a clean and modern look.",
     "tags": [
       "bloom blue",
@@ -1918,7 +1941,7 @@
       "clean",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_13_f20c4a23_ba70_4de9_96d7_26b8403a9",
@@ -1929,7 +1952,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#2569D7",
+    "dominant": "#FFFFFF",
     "description": "Background with a smooth curved blue wave shape at the top and white below, vertical layout.",
     "tags": [
       "bloom blue",
@@ -1941,7 +1964,7 @@
       "minimal",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_14_0c91ce36_113f_493d_8b17_dd754a6ff",
@@ -1952,7 +1975,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#3071D9",
+    "dominant": "#FFFFFF",
     "description": "White background with a smooth, organic blue wave shape at the top, vertical orientation.",
     "tags": [
       "bloom blue",
@@ -1964,7 +1987,7 @@
       "clean",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_14_996f1c06_6a5f_4e7e_8043_26f3165e5",
@@ -1975,7 +1998,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#266AD7",
+    "dominant": "#FFFFFF",
     "description": "Background with a bold blue curved shape in the top-left corner on white.",
     "tags": [
       "bloom blue",
@@ -1987,7 +2010,7 @@
       "abstract",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   },
   {
     "id": "24_Background_Templates_14_c84e0a5e_7094_47bd_b243_276d5097d",
@@ -1998,7 +2021,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#2368D7",
+    "dominant": "#1F65D6",
     "description": "Abstract blue organic shape background with white space and vertical orientation",
     "tags": [
       "bloom blue",
@@ -2009,7 +2032,7 @@
       "background",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "24_Background_Templates_15_17ae0d0c_d768_4c79_b87f_3657b7513",
@@ -2020,7 +2043,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#2569D7",
+    "dominant": "#1F65D6",
     "description": "Abstract blue wave shape on a white vertical background, creating a smooth and modern look.",
     "tags": [
       "bloom blue",
@@ -2032,7 +2055,7 @@
       "background",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "blue"
   },
   {
     "id": "24_Background_Templates_16_fe4ed594_a50e_4a9e_8839_492167948",
@@ -2043,7 +2066,7 @@
     "width": 579,
     "height": 1028,
     "hasAlpha": true,
-    "dominant": "#276AD8",
+    "dominant": "#FFFFFF",
     "description": "background with a bright blue curved shape at the top blending into a white area below",
     "tags": [
       "bloom blue",
@@ -2055,6 +2078,6 @@
       "portrait",
       "portrait"
     ],
-    "colour": "bloom blue"
+    "colour": "white"
   }
 ]
