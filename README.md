@@ -72,6 +72,15 @@ design with the rationale, what was auto-fixed, what's still flagged and the che
 `review_render` closes the loop visually: the editor snapshots the real page, an art-director vision prompt critiques
 it, the agent applies concrete fixes.
 
+### Brand scan (inspired by GetCrux's "free brand scan")
+Drop any creative, pick a reference, or scan the current page as pixels. `POST /api/scan` samples the image's palette
+with sharp (coverage of brand colours, neutrals tolerated), asks the vision model to extract copy, element boxes, logo
+presence/variant/size and typography impressions (with the brand's own logo as a comparison image), then runs
+deterministic checks: palette, logo present/size/placement/colourway, typefaces, headline length and tone, single CTA,
+text contrast, safe zones and margins. The report scores the creative, lists fixes, shows detected colours against the
+palette and the extracted copy. **Remake on-brand** feeds the scanned image as a reference plus the fix list to the
+copilot, which rebuilds it as an editable page.
+
 ## Run it
 
 ```bash
