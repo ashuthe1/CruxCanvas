@@ -64,7 +64,11 @@ export const createDesignTool: AgentTool = {
 
     const renderer = new DesignRenderer(ctx.brand, ctx.assets, (rel) => brandRepository().resolve(ctx.brand.id, rel));
     const page = renderer.render(parsed.data, ctx.canvas.W, ctx.canvas.H);
-    const replaceId = args.replacePageId && ctx.pages.has(args.replacePageId) ? args.replacePageId : undefined;
+    // Fill the blank active page with the first design of a run even when the planner forgot to say so
+    // (it often does right after set_canvas_size). Never for multi-variant requests, which add pages.
+    const active = ctx.pages.get(ctx.activePageId);
+    const blankActive = n === 1 && active && active.elements.length === 0 && !(ctx.input.variants && ctx.input.variants > 1) ? active.id : undefined;
+    const replaceId = args.replacePageId && ctx.pages.has(args.replacePageId) ? args.replacePageId : blankActive;
     if (replaceId) page.id = replaceId;
 
     // validate on the server mirror before the page reaches the editor
